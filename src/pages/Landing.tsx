@@ -443,9 +443,11 @@ function TierSection() {
   const goTo = (i: number) => { const li = rail.current?.querySelectorAll<HTMLElement>(':scope > li')[i]; li?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }) }
   return (
     <section id="tier" className="relative isolate scroll-mt-20 overflow-hidden border-t border-line bg-gradient-to-b from-white via-navy-50/60 to-white py-14 lg:py-24">
-      <Streaks dim className="-z-10 opacity-[0.35]" />
-      <span aria-hidden className="band bg-gold-50" style={{ right: '-10%', top: '18%', width: '30%', height: '70%' }} />
-      <span aria-hidden className="band bg-navy-50" style={{ left: '-12%', top: '-10%', width: '38%', height: '42%' }} />
+      {/* R.045 (Lurd): the streak mesh plus two skewed bands plus the wash was three competing
+          layers. One layer now — two oversized, heavily blurred tints bleeding in from the
+          corners. No edges to notice, so it reads as depth rather than as pattern. */}
+      <span aria-hidden className="pointer-events-none absolute -left-40 -top-40 -z-10 h-[560px] w-[560px] rounded-full bg-navy-100/50 blur-3xl" />
+      <span aria-hidden className="pointer-events-none absolute -right-48 bottom-[-14%] -z-10 h-[620px] w-[620px] rounded-full bg-gold-100/40 blur-3xl" />
       <div className="container">
         <SectionTitle title={cfg.copy.tierTitle} sub={cfg.copy.tierSub} center />
         <ol ref={rail} className="tier-rail no-scrollbar -mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-3 lg:mx-0 lg:grid lg:grid-cols-6 lg:gap-3 lg:overflow-visible lg:px-0 lg:pb-0" aria-label="Daftar tier RMC">
