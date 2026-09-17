@@ -88,8 +88,8 @@ export function SiteHeader() {
     <>
       <header data-site-header data-scrolled={scrolled || undefined} className="site-header sticky top-0 z-40 bg-bg">
         {/* tier 1 — utility row (desktop). Outside <nav> so `header nav a` stays the main links. */}
-        <div data-utility className="hidden h-12 border-b border-line-2 bg-white lg:block">
-          <div className="container flex h-full items-center justify-between gap-6 text-[13px]">
+        <div data-utility className="hidden border-b border-line-2 bg-white py-2.5 lg:block">
+          <div className="container flex items-center justify-between gap-6 text-[13px]">
             <ul className="flex items-center">
               {info.map((it, i) => (
                 <li key={it.label} className="flex items-center">

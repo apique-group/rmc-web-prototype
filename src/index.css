@@ -310,8 +310,9 @@ body {
   .site-header { transition: transform 220ms var(--ease-out); }
   .site-header [data-utility] { transition: opacity 180ms var(--ease-out); }
   @media (min-width: 1024px) {
-    /* must equal the utility row's height (R.041: h-10 -> h-12), or a sliver of it stays on screen */
-    .site-header[data-scrolled] { transform: translateY(-48px); }
+    /* must equal the utility row's rendered height, or a sliver of it stays on screen.
+       R.042: the row is padding-driven now (py-2.5 around a 32px button) = 52px. */
+    .site-header[data-scrolled] { transform: translateY(-52px); }
     .site-header[data-scrolled] [data-utility] { opacity: 0; pointer-events: none; }
   }
   /* mobile drawer: panel slides down a touch, links stagger in from the left */

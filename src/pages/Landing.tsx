@@ -200,7 +200,6 @@ function HookSection() {
               return (
                 <div key={sl.id} data-slide={sl.id} className={cn('relative grid w-full shrink-0 snap-start grid-cols-1 items-center gap-8 px-6 pb-14 pt-8 sm:px-10 lg:min-h-[460px] lg:grid-cols-12 lg:gap-6 lg:px-14 lg:py-12', sl.id === 'harga' && '[grid-template-rows:1fr_auto] lg:[grid-template-rows:none]')} aria-roledescription="slide" aria-label={`${i + 1} dari ${count}`}>
                   <div className="min-w-0 lg:col-span-7">
-                    <p className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-1.5 text-[12px] font-bold uppercase tracking-[0.04em] text-green-200 sm:text-[13px]"><Sparkles className="h-4 w-4 text-green" strokeWidth={2} aria-hidden />{sl.kicker}</p>
                     <Title className={cn('t-mega mt-4 max-w-3xl text-balance uppercase text-white', !sl.h1 && 'text-[clamp(30px,5vw,60px)]')}>{sl.h1 ? <StaggerWords text={sl.title} neon /> : <Marked text={sl.title} className="mark-neon text-green" />}</Title>
                     {sl.sub && <p className={cn('mt-3 max-w-xl text-balance font-extrabold uppercase text-white', sl.h1 ? 'text-[20px] sm:text-[26px]' : 'text-[15px] font-semibold normal-case text-white/85 sm:text-[17px]')}>{sl.sub}</p>}
                     <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
@@ -443,7 +442,8 @@ function TierSection() {
   }, [cfg.tiers.length])
   const goTo = (i: number) => { const li = rail.current?.querySelectorAll<HTMLElement>(':scope > li')[i]; li?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }) }
   return (
-    <section id="tier" className="scroll-mt-20 overflow-hidden border-t border-line bg-gradient-to-b from-white via-navy-50/50 to-white py-14 lg:py-24">
+    <section id="tier" className="relative isolate scroll-mt-20 overflow-hidden border-t border-line bg-gradient-to-b from-white via-navy-50/60 to-white py-14 lg:py-24">
+      <Streaks dim className="-z-10 opacity-[0.35]" />
       <span aria-hidden className="band bg-gold-50" style={{ right: '-10%', top: '18%', width: '30%', height: '70%' }} />
       <span aria-hidden className="band bg-navy-50" style={{ left: '-12%', top: '-10%', width: '38%', height: '42%' }} />
       <div className="container">
@@ -579,7 +579,7 @@ function CtaSection() {
               <p className="t-code mt-2 truncate text-[12px] font-bold text-green-700">rmc-web-beta.vercel.app</p>
             </div>
           </div>
-          <div className="mt-8"><RmcCardPreview rules={rules} /></div>
+          <div className="mt-6"><RmcCardPreview rules={rules} /></div>
         </Reveal>
       </div>
     </section>
@@ -597,7 +597,7 @@ function RmcCardPreview({ rules }: { rules: Config['rules'] }) {
   const months = rmc.monthly.slice(-6)
   const maxPts = Math.max(1, ...months.map(m => m.points))
   return (
-    <div className="tilt-wrap relative mx-auto max-w-[400px] pt-3 pr-3 lg:ml-auto lg:mr-0">
+    <div className="tilt-wrap relative mx-auto max-w-[340px] pt-3 pr-3 lg:ml-auto lg:mr-0">
       <p className="mb-4 text-[13px] font-semibold text-white/70">Contoh profil member: {demo.laundry}</p>
       <div className="relative">
         <div className="tilt-back absolute inset-0 rounded-xl bg-gold" aria-hidden />
