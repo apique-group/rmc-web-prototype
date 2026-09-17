@@ -18,11 +18,12 @@ function mk(n: number, custId: string, day: number, lines: ReturnType<typeof lin
     createdAt,
     expiresAt: createdAt,
     status,
-    buyer: { name: c.pic, laundry: c.outlet, phone: normalizePhone(c.hp) || '' },
+    buyer: { name: c.pic, laundry: c.outlet, phone: normalizePhone(c.hp) || '', email: c.email },
     crmCustomerId: c.id,
     fulfil: { mode: n % 3 === 0 ? 'kirim' : 'ambil', outlet: c.kota, address: n % 3 === 0 ? `Jl. Contoh No. ${n}, ${c.kota}` : undefined },
     payment: { method: 'QRIS', proofName: status === 'Menunggu Pembayaran' ? undefined : 'bukti-transfer.jpg', uploadedAt: status === 'Menunggu Pembayaran' ? undefined : createdAt },
     lines, total, savings,
+    consentAt: createdAt,
     verifiedAt: status === 'Lunas' ? createdAt : undefined,
   }
 }

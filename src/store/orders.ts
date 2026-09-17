@@ -15,6 +15,9 @@ export interface CheckoutInput {
   name: string
   laundry: string
   phone: string
+  email: string
+  /** "Saya bersedia untuk dihubungi tim Resique lebih lanjut terkait transaksi ini" */
+  consent: boolean
   mode: 'ambil' | 'kirim'
   outlet?: Kota
   address?: string
@@ -50,12 +53,13 @@ export const useOrders = create<OrdersState>()(
           createdAt: now.toISOString(),
           expiresAt: new Date(now.getTime() + cfg().payment.qrTimeoutSec * 1000).toISOString(),
           status: 'Menunggu Pembayaran',
-          buyer: { name: input.name.trim(), laundry: input.laundry.trim(), phone },
+          buyer: { name: input.name.trim(), laundry: input.laundry.trim(), phone, email: input.email.trim().toLowerCase() },
           accountId: acc?.id,
           crmCustomerId: crmCust,
           fulfil: { mode: input.mode, outlet: input.outlet, address: input.mode === 'kirim' ? input.address?.trim() : undefined },
           payment: { method: input.method },
           lines: input.lines, total, savings, note: input.note,
+          consentAt: input.consent ? now.toISOString() : undefined,
         }
         set({ orders: [order, ...get().orders] })
         useCrm.getState().log('Pesanan Golden Sale dibuat', `${order.id} · ${order.buyer.laundry} · Rp${total.toLocaleString('id-ID')}${acc ? ' · terhubung akun' : crmCust ? ' · terhubung pelanggan CRM' : ' · tamu'}`)

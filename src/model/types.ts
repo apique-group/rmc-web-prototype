@@ -172,7 +172,7 @@ export interface Order {
   createdAt: string
   expiresAt: string
   status: OrderStatus
-  buyer: { name: string; laundry: string; phone: string }
+  buyer: { name: string; laundry: string; phone: string; email?: string }
   accountId?: string
   crmCustomerId?: string
   fulfil: { mode: 'ambil' | 'kirim'; outlet?: Kota; address?: string }
@@ -183,6 +183,8 @@ export interface Order {
   verifiedAt?: string
   rejectReason?: string
   note?: string
+  /** Stamped when the buyer ticked "bersedia dihubungi" at checkout. Mirrors Account.consentAt. */
+  consentAt?: string
 }
 
 export interface InboxMail { id: string; to: string; subject: string; body: string; at: string; read: boolean }

@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input, Textarea } from '@/components/ui/input'
 import { Field } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioCard } from '@/components/ui/radio-group'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -30,12 +31,16 @@ const schema = z
     name: z.string().trim().min(2, 'Nama wajib diisi'),
     laundry: z.string().trim().min(2, 'Nama laundry wajib diisi'),
     phone: z.string().refine(v => normalizePhone(v) !== null, 'Nomor HP tidak valid. Contoh: 0812 3456 7890'),
+    email: z.string().trim().min(1, 'Email wajib diisi').email('Format email tidak valid. Contoh: nama@laundrykamu.co.id'),
     mode: z.enum(['ambil', 'kirim']),
     outlet: z.string().optional(),
     address: z.string().optional(),
     note: z.string().optional(),
     method: z.enum(['QRIS', 'VA', 'EWALLET']),
     ewallet: z.string().optional(),
+    /* Also in the schema, not only on the button: pressing Enter inside a text field submits
+       the form without the button ever being clicked. */
+    consent: z.boolean().refine(v => v === true, 'Centang persetujuan dihubungi dulu.'),
   })
   .superRefine((v, ctx) => {
     if (v.mode === 'ambil' && !v.outlet) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['outlet'], message: 'Pilih outlet pengambilan' })
@@ -65,19 +70,21 @@ export function CheckoutPage() {
       name: acc?.pic || '',
       laundry: acc?.laundry || '',
       phone: acc?.phone || '',
+      email: acc?.email || '',
       mode: 'ambil',
       outlet: cfg.outlets.length === 1 ? cfg.outlets[0] : undefined,
       address: '',
       note: '',
       method: 'QRIS',
       ewallet: undefined,
+      consent: false,
     },
   })
   const { register, handleSubmit, control, watch, formState: { errors, isDirty, isSubmitting }, reset, getValues } = form
 
   // Prefill from the signed-in account once it hydrates (only while the form is still untouched).
   React.useEffect(() => {
-    if (acc && !isDirty) reset({ ...getValues(), name: acc.pic, laundry: acc.laundry, phone: acc.phone }, { keepDefaultValues: false })
+    if (acc && !isDirty) reset({ ...getValues(), name: acc.pic, laundry: acc.laundry, phone: acc.phone, email: acc.email }, { keepDefaultValues: false })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [acc?.id])
 
@@ -85,12 +92,22 @@ export function CheckoutPage() {
   const method = watch('method')
   const phoneRaw = watch('phone')
   const phoneNorm = normalizePhone(phoneRaw)
+  const consent = watch('consent')
+  const consentRef = React.useRef<HTMLDivElement>(null)
+
+  /* The pay button is aria-disabled rather than disabled: a disabled button receives no click,
+     so it could never explain itself. This is what it says when it refuses. */
+  const warnNoConsent = () => {
+    toast.warning('Centang persetujuan dihubungi dulu ya — tim Resique perlu izin ini untuk menindaklanjuti transaksi kamu.')
+    consentRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    consentRef.current?.querySelector<HTMLElement>('button,input')?.focus()
+  }
 
   const onSubmit = (v: FormValues) => {
     if (lines.length === 0) return toast.error('Keranjang kosong')
     if (v.method !== 'QRIS') return toast.warning('Metode ini belum tersedia. Pakai QRIS')
     const order = useOrders.getState().create({
-      name: v.name, laundry: v.laundry, phone: v.phone,
+      name: v.name, laundry: v.laundry, phone: v.phone, email: v.email, consent: v.consent,
       mode: v.mode, outlet: v.mode === 'ambil' ? (v.outlet as Kota) : undefined, address: v.mode === 'kirim' ? v.address : undefined,
       lines, method: v.method, note: v.note?.trim() || undefined,
     })
@@ -173,6 +190,10 @@ export function CheckoutPage() {
                   hint={phoneNorm ? `Tersimpan sebagai ${phoneNorm} · ${displayPhone(phoneNorm)}` : 'Sales Resique menghubungi lewat nomor ini.'}>
                   <Input id="co-phone" type="tel" spellCheck={false} inputMode="tel" autoComplete="tel" placeholder="0812 3456 7890" aria-invalid={!!errors.phone} {...register('phone')} />
                 </Field>
+                <Field label="Email" required htmlFor="co-email" error={errors.email?.message}
+                  hint="Email digunakan untuk tracking transaksi ini.">
+                  <Input id="co-email" type="email" spellCheck={false} inputMode="email" autoComplete="email" placeholder="nama@laundrykamu.co.id" aria-invalid={!!errors.email} {...register('email')} />
+                </Field>
               </div>
             </Reveal>
 
@@ -229,6 +250,22 @@ export function CheckoutPage() {
                 </Field>
               )}
               <p className="mt-4 inline-flex items-center gap-1.5 text-[12px] text-ink-3"><ShieldCheck className="h-3.5 w-3.5 text-navy-600" strokeWidth={1.6} /> Pembayaran diverifikasi admin Resique setelah bukti diunggah.</p>
+
+              {/* Consent sits last, so it is on screen at the moment the button refuses. */}
+              <div ref={consentRef} data-consent className="mt-5 rounded-xl border border-line bg-white p-4">
+                <Controller control={control} name="consent" render={({ field }) => (
+                  <label htmlFor="co-consent" className="flex cursor-pointer items-start gap-3">
+                    <Checkbox id="co-consent" checked={field.value} onCheckedChange={v => field.onChange(v === true)}
+                      aria-describedby="co-consent-hint" aria-invalid={!!errors.consent} className="mt-0.5 shrink-0" />
+                    <span className="text-[13px] leading-relaxed text-ink-2">
+                      Saya bersedia untuk dihubungi tim Resique lebih lanjut terkait transaksi ini
+                    </span>
+                  </label>
+                )} />
+                <p id="co-consent-hint" className={cn('mt-2 pl-8 text-[12px]', errors.consent ? 'text-danger' : 'text-ink-3')} role={errors.consent ? 'alert' : undefined}>
+                  {errors.consent?.message || 'Wajib dicentang sebelum membayar — tanpa ini sales Resique tidak bisa menindaklanjuti pesanan kamu.'}
+                </p>
+              </div>
             </Reveal>
           </div>
 
@@ -239,7 +276,15 @@ export function CheckoutPage() {
                 <p className="text-[11px] font-semibold text-ink-3"><span className="t-code">{count}</span> item · hemat <span className="t-code gold-text font-bold">{rupiah(savings)}</span></p>
                 <p className="t-code truncate text-[17px] font-extrabold leading-tight text-ink">{rupiah(total)}</p>
               </div>
-              <Button type="submit" size="xl" variant="gold" disabled={isSubmitting} className="bar-pop shrink-0 lg:w-full">Bayar {rupiah(total)}</Button>
+              {/* Looks inactive until consent is ticked, but stays genuinely operable: neither
+                  `disabled` nor `aria-disabled`, because both swallow the click and the whole point
+                  is that clicking explains WHY it will not pay. aria-describedby carries the reason
+                  for anyone who cannot see the dimming. */}
+              <Button type="submit" size="xl" variant="gold" disabled={isSubmitting}
+                data-inactive={!consent || undefined}
+                aria-describedby={!consent ? 'co-consent-hint' : undefined}
+                onClick={e => { if (!consent) { e.preventDefault(); warnNoConsent() } }}
+                className={cn('bar-pop shrink-0 lg:w-full', !consent && 'opacity-45 saturate-50')}>Bayar {rupiah(total)}</Button>
             </div>
           </div>
         </form>

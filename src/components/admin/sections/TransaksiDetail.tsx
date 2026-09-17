@@ -51,6 +51,9 @@ export function TransaksiDetail({ order, onClose }: { order: Order | null; onClo
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-[13px] sm:grid-cols-3">
               <Item k="Pembeli" v={`${o.buyer.name} · ${o.buyer.laundry}`} />
               <Item k="HP" v={displayPhone(o.buyer.phone)} mono />
+              {/* Orders stored before these fields existed render a dash rather than crashing. */}
+              <Item k="Email" v={o.buyer.email || '-'} mono />
+              <Item k="Bersedia dihubungi" v={o.consentAt ? `Ya · ${fmtDate(o.consentAt)}` : '-'} />
               <Item k="Pengambilan" v={o.fulfil.mode === 'kirim' ? `Kirim · ${o.fulfil.address || '-'}` : `Ambil di outlet ${o.fulfil.outlet || '-'}`} />
               <Item k="Akun" v={o.accountId || 'Tamu'} mono />
               <Item k="Pelanggan CRM" v={o.crmCustomerId || '-'} mono />

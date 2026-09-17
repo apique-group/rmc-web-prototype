@@ -24,6 +24,9 @@ const { ok, launch, go, resetStores, patchConfig, readStore, fill, text, finish 
   await fill(p, 'input[name="name"]', 'Budi Tamu')
   await fill(p, 'input[name="laundry"]', 'Laundry Tamu Jaya')
   await fill(p, 'input[name="phone"]', '081100002222')
+  // R.040 — email is mandatory and the pay button refuses until consent is ticked
+  await fill(p, 'input[name="email"]', 'budi@laundrytamu.co.id')
+  await p.locator('#co-consent').click()
   // pick outlet (ambil default)
   await p.locator('button[role="combobox"]').first().click()
   await p.locator('[role="option"]:has-text("Jakarta")').first().click()
@@ -35,6 +38,7 @@ const { ok, launch, go, resetStores, patchConfig, readStore, fill, text, finish 
   const orders0 = await readStore(p, 'orders')
   const order = orders0.orders[0]
   ok(order && order.status === 'Menunggu Pembayaran' && order.buyer.phone === '+6281100002222', `order created ${order && order.id} Menunggu Pembayaran`)
+  ok(order && order.buyer.email === 'budi@laundrytamu.co.id' && !!order.consentAt, `order carries email + consent stamp (${order && order.buyer.email})`)
   ok((await readStore(p, 'cart')).qty && Object.keys((await readStore(p, 'cart')).qty).length === 0, 'cart cleared after order')
 
   const cd = p.locator('[data-qr-countdown]').first()
@@ -77,6 +81,8 @@ const { ok, launch, go, resetStores, patchConfig, readStore, fill, text, finish 
   await p.locator('#golden-sale button[aria-label^="Tambah"]').first().click()
   await go(p, '/checkout')
   await fill(p, 'input[name="name"]', 'Cici'); await fill(p, 'input[name="laundry"]', 'Laundry Cici'); await fill(p, 'input[name="phone"]', '081300005555')
+  await fill(p, 'input[name="email"]', 'cici@laundrycici.co.id')   // R.040 — mandatory
+  await p.locator('#co-consent').click()                            // R.040 — pay button refuses without it
   await p.locator('button[role="combobox"]').first().click(); await p.locator('[role="option"]:has-text("Jakarta")').first().click()
   await p.locator('button[type="submit"]').first().click()
   await p.waitForTimeout(21500)
