@@ -53,6 +53,20 @@ export function SiteHeader() {
     onScroll(); window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  /* The header hides the utility row on scroll by translating up by exactly its height.
+     Publish that height instead of hardcoding it in CSS: it has already drifted three times
+     as the row's padding and button size changed. Re-measured on resize. */
+  const utilityRef = React.useRef<HTMLDivElement>(null)
+  React.useEffect(() => {
+    const el = utilityRef.current
+    if (!el) return
+    const apply = () => el.style.setProperty('--utility-h', `${el.offsetHeight}px`)
+    apply()
+    const ro = new ResizeObserver(apply)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
   // scroll-spy: the section crossing the middle band of the viewport owns the nav's current mark
   React.useEffect(() => {
     if (loc.pathname !== '/' || typeof IntersectionObserver === 'undefined') { setActive('home'); return }
@@ -88,7 +102,7 @@ export function SiteHeader() {
     <>
       <header data-site-header data-scrolled={scrolled || undefined} className="site-header sticky top-0 z-40 bg-bg">
         {/* tier 1 — utility row (desktop). Outside <nav> so `header nav a` stays the main links. */}
-        <div data-utility className="hidden border-b border-line-2 bg-white py-2.5 lg:block">
+        <div ref={utilityRef} data-utility className="hidden border-b border-line-2 bg-white py-2.5 lg:block">
           <div className="container flex items-center justify-between gap-6 text-[13px]">
             <ul className="flex items-center">
               {info.map((it, i) => (
