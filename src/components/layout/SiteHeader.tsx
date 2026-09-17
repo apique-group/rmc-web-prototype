@@ -61,7 +61,9 @@ export function SiteHeader() {
   React.useEffect(() => {
     const el = utilityRef.current
     if (!el) return
-    const apply = () => el.style.setProperty('--utility-h', `${el.offsetHeight}px`)
+    // set it on the HEADER, not the row: custom properties inherit downward, so a var set on
+    // the child is invisible to the .site-header rule that consumes it
+    const apply = () => (el.closest('[data-site-header]') as HTMLElement | null)?.style.setProperty('--utility-h', `${el.offsetHeight}px`)
     apply()
     const ro = new ResizeObserver(apply)
     ro.observe(el)
