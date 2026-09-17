@@ -6,7 +6,6 @@ import { Reveal, useCountUp, useInView } from '@/lib/reveal'
 import { poin } from '@/lib/format'
 import type { Benefit, Prize } from '@/model/types'
 import { srcSet2x } from '@/lib/logo'
-import { Doodle } from '@/components/Doodle'
 import { rmcFor } from '@/model/rmc'
 import { useCrm } from '@/store/crm'
 import { SEED_ACCOUNTS } from '@/data/seed-accounts'
@@ -94,14 +93,6 @@ function Streaks({ dim, className }: { dim?: boolean; className?: string }) {
   )
 }
 
-/* Wire-frame cube, the floating decoration of the banner (after the summit page's 3D wire shapes). */
-function Wire({ className }: { className?: string }) {
-  return (
-    <svg aria-hidden viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinejoin="round" className={cn('wire pointer-events-none absolute', className)}>
-      <path d="M50 8l38 22v40L50 92 12 70V30z" /><path d="M12 30l38 22 38-22M50 52v40" />
-    </svg>
-  )
-}
 
 /* Hook headline: each word rises in on load (stagger), the last word keeps the highlighter mark for the gate. */
 function StaggerWords({ text, neon }: { text: string; neon?: boolean }) {
@@ -136,27 +127,19 @@ function SectionTitle({ title, sub, tone = 'ink', center, phrase, mark }: { titl
 function BannerGround() {
   return (
     <div aria-hidden data-ground className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-      {/* far */}
+      {/* far — R.041 (Lurd): no more scratch/line-art. The banner now carries the same ground as
+          Golden Sale and Klasemen: coloured streaks, confetti and stars, nothing wire-framed. */}
       <div className="depth absolute inset-0" data-depth="far" style={{ '--d': '6px' } as React.CSSProperties}>
-        <Doodle variant="hero" />
-        <svg className="absolute inset-x-0 bottom-0 h-[46%] w-full text-green-200 opacity-[0.22]" viewBox="0 0 1200 300" preserveAspectRatio="none" fill="none" stroke="currentColor" strokeWidth={1}>
-          {[0, 40, 90, 150, 220, 300].map(y => <line key={y} x1="0" y1={y} x2="1200" y2={y} />)}
-          {[-200, 0, 150, 300, 450, 600, 750, 900, 1050, 1200, 1400].map(x => <line key={x} x1={600 + (x - 600) * 0.25} y1="0" x2={x} y2="300" />)}
-        </svg>
+        <Streaks />
       </div>
       {/* mid */}
       <div className="depth absolute inset-0" data-depth="mid" style={{ '--d': '14px' } as React.CSSProperties}>
         <span className="absolute -left-24 -bottom-40 h-[420px] w-[420px] rounded-full bg-navy-800" />
         <span className="absolute -right-16 -top-24 h-[300px] w-[300px] rounded-full border-[22px] border-navy-500/60" />
         <span className="band bg-navy-800" style={{ right: '-10%', bottom: '-40%', width: '55%', height: '90%' }} />
-        <span className="absolute left-[38%] top-[-60px] h-[200px] w-[200px] rounded-full border-[10px] border-white/[.05]" />
       </div>
       {/* near */}
       <div className="depth absolute inset-0" data-depth="near" style={{ '--d': '26px' } as React.CSSProperties}>
-        <Wire className="left-[-60px] top-[30px] hidden h-48 w-48 text-green/60 lg:block" />
-        <Wire className="right-[-40px] top-[-20px] hidden h-32 w-32 text-white/30 lg:block [animation-direction:reverse]" />
-        <Wire className="bottom-[16px] left-[42%] hidden h-16 w-16 text-green/30 lg:block" />
-        <Wire className="right-[30%] top-[40px] hidden h-10 w-10 text-white/20 lg:block" />
         <span className="float-6 absolute left-[-24px] top-[190px] hidden h-14 w-14 rounded-full bg-green/80 lg:block" />
         <span className="float-6 absolute right-[22%] bottom-[40px] hidden h-4 w-4 rounded-full bg-gold lg:block [animation-delay:2s]" />
         <span className="float-6 absolute left-[30%] top-[60px] hidden h-2.5 w-2.5 rounded-full bg-green-200 lg:block [animation-delay:1s]" />
@@ -342,7 +325,7 @@ function BenefitSection() {
   return (
     <section id="benefit" className="scroll-mt-20">
       <div className="relative isolate overflow-hidden bg-navy-700 py-14 text-white lg:py-20">
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"><Doodle variant="footer" /><span className="band bg-navy-800" style={{ left: '-12%', bottom: '-40%', width: '48%', height: '80%' }} /></div>
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"><Streaks dim /><span className="band bg-navy-800" style={{ left: '-12%', bottom: '-40%', width: '48%', height: '80%' }} /></div>
         <div className="container">
           <Reveal className="mx-auto max-w-2xl text-center">
             <h2 className="t-h2 text-balance text-white"><Marked text={copy.benefitTitle} phrase="Tak Terbatas" className="mark-neon text-green" /></h2>
@@ -460,7 +443,7 @@ function TierSection() {
   }, [cfg.tiers.length])
   const goTo = (i: number) => { const li = rail.current?.querySelectorAll<HTMLElement>(':scope > li')[i]; li?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }) }
   return (
-    <section id="tier" className="tex tex-dots scroll-mt-20 overflow-hidden border-t border-line bg-white py-14 lg:py-24">
+    <section id="tier" className="scroll-mt-20 overflow-hidden border-t border-line bg-gradient-to-b from-white via-navy-50/50 to-white py-14 lg:py-24">
       <span aria-hidden className="band bg-gold-50" style={{ right: '-10%', top: '18%', width: '30%', height: '70%' }} />
       <span aria-hidden className="band bg-navy-50" style={{ left: '-12%', top: '-10%', width: '38%', height: '42%' }} />
       <div className="container">
@@ -548,10 +531,9 @@ function CtaSection() {
   const cfg = useConfig(s => s.config)
   const { copy, rules, benefits } = cfg
   const acc = useCurrentAccount()
-  const steps = ['Masuk pakai nomor HP', 'Lihat poin, tier & diskon', 'Tukar poin jadi hadiah']
   return (
     <section id="cek-poin" className="relative isolate scroll-mt-20 overflow-hidden bg-navy-700 py-16 text-white lg:py-24">
-      <Doodle variant="cta" />
+      <Streaks dim />
       <span aria-hidden className="band bg-navy-800" style={{ left: '-12%', bottom: '-40%', width: '52%', height: '80%' }} />
       <div className="container relative z-10 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-center lg:gap-10">
         <div className="min-w-0 lg:col-span-7">
@@ -568,19 +550,6 @@ function CtaSection() {
                 </li>
               ) })}
             </ul>
-          </Reveal>
-          <Reveal delay={90}>
-            <ol className="mt-6 flex flex-wrap items-center gap-y-3" aria-label="Cara cek poin">
-              {steps.map((s, i) => (
-                <li key={s} className="flex items-center">
-                  <span className="step-chip inline-flex min-h-[44px] items-center gap-2.5 rounded-full border border-white/25 py-2 pl-2 pr-4 text-[14px] font-semibold text-white sm:text-[15px]">
-                    <span className="t-fig grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white text-[13px] text-navy-700" aria-hidden>{i + 1}</span>
-                    {s}
-                  </span>
-                  {i < steps.length - 1 && <ChevronsRight className="mx-1.5 h-4 w-4 shrink-0 text-white/50 sm:mx-2" strokeWidth={2} aria-hidden />}
-                </li>
-              ))}
-            </ol>
           </Reveal>
           <Reveal delay={160} className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
             {acc ? (
@@ -600,16 +569,17 @@ function CtaSection() {
           </Reveal>
         </div>
         <Reveal delay={120} className="min-w-0 lg:col-span-5">
-          <RmcCardPreview rules={rules} />
-          {/* QR to this web (Lurd, 11 Sep): scan from a flyer / the outlet screen → the site; on phones it doubles as a share card */}
-          <div className="mx-auto mt-8 flex max-w-[400px] items-center gap-4 rounded-xl bg-white p-4 text-ink shadow-3 lg:ml-auto lg:mr-0" data-site-qr>
-            <img src="/img/qr-site.svg" alt="QR kode ke rmc-web-beta.vercel.app" width={112} height={112} className="h-24 w-24 shrink-0 rounded-md sm:h-28 sm:w-28" loading="lazy" decoding="async" />
+          {/* R.041 (Lurd): QR first, card underneath, and the code big enough to scan off a screen
+              across a counter rather than from arm's length. */}
+          <div className="mx-auto flex max-w-[400px] items-center gap-5 rounded-xl bg-white p-5 text-ink shadow-3 lg:ml-auto lg:mr-0" data-site-qr>
+            <img src="/img/qr-site.svg" alt="QR kode ke rmc-web-beta.vercel.app" width={176} height={176} className="h-36 w-36 shrink-0 rounded-md sm:h-44 sm:w-44" loading="lazy" decoding="async" />
             <div className="min-w-0">
               <p className="text-[15px] font-extrabold leading-tight text-navy-700">Scan untuk buka web Golden Privilege</p>
               <p className="mt-1 text-[13px] leading-relaxed text-ink-2">Arahkan kamera HP ke QR ini, atau bagikan ke teman laundry-mu.</p>
               <p className="t-code mt-2 truncate text-[12px] font-bold text-green-700">rmc-web-beta.vercel.app</p>
             </div>
           </div>
+          <div className="mt-8"><RmcCardPreview rules={rules} /></div>
         </Reveal>
       </div>
     </section>
