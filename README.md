@@ -1,5 +1,8 @@
 # rmc-web — Resique Golden Privilege
 
+**Repository:** `apique-group/rmc-web-prototype` (moved from `itstomsyhere/rmc-web` on 21 Sep 2026; the production RMC web is the separate `apique-group/apique-web-rmc`).
+
+
 Consumer web prototype for the **Resique Golden Privilege** campaign (Apique Group): mobile-first landing
 ("Resique Turun Harga"), RMC member profile (points · tier · prizes), Golden Sale with QRIS checkout + proof
 upload, spending Klasemen, and the admin config surface that the Apique CRM embeds (Member Card (RMC) → Golden Privilege).
