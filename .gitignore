@@ -6,3 +6,6 @@ dist-ssr
 test/*.png
 test/_shots
 .playwright-mcp
+
+.vercel
+.env*
