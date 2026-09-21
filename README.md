@@ -1,6 +1,6 @@
 # rmc-web — Resique Golden Privilege
 
-**Repository:** `apique-group/rmc-web-prototype` (moved from `itstomsyhere/rmc-web` on 21 Sep 2026; the production RMC web is the separate `apique-group/apique-web-rmc`).
+**Repository:** `itstomsyhere/rmc-web` (Vercel source, private) with a synced duplicate at `apique-group/rmc-web-prototype` — every `git push` lands on both (personal first, then the org). The production RMC web is the separate `apique-group/apique-web-rmc`.
 
 
 Consumer web prototype for the **Resique Golden Privilege** campaign (Apique Group): mobile-first landing
