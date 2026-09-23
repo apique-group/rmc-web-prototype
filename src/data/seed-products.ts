@@ -19,7 +19,32 @@ const raw: Omit<GoldenSaleItem, 'id' | 'promoPrice' | 'image' | 'quota' | 'maxPe
   { code: '000216', name: 'Daijin Timbangan Digital 30KG',             cat: 'HouseHold',            unit: 'pcs', realPrice: 470_000 },
 ]
 
-export const SEED_ITEMS: GoldenSaleItem[] = raw.map(r => ({
+/* R.050 — Paket Usaha: the four bundles of crm-apique RESIQUE_PACKAGES (data.jsx X.216), sold at ONE price for the set.
+   Promo = 10% off the package price, rounded to Rp1.000. Contents summarised in `desc`; photos are laundromat placeholders (see public/img/CREDITS.md). */
+const promoPkg = (p: number) => Math.round((p * 0.9) / 1000) * 1000
+const rawPkg: { code: string; name: string; realPrice: number; desc: string }[] = [
+  { code: 'PKG-001', name: 'Paket Usaha 1', realPrice: 24_999_000, desc: '1 dryer konversi + 1 washer 8,5 kg, boiler, meja & kepala setrika, timbangan, rak, plastik, chemical 5L (parfum, deterjen, softener), brosur & banner.' },
+  { code: 'PKG-002', name: 'Paket Usaha 2', realPrice: 39_999_000, desc: '2 dryer konversi + 2 washer 8,5 kg untuk volume harian tinggi, boiler, meja & kepala setrika, timbangan, rak, plastik, chemical 5L, brosur & banner.' },
+  { code: 'PKG-003', name: 'Paket Usaha 3', realPrice: 39_999_000, desc: 'LG Washer Home 20 kg + LG Dryer Giant Max, boiler, meja & kepala setrika, timbangan, rak, plastik, chemical 5L, brosur & banner.' },
+  { code: 'PKG-004', name: 'Paket Usaha 4', realPrice: 69_999_000, desc: '2 LG Washer Home 20 kg + 2 Dryer Giant Max untuk outlet skala penuh, boiler, meja & kepala setrika, timbangan, rak, plastik, chemical 5L, brosur & banner.' },
+]
+export const SEED_PACKAGES: GoldenSaleItem[] = rawPkg.map(r => ({
+  id: `gs-${r.code}`,
+  kind: 'paket',
+  code: r.code,
+  name: r.name,
+  cat: 'Paket Usaha',
+  unit: 'paket',
+  realPrice: r.realPrice,
+  promoPrice: promoPkg(r.realPrice),
+  desc: r.desc,
+  image: `/img/paket-${r.code}.jpg`,
+  quota: 0,
+  maxPerCustomer: 0,
+  active: true,
+}))
+
+export const SEED_PRODUCTS: GoldenSaleItem[] = raw.map(r => ({
   id: `gs-${r.code}`,
   ...r,
   promoPrice: promo(r.realPrice),
@@ -28,3 +53,6 @@ export const SEED_ITEMS: GoldenSaleItem[] = raw.map(r => ({
   maxPerCustomer: 0,
   active: true,
 }))
+
+/** Golden Sale catalogue: packages first (the landing shows "Diskon Paket" above "Diskon Item"), then items. */
+export const SEED_ITEMS: GoldenSaleItem[] = [...SEED_PACKAGES, ...SEED_PRODUCTS]

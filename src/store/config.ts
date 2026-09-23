@@ -69,6 +69,9 @@ function mergeConfig(stored: Partial<Config> | undefined): Config {
   out.assets = { ...out.assets, heroPrizes: (out.assets.heroPrizes || []).map(h => isSeedSvg(h.image) ? { ...h, image: jpg(h.image) } : h) }
   out.prizes = out.prizes.map(p => isSeedSvg(p.image) ? { ...p, image: jpg(p.image) } : p)
   out.items = (out.items || []).map(it => { if (!isSeedSvg(it.image)) return it; const seed = DEFAULT_CONFIG.items.find(d => d.id === it.id); return { ...it, image: seed ? seed.image : jpg(it.image) } })
+  // R.050: Golden Sale gained Paket Usaha. Stored items without `kind` are items; a store that has no paket yet gets the seed packages in front
+  out.items = (out.items || []).map(it => ({ ...it, kind: it.kind || 'item' }))
+  if (!out.items.some(it => it.kind === 'paket')) out.items = [...DEFAULT_CONFIG.items.filter(it => it.kind === 'paket'), ...out.items]
   // R.017: the placeholder "R" monogram became the real Resique lockup (colour / white / mark); uploads (data:) untouched
   const OLD_LOGO = '/img/resique-logo.svg'
   if (!out.assets.logo || out.assets.logo === OLD_LOGO) out.assets = { ...out.assets, logo: DEFAULT_CONFIG.assets.logo }

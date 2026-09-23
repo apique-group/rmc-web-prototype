@@ -221,6 +221,25 @@ const { ok, launch, go, resetStores, text, minTapHeight, finish } = require('./_
   const utf = await p.evaluate(() => getComputedStyle(document.querySelector('header[data-site-header]')).transform)
   const uty = (utf.match(/matrix\(1, 0, 0, 1, 0, (-?[\d.]+)\)/) || [])[1]
   ok(uh.v === `${uh.h}px` && uty !== undefined && Math.abs(parseFloat(uty) + uh.h) <= 1, `header hides exactly its measured utility row (R.043/R.044: row ${uh.h}px, --utility-h ${uh.v}, scrolled ${utf})`)
+  // R.050 — Golden Sale in two groups: Diskon Paket (Paket Usaha bundles) first, Diskon Item under it, each title highlighted
+  await p.locator('#golden-sale').scrollIntoViewIfNeeded(); await p.waitForTimeout(700)
+  const g50 = await p.evaluate(() => {
+    const groups = [...document.querySelectorAll('#golden-sale [data-sale-group]')]
+    const firstLi = document.querySelector('#golden-sale li[data-reveal]')
+    return {
+      order: groups.map(g => g.getAttribute('data-sale-group')),
+      titles: groups.map(g => (g.querySelector('h3') || {}).textContent),
+      marks: groups.map(g => { const m = g.querySelector('h3 .mark'); return m ? getComputedStyle(m).color : null }),
+      paketCards: document.querySelectorAll('#golden-sale [data-sale-group="paket"] li[data-reveal]').length,
+      paketImgs: [...document.querySelectorAll('#golden-sale [data-sale-group="paket"] img')].map(i => i.getAttribute('src')),
+      paketDesc: document.querySelectorAll('#golden-sale [data-sale-group="paket"] article p.line-clamp-3').length,
+      itemCards: document.querySelectorAll('#golden-sale [data-sale-group="item"] li[data-reveal]').length,
+      firstIsPaket: !!(firstLi && firstLi.closest('[data-sale-group="paket"]')),
+      count: (document.querySelector('#golden-sale .t-num.text-white\\/60') || {}).textContent,
+    }
+  })
+  ok(g50.order.join(',') === 'paket,item' && g50.titles[0] === 'Diskon Paket' && g50.titles[1] === 'Diskon Item' && g50.marks.every(c => c === 'rgb(212, 160, 78)'), `Golden Sale groups: Diskon Paket above Diskon Item, both titles gold-marked (${JSON.stringify({ order: g50.order, titles: g50.titles, marks: g50.marks })})`)
+  ok(g50.paketCards === 4 && g50.paketImgs.every(x => /\/img\/paket-PKG-00\d\.jpg$/.test(x)) && g50.paketDesc === 4 && g50.itemCards >= 12 && g50.firstIsPaket && /4 paket · 12 produk/.test(g50.count), `4 Paket Usaha cards (real photos + contents line) before ${g50.itemCards} item cards; count line "${g50.count}"`)
   ok(errs.length === 0, `no page errors (${errs.length})`)
   await finish(b, errs, 'landing-verify')
 })()

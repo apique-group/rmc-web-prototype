@@ -57,6 +57,8 @@ export const DEFAULT_CONFIG: Config = {
     ctaPointsSub: 'Mulai nikmati seluruh keuntungan Member Resique mulai dari transaksi pertama',
     saleTitle: 'Golden Sale!!',
     saleSub: 'Harga spesial khusus Member Resique, diskon hingga {pct}% untuk semua produk',
+    salePaketTitle: 'Diskon Paket',
+    saleItemTitle: 'Diskon Item',
     klasemenTitle: 'Klasemen Golden Privilege',
     klasemenSub: 'Urutan total belanja dari pesanan Lunas. Belanja terbanyak dapat hadiah utama.',
     snapDesktop: false,

@@ -28,6 +28,8 @@ const GROUPS: Group[] = [
   { title: 'Golden Sale & Klasemen', desc: 'Judul seksi belanja dan peringkat.', rows: [
     { key: 'saleTitle', label: 'Judul Golden Sale' },
     { key: 'saleSub', label: 'Sub Golden Sale', long: true },
+    { key: 'salePaketTitle', label: 'Judul grup Paket (Golden Sale)' },
+    { key: 'saleItemTitle', label: 'Judul grup Item (Golden Sale)' },
     { key: 'klasemenTitle', label: 'Judul Klasemen' },
     { key: 'klasemenSub', label: 'Sub Klasemen', long: true },
   ] },

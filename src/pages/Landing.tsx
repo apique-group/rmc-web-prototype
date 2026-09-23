@@ -683,6 +683,12 @@ function GoldenSaleSection() {
   const inc = useCart(s => s.inc)
   const dec = useCart(s => s.dec)
   const items = cfg.items.filter(i => i.active)
+  // R.050 (Lurd): packages first, items under them, each group under its own highlighted title
+  const groups = ([
+    { key: 'paket', title: cfg.copy.salePaketTitle, list: items.filter(i => i.kind === 'paket') },
+    { key: 'item', title: cfg.copy.saleItemTitle, list: items.filter(i => i.kind !== 'paket') },
+  ] as const).filter(g => g.list.length > 0)
+  const nPaket = items.filter(i => i.kind === 'paket').length, nItem = items.length - nPaket
   const maxPct = Math.max(...items.map(i => i.realPrice > i.promoPrice ? Math.round((1 - i.promoPrice / i.realPrice) * 100) : 0), 0)
   const ribbon = Array.from({ length: 8 }, (_, i) => i)
   return (
@@ -701,15 +707,18 @@ function GoldenSaleSection() {
             <p className="inline-flex items-center gap-1.5 rounded-md bg-gold px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-[0.06em] text-gold-ink"><Zap className="h-3.5 w-3.5" strokeWidth={2.4} aria-hidden />Flash Sale</p>
             <h2 className="t-h1 mt-3 text-balance uppercase text-white"><Marked text={cfg.copy.saleTitle} className="mark-gold text-gold" /></h2>
             <p className="mt-3 text-[15px] leading-relaxed text-pretty text-white/80 sm:text-[17px]">{cfg.copy.saleSub.replace('{pct}', String(maxPct))}</p>
-            <p className="t-num mt-2 text-[13px] text-white/60">{items.length} produk · sampai {fmtDate(cfg.campaign.end)} · selama stok ada</p>
+            <p className="t-num mt-2 text-[13px] text-white/60">{nPaket > 0 ? `${nPaket} paket · ` : ''}{nItem} produk · sampai {fmtDate(cfg.campaign.end)} · selama stok ada</p>
           </Reveal>
           <Reveal delay={80}><Countdown end={cfg.campaign.end} /></Reveal>
         </div>
         {items.length === 0 ? (
           <EmptyState className="mt-8" title="Belum ada item Golden Sale" desc="Item promo belum dibuka. Cek lagi nanti." />
         ) : (
-          <ul className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
-            {items.map((it, idx) => {
+          groups.map((g, gi) => (
+          <div key={g.key} data-sale-group={g.key} className={gi === 0 ? 'mt-10' : 'mt-12 lg:mt-16'}>
+            <Reveal><h3 className="t-h2 text-balance uppercase text-white"><Marked text={g.title} className="mark-gold text-gold" /></h3></Reveal>
+          <ul className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
+            {g.list.map((it, idx) => {
               const sold = soldQty(orders, it.id)
               const left = it.quota > 0 ? Math.max(0, it.quota - sold) : Infinity
               const q = qty[it.id] || 0
@@ -723,6 +732,8 @@ function GoldenSaleSection() {
               )
             })}
           </ul>
+          </div>
+          ))
         )}
       </div>
     </section>
@@ -742,6 +753,7 @@ function ProductCard({ item, qty, left, max, onInc, onDec }: { item: GoldenSaleI
       </div>
       <h3 className="mt-3 line-clamp-2 min-h-[2.6em] text-[13px] font-bold leading-snug text-ink sm:text-[14px]">{item.name}</h3>
       <p className="mt-0.5 text-[12px] text-ink-3">{item.cat} · per {item.unit}</p>
+      {item.kind === 'paket' && item.desc && <p className="mt-1.5 line-clamp-3 text-[12px] leading-snug text-ink-2">{item.desc}</p>}
       <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
         <span className="t-fig text-[16px] text-navy-700 sm:text-[17px]">{rupiah(item.promoPrice)}</span>
         {save > 0 && <span className="t-num strike text-[12px] text-ink-4">{rupiah(item.realPrice)}</span>}

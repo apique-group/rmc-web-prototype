@@ -28,10 +28,16 @@ export interface Tier {
 export interface Benefit { id: string; icon: string; title: string; desc: string; figure?: string; figureNote?: string }
 export interface HeroPrize { id: string; image: string; label: string }
 
+export type SaleKind = 'item' | 'paket'
+
 export interface GoldenSaleItem {
   id: string
   code: string
   name: string
+  /** 'paket' = a Paket Usaha bundle from the CRM catalog (one price for the whole set); default 'item' (R.050) */
+  kind?: SaleKind
+  /** one-line contents summary, shown on paket cards */
+  desc?: string
   cat: string
   unit: string
   realPrice: number
@@ -61,6 +67,9 @@ export interface Config {
     ctaPointsSub: string
     saleTitle: string
     saleSub: string
+    /** group titles inside the Golden Sale section (R.050): packages first, then items */
+    salePaketTitle: string
+    saleItemTitle: string
     klasemenTitle: string
     klasemenSub: string
     snapDesktop: boolean
