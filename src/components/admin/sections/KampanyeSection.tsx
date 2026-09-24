@@ -1,4 +1,4 @@
-import { rupiah } from '@/lib/format'
+import { rupiah, fmtDate, toLocalInput, fromLocalInput } from '@/lib/format'
 import { displayPhone } from '@/model/phone'
 import { useOrders, klasemen } from '@/store/orders'
 import { Input } from '@/components/ui/input'
@@ -14,21 +14,21 @@ export function KampanyeSection() {
   const match = useDraft('matching', 'Pencocokan akun')
   const pw = useDraft('password', 'Kata sandi')
   const orders = useOrders(s => s.orders)
-  const rows = klasemen(orders, camp.draft.start, camp.draft.end)
+  const rows = klasemen(orders, camp.draft.start, camp.draft.end, kl.draft.showPic)
   const shown = rows.slice(0, Math.max(1, kl.draft.topN))
-  const badRange = camp.draft.start > camp.draft.end
+  const badRange = new Date(camp.draft.start).getTime() > new Date(camp.draft.end).getTime()
 
   return (
     <div data-admin-section="kampanye" className="space-y-4">
       <PageHead title="Kampanye & Klasemen" sub="Periode Golden Privilege, tampilan peringkat, dan parameter pencocokan akun." />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <SettingsCard title="Periode kampanye" desc="Klasemen hanya menghitung pesanan Lunas di dalam periode ini.">
+        <SettingsCard title="Periode kampanye" desc="Tanggal + jam (zona waktu perangkat, disimpan dengan offset, mis. +07:00). Klasemen hanya menghitung pesanan Lunas di dalam periode ini; hitung mundur di landing berhenti tepat di jam selesai.">
           <div className="grid gap-4">
             <Field label="Label kampanye" htmlFor="camp-label"><Input id="camp-label" value={camp.draft.label} className="h-10 text-[14px]" onChange={e => camp.patch({ label: e.target.value })} /></Field>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Mulai" htmlFor="camp-start"><Input id="camp-start" type="date" value={camp.draft.start} className="h-10 text-[14px]" onChange={e => camp.patch({ start: e.target.value })} /></Field>
-              <Field label="Selesai" htmlFor="camp-end" error={badRange ? 'Tanggal selesai mendahului tanggal mulai' : undefined}><Input id="camp-end" type="date" value={camp.draft.end} aria-invalid={badRange || undefined} className="h-10 text-[14px]" onChange={e => camp.patch({ end: e.target.value })} /></Field>
+              <Field label="Mulai" htmlFor="camp-start"><Input id="camp-start" type="datetime-local" step={1} value={toLocalInput(camp.draft.start)} className="h-10 text-[14px]" onChange={e => { const v = fromLocalInput(e.target.value); if (v) camp.patch({ start: v }) }} /></Field>
+              <Field label="Selesai" htmlFor="camp-end" error={badRange ? 'Tanggal selesai mendahului tanggal mulai' : undefined}><Input id="camp-end" type="datetime-local" step={1} value={toLocalInput(camp.draft.end)} aria-invalid={badRange || undefined} className="h-10 text-[14px]" onChange={e => { const v = fromLocalInput(e.target.value); if (v) camp.patch({ end: v }) }} /></Field>
             </div>
           </div>
           <SaveBar dirty={camp.dirty} disabled={badRange} onSave={() => camp.save()} onReset={camp.reset} />
@@ -37,18 +37,18 @@ export function KampanyeSection() {
         <SettingsCard title="Tampilan klasemen" desc="Berapa baris peringkat yang tampil di landing page.">
           <div className="grid gap-4">
             <Field label="Jumlah teratas (top N)" htmlFor="kl-topn"><NumInput id="kl-topn" value={kl.draft.topN} min={1} className="h-10 w-32" onChange={n => kl.patch({ topN: Math.max(1, n) })} /></Field>
-            <CheckRow id="kl-pic" checked={kl.draft.showPic} onChange={v => kl.patch({ showPic: v })} label="Tampilkan nama PIC" hint="Jika mati, hanya nama laundry yang tampil di klasemen publik." />
+            <CheckRow id="kl-pic" checked={kl.draft.showPic} onChange={v => kl.patch({ showPic: v })} label="Tampilkan nama PIC" hint="Label publik: Laundry - PIC (0812****247). Jika mati: Laundry (0812****247). Nomor HP selalu disamarkan." />
           </div>
           <SaveBar dirty={kl.dirty} onSave={() => kl.save()} onReset={kl.reset} />
         </SettingsCard>
       </div>
 
-      <SettingsCard title="Pratinjau klasemen" desc={`Dihitung langsung dari transaksi Lunas ${camp.draft.start} s.d. ${camp.draft.end}${camp.dirty ? ' (periode draf, belum disimpan)' : ''}.`}>
+      <SettingsCard title="Pratinjau klasemen" desc={`Dihitung langsung dari transaksi Lunas ${fmtDate(camp.draft.start, true)} s.d. ${fmtDate(camp.draft.end, true)}${camp.dirty ? ' (periode draf, belum disimpan)' : ''}.`}>
         {shown.length === 0 ? (
           <EmptyState title="Belum ada transaksi Lunas di periode ini" desc="Verifikasi pesanan di menu Transaksi agar peringkat terisi." />
         ) : (
           <Table>
-            <THead><TR><TH className="w-12">#</TH><TH>Laundry</TH>{kl.draft.showPic && <TH>PIC</TH>}<TH>HP</TH><TH className="text-right">Pesanan</TH><TH className="text-right">Belanja</TH></TR></THead>
+            <THead><TR><TH className="w-12">#</TH><TH>Laundry</TH>{kl.draft.showPic && <TH>PIC</TH>}<TH>HP</TH><TH>Label publik</TH><TH className="text-right">Pesanan</TH><TH className="text-right">Belanja</TH></TR></THead>
             <TBody>
               {shown.map(r => (
                 <TR key={r.key}>
@@ -56,6 +56,7 @@ export function KampanyeSection() {
                   <TD className="font-semibold">{r.laundry}</TD>
                   {kl.draft.showPic && <TD>{r.pic}</TD>}
                   <TD className="t-num text-ink-3">{displayPhone(r.phone)}</TD>
+                  <TD className="t-num text-ink-3">{r.label}</TD>
                   <TD className="t-num text-right">{r.orders}</TD>
                   <TD className="t-num text-right font-bold text-navy-700">{rupiah(r.spend)}</TD>
                 </TR>

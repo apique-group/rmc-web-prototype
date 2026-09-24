@@ -2,12 +2,12 @@ import * as React from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Area, AreaChart, CartesianGrid, ReferenceDot, ResponsiveContainer, Tooltip, XAxis, YAxis, type TooltipProps } from 'recharts'
-import { ArrowRight, ArrowUpRight, Clock, Gift, History, LogOut, MessageCircle, ShoppingBag } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Clock, Gift, History, Link2Off, LogOut, MessageCircle, RotateCcw, ShoppingBag, Sparkles, Store, TrendingUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { rupiah, poin, fmtDate, fmtMonth } from '@/lib/format'
 import { Reveal } from '@/lib/reveal'
-import { rmcFor, type RmcSummary } from '@/model/rmc'
-import { STATUS_LABEL, type Account, type CrmCustomer, type Order, type Prize, type Redemption } from '@/model/types'
+import { rmcFor, ledgerFor, type RmcSummary } from '@/model/rmc'
+import { LEDGER_LABEL, STATUS_LABEL, type Account, type CrmCustomer, type LedgerEntry, type LedgerType, type Order, type Prize } from '@/model/types'
 import { useConfig } from '@/store/config'
 import { CONTACTS } from '@/data/contacts'
 import { useCrm } from '@/store/crm'
@@ -42,7 +42,7 @@ function ProfileBody({ account }: { account: Account }) {
   const customer: CrmCustomer | null = account.link === 'LINKED' ? customers.find(c => c.id === account.crmCustomerId) || null : null
   const isMitra = account.isMitra || !!customer?.mitra
   const rmc = React.useMemo(() => rmcFor(cfg, customer, orders, redemptions, account.id, isMitra), [cfg, customer, orders, redemptions, account.id, isMitra])
-  const myRedemptions = React.useMemo(() => redemptions.filter(r => r.accountId === account.id).slice(0, 5), [redemptions, account.id])
+  const ledger = React.useMemo(() => ledgerFor(cfg, customer, orders, redemptions, account.id), [cfg, customer, orders, redemptions, account.id])
   const myOrders = React.useMemo(
     () => orders.filter(o => o.accountId === account.id || (account.crmCustomerId && o.crmCustomerId === account.crmCustomerId)).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     [orders, account.id, account.crmCustomerId],
@@ -74,12 +74,16 @@ function ProfileBody({ account }: { account: Account }) {
               <PointsHero account={account} customer={customer} rmc={rmc} isMitra={isMitra} />
             ) : pending ? (
               <PendingHero account={account} rmc={rmc} />
+            ) : account.link === 'NEW_CUSTOMER' ? (
+              <LinkStateCard state="NEW_CUSTOMER" />
+            ) : account.link === 'UNLINKED' ? (
+              <LinkStateCard state="UNLINKED" />
             ) : (
-              <LeadCard />
+              <LinkStateCard state="LEAD" />
             )}
           </Reveal>
-          {linked && myRedemptions.length > 0 && (
-            <Reveal delay={60} className="hidden lg:block"><RedemptionList rows={myRedemptions} /></Reveal>
+          {linked && (
+            <Reveal delay={60} className="hidden lg:block"><LedgerCard rows={ledger} /></Reveal>
           )}
         </div>
 
@@ -91,7 +95,7 @@ function ProfileBody({ account }: { account: Account }) {
               {/* Riwayat pesanan sits right under the transaction graph (Lurd, 10 Sep) */}
               <Reveal delay={60}><OrderList rows={myOrders} /></Reveal>
               <Reveal delay={80}><PrizeGrid account={account} points={rmc.points} /></Reveal>
-              {myRedemptions.length > 0 && <Reveal delay={100} className="lg:hidden"><RedemptionList rows={myRedemptions} /></Reveal>}
+              <Reveal delay={100} className="lg:hidden"><LedgerCard rows={ledger} /></Reveal>
             </>
           ) : (
             <Reveal delay={40}>
@@ -99,8 +103,8 @@ function ProfileBody({ account }: { account: Account }) {
                 <CardContent className="flex items-start gap-3 pt-5 sm:pt-6">
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gold-50 text-gold-700"><Gift className="h-[18px] w-[18px]" strokeWidth={1.6} /></span>
                   <div>
-                    <p className="text-[14px] font-bold text-ink">Grafik poin & pilihan hadiah tampil di sini</p>
-                    <p className="mt-0.5 text-[13px] text-ink-3">{pending ? 'Setelah sales Resique konfirmasi akun ini milikmu.' : 'Setelah laundry-mu terdaftar di Resique.'}</p>
+                    <p className="text-[14px] font-bold text-ink">Grafik & riwayat poin tampil di sini</p>
+                    <p className="mt-0.5 text-[13px] text-ink-3">{pending ? 'Setelah sales Resique konfirmasi akun ini milikmu.' : account.link === 'NEW_CUSTOMER' ? 'Setelah transaksi pertamamu di outlet Resique.' : account.link === 'UNLINKED' ? 'Setelah akunmu ditautkan kembali ke data pelanggan.' : 'Setelah laundry-mu terdaftar di Resique.'}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -196,16 +200,33 @@ function PendingHero({ account, rmc }: { account: Account; rmc: RmcSummary }) {
   )
 }
 
-function LeadCard() {
+/* Staging profile cards for the non-linked states (apique-web-rmc lead-card / new-customer-card / unlinked-card): LEAD = laundry never
+   registered (sales will register it), NEW_CUSTOMER = a CRM customer was created at registration, points start at the first outlet
+   transaction, UNLINKED = staff detached the account from its customer. */
+const LINK_STATE = {
+  LEAD: { icon: MessageCircle, title: 'Belum terdaftar sebagai pelanggan Resique', desc: 'Tim sales akan menghubungi via WhatsApp untuk mendaftarkan laundry-mu. Setelah itu poin RMC mulai terhitung dari setiap belanja.' },
+  NEW_CUSTOMER: { icon: Store, title: 'Sudah terdaftar sebagai pelanggan Resique', desc: 'Laundry-mu sudah tercatat di Resique. Poin & tier RMC mulai dihitung setelah transaksi pertamamu di outlet Resique.' },
+  UNLINKED: { icon: Link2Off, title: 'Tautan akunmu telah dilepas', desc: 'Hubungi tim Resique untuk menautkan kembali akun ke data pelanggan yang sesuai.' },
+} as const
+
+function LinkStateCard({ state }: { state: keyof typeof LINK_STATE }) {
+  const s = LINK_STATE[state]
+  const Icon = s.icon
   return (
-    <Card className="rounded-xl">
+    <Card className="rounded-xl" data-link-state={state}>
       <CardContent className="pt-5 sm:pt-6">
-        <span className="grid h-11 w-11 place-items-center rounded-xl bg-navy-50 text-navy-700"><MessageCircle className="h-5 w-5" strokeWidth={1.6} /></span>
-        <p className="mt-4 text-[17px] font-bold text-ink">Belum terdaftar sebagai pelanggan Resique</p>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-ink-3">Tim sales akan menghubungi via WhatsApp untuk mendaftarkan laundry-mu. Setelah itu poin RMC mulai terhitung dari setiap belanja.</p>
-        <Button asChild size="lg" variant="gold" className="mt-5 w-full">
-          <Link to="/#golden-sale">Belanja Golden Sale<ArrowUpRight className="h-4 w-4" strokeWidth={2} /></Link>
-        </Button>
+        <span className="grid h-11 w-11 place-items-center rounded-xl bg-navy-50 text-navy-700"><Icon className="h-5 w-5" strokeWidth={1.6} /></span>
+        <p className="mt-4 text-[17px] font-bold text-ink">{s.title}</p>
+        <p className="mt-1.5 text-[13px] leading-relaxed text-ink-3">{s.desc}</p>
+        {state === 'UNLINKED' ? (
+          <Button asChild size="lg" variant="secondary" className="mt-5 w-full">
+            <a href={`${SALES_WA}?text=${encodeURIComponent('Halo Sales Resique, mohon tautkan kembali akun RMC saya.')}`} target="_blank" rel="noreferrer"><MessageCircle className="h-4 w-4" strokeWidth={1.6} /> Hubungi tim Resique</a>
+          </Button>
+        ) : (
+          <Button asChild size="lg" variant="gold" className="mt-5 w-full">
+            <Link to="/#golden-sale">Belanja Golden Sale<ArrowUpRight className="h-4 w-4" strokeWidth={2} /></Link>
+          </Button>
+        )}
       </CardContent>
     </Card>
   )
@@ -266,9 +287,11 @@ function PrizeGrid({ account, points }: { account: Account; points: number }) {
   const [sel, setSel] = React.useState<Prize | null>(null)
   const prizes = cfg.prizes.filter(p => p.active)
 
+  /* why a prize cannot be redeemed, in staging's order: stock (STOK_HABIS), the minimum redeem rule (BELOW_MIN_REDEEM, on the prize's cost),
+     then the balance (POIN_KURANG) */
   const reason = (p: Prize): string | null => {
     if (p.stock <= 0) return 'Stok habis'
-    if (points < cfg.rules.minRedeem) return `Min. ${poin(cfg.rules.minRedeem)} poin`
+    if (p.pointCost < cfg.rules.minRedeem) return `Di bawah min. tukar ${poin(cfg.rules.minRedeem)} poin`
     if (points < p.pointCost) return `Kurang ${poin(p.pointCost - points)} poin`
     return null
   }
@@ -276,10 +299,14 @@ function PrizeGrid({ account, points }: { account: Account; points: number }) {
   const confirm = () => {
     if (!sel) return
     const fresh = useConfig.getState().config.prizes.find(p => p.id === sel.id)
-    if (!fresh || fresh.stock <= 0 || points < fresh.pointCost) { toast.error('Hadiah tidak tersedia'); setSel(null); return }
-    useAccounts.getState().redeem(account.id, fresh.id, fresh.name, fresh.pointCost)
+    if (!fresh || !fresh.active) { toast.error('Hadiah tidak ditemukan'); setSel(null); return }
+    if (fresh.stock <= 0) { toast.error('Stok hadiah sudah habis'); setSel(null); return }
+    if (fresh.pointCost < cfg.rules.minRedeem) { toast.error(`Minimum redeem ${poin(cfg.rules.minRedeem)} poin`); setSel(null); return }
+    if (points < fresh.pointCost) { toast.error('Saldo poin tidak cukup'); setSel(null); return }
+    const balance = points - fresh.pointCost
+    const r = useAccounts.getState().redeem(account.id, fresh.id, fresh.name, fresh.pointCost, balance)
     setSection('prizes', useConfig.getState().config.prizes.map(p => p.id === fresh.id ? { ...p, stock: Math.max(0, p.stock - 1) } : p))
-    toast.success(`${fresh.name} berhasil ditukar`, { description: `Sisa poin ${poin(points - fresh.pointCost)}. Sales Resique akan hubungi kamu soal pengiriman.` })
+    toast.success(`${fresh.name} berhasil ditukar`, { description: `Kode penukaran ${r.code}. Sisa poin ${poin(balance)}. Sales Resique akan hubungi kamu soal pengiriman.`, duration: 8000 })
     setSel(null)
   }
 
@@ -347,25 +374,46 @@ function PrizeGrid({ account, points }: { account: Account; points: number }) {
 
 /* ---------------------------------- Lists ---------------------------------- */
 
-function RedemptionList({ rows }: { rows: Redemption[] }) {
+const LEDGER_ICON: Record<LedgerType, typeof TrendingUp> = { earn: TrendingUp, redeem: Gift, expire: RotateCcw, bonus: Sparkles, adjust: History }
+const LEDGER_PAGE = 10
+
+/* Riwayat poin (staging GET /member/profile/ledger): every point movement, newest first, 10 per page. */
+function LedgerCard({ rows }: { rows: LedgerEntry[] }) {
+  const [page, setPage] = React.useState(1)
+  const pages = Math.max(1, Math.ceil(rows.length / LEDGER_PAGE))
+  const cur = Math.min(page, pages)
+  const show = rows.slice((cur - 1) * LEDGER_PAGE, cur * LEDGER_PAGE)
   return (
-    <Card>
+    <Card data-ledger data-ledger-page={cur}>
       <CardHeader className="flex-row items-center gap-3 space-y-0">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gold-50 text-gold-700"><History className="h-[18px] w-[18px]" strokeWidth={1.6} /></span>
-        <div><CardTitle>Riwayat penukaran</CardTitle><CardDescription className="mt-1">{rows.length} terakhir</CardDescription></div>
+        <div><CardTitle>Riwayat poin</CardTitle><CardDescription className="mt-1">{rows.length} catatan · poin masuk, ditukar, hangus, bonus, penyesuaian</CardDescription></div>
       </CardHeader>
       <CardContent>
-        <ul className="divide-y divide-line-2">
-          {rows.map(r => (
-            <li key={r.id} className="flex items-center gap-3 py-3">
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[14px] font-semibold text-ink">{r.prizeName}</p>
-                <p className="text-[12px] text-ink-3"><span className="t-code">{r.id}</span> · {fmtDate(r.at)}</p>
-              </div>
-              <p className="t-fig shrink-0 text-[14px] text-gold-700">−{poin(r.points)}</p>
-            </li>
-          ))}
-        </ul>
+        {show.length === 0 ? <EmptyState title="Belum ada catatan poin" desc="Belanja Lunas dan penukaran hadiah tercatat di sini." /> : (
+          <ul className="divide-y divide-line-2">
+            {show.map(r => { const Icon = LEDGER_ICON[r.type]; return (
+              <li key={r.id} className="flex items-center gap-3 py-3" data-ledger-type={r.type}>
+                <span className={cn('grid h-8 w-8 shrink-0 place-items-center rounded-lg', r.points < 0 ? 'bg-surface-2 text-ink-3' : 'bg-green-50 text-green-700')}><Icon className="h-4 w-4" strokeWidth={1.6} /></span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[14px] font-semibold text-ink">{r.note || LEDGER_LABEL[r.type]}</p>
+                  <p className="text-[12px] text-ink-3">{LEDGER_LABEL[r.type]} · {fmtDate(r.at)}</p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className={cn('t-fig text-[14px]', r.points < 0 ? 'text-ink' : 'text-green-700')}>{r.points < 0 ? '−' : '+'}{poin(Math.abs(r.points))}</p>
+                  <p className="t-code text-[11px] text-ink-4">saldo {poin(r.balanceAfter)}</p>
+                </div>
+              </li>
+            ) })}
+          </ul>
+        )}
+        {pages > 1 && (
+          <div className="mt-3 flex items-center justify-between gap-3 border-t border-line-2 pt-3">
+            <Button type="button" variant="ghost" size="sm" disabled={cur <= 1} onClick={() => setPage(p => Math.max(1, p - 1))} data-ledger-prev><ChevronLeft className="h-4 w-4" strokeWidth={1.8} /> Sebelumnya</Button>
+            <span className="t-num text-[12px] text-ink-3">{cur} / {pages}</span>
+            <Button type="button" variant="ghost" size="sm" disabled={cur >= pages} onClick={() => setPage(p => Math.min(pages, p + 1))} data-ledger-next>Berikutnya <ChevronRight className="h-4 w-4" strokeWidth={1.8} /></Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

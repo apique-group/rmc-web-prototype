@@ -9,7 +9,9 @@ import { normalizePhone } from '@/model/phone'
 import { dice, normName } from '@/model/similarity'
 import { matchRegistration } from '@/model/match'
 import { checkPassword, genTempPassword } from '@/model/password'
-import { currentWindow, tierForSpend, rmcFor } from '@/model/rmc'
+import { currentWindow, tierForSpend, rmcFor, ledgerFor, toProfileRmc } from '@/model/rmc'
+import { klasemen, klasemenIsYou } from '@/store/orders'
+import { maskPhone } from '@/model/phone'
 import { SEED_CUSTOMERS } from '@/data/seed-customers'
 import { DEFAULT_CONFIG } from '@/data/seed-config'
 import { parseActor } from '@/model/access'
@@ -27,8 +29,26 @@ window.__rmcweb = {
   config: () => useConfig.getState().config,
   invite: (customerId: string) => useCrm.getState().generateInvites([customerId], 'gate')[0]?.token,
   access: () => parseActor(new URLSearchParams(location.hash.split('?')[1] || '')),
+  /** R.054 — staging-shaped reads */
+  profileRmc: (accountId: string) => {
+    const acc = useAccounts.getState().accounts.find(a => a.id === accountId); if (!acc) return null
+    if (acc.link !== 'LINKED') return { linked: false, link: acc.link }
+    const cust = useCrm.getState().customers.find(c => c.id === acc.crmCustomerId) || null
+    const isMitra = acc.isMitra || !!cust?.mitra
+    return toProfileRmc(rmcFor(useConfig.getState().config, cust, useOrders.getState().orders, useAccounts.getState().redemptions, acc.id, isMitra), acc, cust, isMitra)
+  },
+  ledger: (accountId: string) => {
+    const acc = useAccounts.getState().accounts.find(a => a.id === accountId); if (!acc) return []
+    const cust = useCrm.getState().customers.find(c => c.id === acc.crmCustomerId) || null
+    return ledgerFor(useConfig.getState().config, cust, useOrders.getState().orders, useAccounts.getState().redemptions, acc.id)
+  },
+  klasemen: (accountId?: string) => {
+    const cfg = useConfig.getState().config
+    const acc = accountId ? useAccounts.getState().accounts.find(a => a.id === accountId) : null
+    return klasemen(useOrders.getState().orders, cfg.campaign.start, cfg.campaign.end, cfg.klasemen.showPic).map(r => ({ rank: r.rank, label: r.label, spend: r.spend, isYou: klasemenIsYou(r, acc) }))
+  },
   model: {
-    normalizePhone, dice, normName, matchRegistration, checkPassword, genTempPassword, currentWindow, tierForSpend, rmcFor,
+    normalizePhone, maskPhone, dice, normName, matchRegistration, checkPassword, genTempPassword, currentWindow, tierForSpend, rmcFor,
     tiers: DEFAULT_CONFIG.tiers, seedCustomers: SEED_CUSTOMERS,
   },
 }

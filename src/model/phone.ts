@@ -21,3 +21,11 @@ export const samePhone = (a?: string | null, b?: string | null) => {
   const x = normalizePhone(a), y = normalizePhone(b)
   return !!x && !!y && x === y
 }
+
+/** Public display mask (staging klasemen label): "+6281234567890" → "0812****890" (first 4 + **** + last 3). */
+export function maskPhone(raw: string | null | undefined): string {
+  const n = normalizePhone(raw)
+  if (!n) return '****'
+  const local = '0' + n.slice(3)
+  return local.slice(0, 4) + '****' + local.slice(-3)
+}

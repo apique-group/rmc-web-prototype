@@ -46,6 +46,9 @@ const { ok, launch, go, resetStores, text, minTapHeight, finish } = require('./_
   ok(!/tanpa minimum|Tanpa min\./i.test(t) && !/mulai tier Champion/.test(t) && !/Konsultasi Binis/.test(t), 'no drifted claims; the mock\'s "Binis" typo is not reproduced')
   ok(/0 – ?8\.999\.999/.test(tierTxt[0]) && /9\.000\.000 – ?17\.999\.999/.test(tierTxt[1]) && /≥ 120\.000\.000/.test(tierTxt[5]), 'tier bands inclusive: 0–8.999.999, 9.000.000–17.999.999, ≥ 120.000.000')
   ok((await p.locator('#klasemen ol li').count()) === 10, 'klasemen shows 10 rows')
+  // R.054 — public label = Laundry - PIC (0812****247): the sub line carries PIC + masked phone, never a full number; the bridge label matches
+  const kl = await p.evaluate(() => ({ subs: [...document.querySelectorAll('#klasemen ol li [data-klasemen-sub]')].map(e => e.textContent), rows: window.__rmcweb.klasemen(), showPic: window.__rmcweb.config().klasemen.showPic }))
+  ok(kl.subs.length === 10 && kl.subs.every(s => /\(0\d{3}\*{4}\d{3}\)$/.test(s)) && !/\d{4}-\d{4}-\d{3,4}/.test(kl.subs.join(' ')) && kl.rows.every(r => /\*{4}/.test(r.label) && typeof r.isYou === 'boolean') && (kl.showPic ? / - /.test(kl.rows[0].label) : !/ - /.test(kl.rows[0].label)), `klasemen label masked (${kl.subs[0]} / ${kl.rows[0].label})`)
 
   // no horizontal scroll at 390
   const sw = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }))

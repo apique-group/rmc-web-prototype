@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import type { Config } from '@/model/types'
 import { DEFAULT_CONFIG } from '@/data/seed-config'
 import { persistOpts, syncAcrossTabs } from './persist'
+import { campaignIso } from '@/lib/format'
 
 interface ConfigState {
   config: Config
@@ -19,6 +20,8 @@ function mergeConfig(stored: Partial<Config> | undefined): Config {
     // @ts-expect-error — generic section merge
     out[k] = { ...DEFAULT_CONFIG[k], ...(stored[k] || {}) }
   })
+  // R.054: campaign start/end are ISO datetimes now (staging); a stored date-only value becomes start / end of that day
+  out.campaign = { ...out.campaign, start: campaignIso(out.campaign.start, false), end: campaignIso(out.campaign.end, true) }
   // seed upgrades: a browser that stored an older default (untouched by admin) follows the new default
   const OLD_BENEFIT_IDS = ['b1', 'b2', 'b3', 'b4']
   if (!Array.isArray(out.benefits) || !out.benefits.length || out.benefits.every(b => OLD_BENEFIT_IDS.includes(b.id))) out.benefits = DEFAULT_CONFIG.benefits

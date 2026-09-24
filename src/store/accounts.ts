@@ -44,7 +44,8 @@ interface AccountsState {
   registerInvite: (input: { token: string; pic: string; phone: string; email: string; password: string }) => { ok: true; account: Account } | { ok: false; reason: string }
   linkAccount: (accountId: string, crmCustomerId: string) => void
   unlinkToLead: (accountId: string) => void
-  redeem: (accountId: string, prizeId: string, prizeName: string, points: number) => Redemption
+  /** staging POST /member/redemptions → code RDM-XXXXXXXX + balance after */
+  redeem: (accountId: string, prizeId: string, prizeName: string, points: number, balanceAfter: number) => Redemption
   byPhone: (phone: string) => Account | undefined
   reset: () => void
 }
@@ -174,11 +175,13 @@ export const useAccounts = create<AccountsState>()(
         useCrm.getState().addLead({ outlet: a.laundry, pic: a.pic, hp: a.phone, email: a.email, kota: a.kota, referral: a.referral, accountId: a.id })
       },
 
-      redeem: (accountId, prizeId, prizeName, points) => {
+      redeem: (accountId, prizeId, prizeName, points, balanceAfter) => {
         const n = get().redemptions.length + 1
-        const r: Redemption = { id: `RDM-${String(n).padStart(4, '0')}`, accountId, prizeId, prizeName, points, at: nowISO() }
+        const bytes = new Uint8Array(4); crypto.getRandomValues(bytes)
+        const code = 'RDM-' + [...bytes].map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase()
+        const r: Redemption = { id: `RDM-${String(n).padStart(4, '0')}`, code, accountId, prizeId, prizeName, points, balanceAfter, at: nowISO() }
         set({ redemptions: [r, ...get().redemptions] })
-        useCrm.getState().log('Penukaran poin', `${accountId} · ${prizeName} · ${points} poin`)
+        useCrm.getState().log('Penukaran poin', `${accountId} · ${prizeName} · ${points} poin · ${code} · sisa ${balanceAfter}`)
         return r
       },
 

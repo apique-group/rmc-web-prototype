@@ -3,17 +3,18 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Check, ChevronLeft, ChevronRight, ChevronsRight, Coins, Crown, Medal, ShoppingBag, ShoppingCart, Sparkles, Star, Ticket, Trophy, X, Zap } from 'lucide-react'
 import { BENEFIT_ICONS } from '@/lib/benefit-icons'
 import { Reveal, useCountUp, useInView } from '@/lib/reveal'
-import { poin } from '@/lib/format'
+import { poin, campaignIso } from '@/lib/format'
 import type { Benefit, Prize } from '@/model/types'
 import { srcSet2x } from '@/lib/logo'
 import { rmcFor } from '@/model/rmc'
+import { maskPhone } from '@/model/phone'
 import { useCrm } from '@/store/crm'
 import { SEED_ACCOUNTS } from '@/data/seed-accounts'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { rupiah, fmtDate } from '@/lib/format'
 import { useConfig } from '@/store/config'
-import { useOrders, klasemen } from '@/store/orders'
+import { useOrders, klasemen, klasemenIsYou } from '@/store/orders'
 import { useCart, cartLines, cartTotal, cartCount, cartSavings, cartPackageLines, itemLeft, packageRemaining, lineKey } from '@/store/cart'
 import { useCurrentAccount } from '@/store/session'
 import { Button } from '@/components/ui/button'
@@ -648,7 +649,7 @@ function SaleConfetti() {
 
 /* Countdown to the campaign end (end of day, local time). Ticks every second; the boxes read Hari / Jam / Menit / Detik. */
 function Countdown({ end }: { end: string }) {
-  const target = React.useMemo(() => new Date(`${end}T23:59:59`).getTime(), [end])
+  const target = React.useMemo(() => new Date(campaignIso(end, true)).getTime(), [end])
   const [now, setNow] = React.useState(() => Date.now())
   React.useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t) }, [])
   const left = Math.max(0, target - now)
@@ -856,9 +857,9 @@ function KlasemenSection() {
   const cfg = useConfig(s => s.config)
   const orders = useOrders(s => s.orders)
   const acc = useCurrentAccount()
-  const rows = React.useMemo(() => klasemen(orders, cfg.campaign.start, cfg.campaign.end), [orders, cfg.campaign.start, cfg.campaign.end])
+  const rows = React.useMemo(() => klasemen(orders, cfg.campaign.start, cfg.campaign.end, cfg.klasemen.showPic), [orders, cfg.campaign.start, cfg.campaign.end, cfg.klasemen.showPic])
   const top = rows.slice(0, cfg.klasemen.topN)
-  const mine = acc ? rows.find(r => r.accountId === acc.id || (acc.crmCustomerId && r.crmCustomerId === acc.crmCustomerId) || r.phone === acc.phone) : undefined
+  const mine = rows.find(r => klasemenIsYou(r, acc))
   const leadSpend = top[0]?.spend || 1
   const grand = cfg.assets.heroPrizes[0]
   const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()
@@ -887,7 +888,7 @@ function KlasemenSection() {
                 const first = i === 0
                 const medal = ['Emas', 'Perak', 'Perunggu'][i]
                 return (
-                  <Reveal as="li" key={r.key} data-rank={r.rank} delay={first ? 320 : i === 1 ? 160 : 0}
+                  <Reveal as="li" key={r.key} data-rank={r.rank} data-you={me || undefined} delay={first ? 320 : i === 1 ? 160 : 0}
                     className={cn('lift podium-rise relative flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 rounded-xl p-4 text-left sm:flex-col sm:flex-nowrap sm:items-center sm:justify-start sm:gap-0 sm:px-4 sm:pb-4 sm:pt-5 sm:text-center', ['podium-1', 'podium-2', 'podium-3'][i],
                       first ? 'ring-pulse bg-navy-700 text-white ring-2 ring-gold ring-offset-2 ring-offset-navy-900 sm:order-2 sm:min-h-[340px] sm:pb-6 sm:pt-7' : 'border sm:order-1',
                       i === 1 && 'border-[#C0C6CE] bg-[#F3F5F8] sm:min-h-[292px]',
@@ -902,7 +903,7 @@ function KlasemenSection() {
                     <div className="relative min-w-0 flex-1 sm:w-full sm:flex-none">
                       <p className={cn('t-num text-[11px] font-bold sm:mt-2', first ? 'text-gold' : i === 1 ? 'text-[#6B7480]' : 'text-[#9A5F33]')}>Peringkat {r.rank} · {medal}{first && <span> · kandidat hadiah utama</span>}</p>
                       <p className={cn('mt-0.5 break-words text-[16px] font-extrabold leading-tight sm:mt-1 sm:line-clamp-2 sm:text-balance', first ? 'text-white' : 'text-ink')}>{r.laundry}{me && <Badge className="ml-1 align-middle">Kamu</Badge>}</p>
-                      {cfg.klasemen.showPic && <p className={cn('t-num mt-0.5 truncate text-[12px]', first ? 'text-white/75' : 'text-ink-2')}>{r.pic} · {r.orders} transaksi</p>}
+                      <p className={cn('t-num mt-0.5 truncate text-[12px]', first ? 'text-white/75' : 'text-ink-2')} data-klasemen-sub>{cfg.klasemen.showPic ? `${r.pic} (${maskPhone(r.phone)})` : maskPhone(r.phone)}</p>
                     </div>
                     <CountRupiah value={r.spend} className={cn('relative shrink-0 text-[17px] leading-none sm:mt-2 sm:w-full sm:truncate sm:text-[22px]', first ? 'text-gold' : 'text-navy-700')} />
                     {first && grand && (
@@ -919,12 +920,12 @@ function KlasemenSection() {
                 )
               }
               return (
-                <Reveal as="li" key={r.key} data-rank={r.rank} delay={Math.min(i, 9) * 40} className={cn('slide -mx-3 rounded-md px-3 py-3 hover:bg-white/10 sm:order-4 sm:col-span-3 sm:-mx-4 sm:px-4', i === 3 && 'mt-2 sm:mt-4', me && 'bg-green/15 hover:bg-green/15')}>
+                <Reveal as="li" key={r.key} data-rank={r.rank} data-you={me || undefined} delay={Math.min(i, 9) * 40} className={cn('slide -mx-3 rounded-md px-3 py-3 hover:bg-white/10 sm:order-4 sm:col-span-3 sm:-mx-4 sm:px-4', i === 3 && 'mt-2 sm:mt-4', me && 'bg-green/15 hover:bg-green/15')}>
                   <div className="flex items-center gap-4">
                     <span className="t-fig grid h-9 w-9 shrink-0 place-items-center rounded-md bg-white/10 text-[15px] text-white/70">{r.rank}</span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[15px] font-bold text-white">{r.laundry}{me && <Badge className="ml-2 align-middle">Kamu</Badge>}</p>
-                      {cfg.klasemen.showPic && <p className="t-num truncate text-[13px] text-white/65">{r.pic} · {r.orders} transaksi</p>}
+                      <p className="t-num truncate text-[13px] text-white/65" data-klasemen-sub>{cfg.klasemen.showPic ? `${r.pic} (${maskPhone(r.phone)})` : maskPhone(r.phone)}</p>
                     </div>
                     <p className="t-fig shrink-0 text-[15px] text-gold sm:text-[17px]">{rupiah(r.spend)}</p>
                   </div>

@@ -91,6 +91,7 @@ export interface Config {
   tiers: Tier[]
   mitraFloorDiscount: number
   rules: { earnPerRp: number; poinToRp: number; minRedeem: number; expiry: string }
+  /** R.054 — ISO datetimes with offset (staging GET /member/config campaign), e.g. 2026-09-01T00:00:00+07:00 */
   campaign: { start: string; end: string; label: string }
   items: GoldenSaleItem[]
   /** R.051 — bundles of items, shown under "Diskon Paket" above the items */
@@ -191,7 +192,13 @@ export interface Claim {
 
 export interface AuditRow { id: string; t: string; event: string; meta: string }
 
-export interface Redemption { id: string; accountId: string; prizeId: string; prizeName: string; points: number; at: string }
+/** Staging POST /member/redemptions → { code RDM-XXXXXXXX, prizeId, prizeName, pointsCost, pointsBalance, status }. */
+export interface Redemption { id: string; code?: string; accountId: string; prizeId: string; prizeName: string; points: number; balanceAfter?: number; at: string }
+
+/** Staging PointsLedger row types (GET /member/profile/ledger). */
+export type LedgerType = 'earn' | 'redeem' | 'expire' | 'bonus' | 'adjust'
+export const LEDGER_LABEL: Record<LedgerType, string> = { earn: 'Poin masuk', redeem: 'Ditukar hadiah', expire: 'Poin hangus', bonus: 'Bonus poin', adjust: 'Penyesuaian' }
+export interface LedgerEntry { id: string; type: LedgerType; points: number; balanceAfter: number; at: string; note: string; refType: string | null }
 
 /** Staging GoldenSaleOrder.status codes; the Indonesian labels are display-only (STATUS_LABEL). */
 export type OrderStatus = 'AWAITING_PAYMENT' | 'PROOF_UPLOADED' | 'PAID' | 'REJECTED' | 'EXPIRED' | 'CANCELLED'

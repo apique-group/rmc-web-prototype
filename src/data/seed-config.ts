@@ -68,7 +68,7 @@ export const DEFAULT_CONFIG: Config = {
   tiers: SEED_TIERS,
   mitraFloorDiscount: 3,
   rules: { earnPerRp: 1000, poinToRp: 20, minRedeem: 500, expiry: '20 Des' },
-  campaign: { start: '2026-09-01', end: '2026-10-31', label: 'Golden Privilege Sep–Okt 2026' },
+  campaign: { start: '2026-09-01T00:00:00+07:00', end: '2026-10-31T23:59:59+07:00', label: 'Golden Privilege Sep–Okt 2026' },
   items: SEED_ITEMS,
   packages: SEED_PACKAGES,
   prizes: SEED_PRIZES,
