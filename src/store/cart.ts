@@ -52,7 +52,7 @@ export const cartCount = (lines: OrderLine[]) => lines.reduce((s, l) => s + l.qt
 export const cartSavings = (lines: OrderLine[]) => lines.reduce((s, l) => s + l.qty * (l.realPrice - l.promoPrice), 0)
 
 type OrderLike = { status: string; lines: OrderLine[]; buyer?: { phone: string } }
-const live = (o: OrderLike) => o.status !== 'Ditolak' && o.status !== 'Kedaluwarsa' && o.status !== 'Dibatalkan'
+const live = (o: OrderLike) => o.status !== 'REJECTED' && o.status !== 'EXPIRED' && o.status !== 'CANCELLED'
 
 /** Units of an item already in this phone's live orders (Menunggu / Bukti / Lunas), for maxPerCustomer.
     Package contents do not count here (a package has its own cap). */

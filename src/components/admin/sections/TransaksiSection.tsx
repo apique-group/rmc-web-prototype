@@ -3,7 +3,7 @@ import { useAdminAccess } from '../access'
 import { toast } from 'sonner'
 import { Download, FileSpreadsheet, Search, Upload } from 'lucide-react'
 import type { Order, OrderStatus } from '@/model/types'
-import { ORDER_STATUSES } from '@/model/types'
+import { ORDER_STATUSES, STATUS_LABEL } from '@/model/types'
 import { fmtDate, rupiah } from '@/lib/format'
 import { displayPhone } from '@/model/phone'
 import { downloadTemplate, exportOrders, parseOrdersFile, type ImportPreview } from '@/lib/xlsx'
@@ -31,8 +31,8 @@ export function TransaksiSection() {
   const [fileName, setFileName] = React.useState('')
   const fileRef = React.useRef<HTMLInputElement>(null)
 
-  const lunas = orders.filter(o => o.status === 'Lunas')
-  const pending = orders.filter(o => o.status === 'Bukti Diunggah').length
+  const lunas = orders.filter(o => o.status === 'PAID')
+  const pending = orders.filter(o => o.status === 'PROOF_UPLOADED').length
   const counts = ORDER_STATUSES.reduce<Record<string, number>>((m, s) => ({ ...m, [s]: orders.filter(o => o.status === s).length }), {})
 
   const needle = q.trim().toLowerCase()
@@ -81,7 +81,7 @@ export function TransaksiSection() {
               const n = s === 'Semua' ? orders.length : counts[s]
               return (
                 <button key={s} type="button" aria-pressed={on} onClick={() => setFilter(s)} className={cn('flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-[12px] font-semibold transition-colors', on ? 'border-navy-500 bg-navy-500 text-white' : 'border-line bg-white text-ink-2 hover:border-ink-4')}>
-                  {s}<span className={cn('t-num rounded-full px-1.5 text-[11px]', on ? 'bg-white/20' : 'bg-surface-2 text-ink-3')}>{n}</span>
+                  {s === 'Semua' ? s : STATUS_LABEL[s]}<span className={cn('t-num rounded-full px-1.5 text-[11px]', on ? 'bg-white/20' : 'bg-surface-2 text-ink-3')}>{n}</span>
                 </button>
               )
             })}
@@ -117,9 +117,9 @@ function Row({ o, onOpen }: { o: Order; onOpen: () => void }) {
       <TD className="whitespace-nowrap text-ink-3">{fmtDate(o.createdAt, true)}</TD>
       <TD><span className="font-semibold text-ink">{o.buyer.laundry || '-'}</span><span className="block text-[12px] text-ink-3">{o.buyer.name}</span></TD>
       <TD className="t-num whitespace-nowrap">{displayPhone(o.buyer.phone)}</TD>
-      <TD className="text-ink-2">{o.fulfil.mode === 'kirim' ? 'Kirim' : `Ambil · ${o.fulfil.outlet || '-'}`}</TD>
+      <TD className="text-ink-2">{o.fulfil.mode === 'DELIVERY' ? 'Kirim' : `Ambil · ${o.fulfil.outlet || '-'}`}</TD>
       <TD className="t-num text-right font-semibold">{rupiah(o.total)}</TD>
-      <TD><Badge variant={statusVariant(o.status)}>{o.status}</Badge></TD>
+      <TD><Badge variant={statusVariant(o.status)}>{STATUS_LABEL[o.status]}</Badge></TD>
       <TD className="pr-5 text-right"><Button type="button" variant="ghost" size="sm" onClick={e => { e.stopPropagation(); onOpen() }}>Detail</Button></TD>
     </TR>
   )

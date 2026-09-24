@@ -124,7 +124,7 @@ function ResolvedRow({ claim }: { claim: Claim }) {
       <TD>{account?.laundry || claim.accountId}</TD>
       <TD>{customer?.outlet || claim.candidateCustomerId}</TD>
       <TD className="t-num">{Math.round(claim.score * 100)}%</TD>
-      <TD><Badge variant={claim.status === 'approved' ? 'ok' : 'danger'}>{claim.status === 'approved' ? 'Disetujui' : 'Ditolak'}</Badge></TD>
+      <TD><Badge variant={claim.status === 'approved' ? 'ok' : 'danger'}>{claim.status === 'approved' ? 'Disetujui' : 'REJECTED'}</Badge></TD>
       <TD className="whitespace-nowrap text-ink-3">{fmtDate(claim.decidedAt, true)}</TD>
     </TR>
   )

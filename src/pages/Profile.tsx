@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 import { rupiah, poin, fmtDate, fmtMonth } from '@/lib/format'
 import { Reveal } from '@/lib/reveal'
 import { rmcFor, type RmcSummary } from '@/model/rmc'
-import type { Account, CrmCustomer, Order, Prize, Redemption } from '@/model/types'
+import { STATUS_LABEL, type Account, type CrmCustomer, type Order, type Prize, type Redemption } from '@/model/types'
 import { useConfig } from '@/store/config'
 import { CONTACTS } from '@/data/contacts'
 import { useCrm } from '@/store/crm'
@@ -388,8 +388,8 @@ function OrderList({ rows }: { rows: Order[] }) {
               <li key={o.id}>
                 <Link to={`/order/${o.id}`} className="flex min-h-[44px] items-center gap-3 py-3 transition-colors hover:text-navy-700">
                   <div className="min-w-0 flex-1">
-                    <p className="flex flex-wrap items-center gap-2"><span className="t-code text-[13px] font-semibold text-ink">{o.id}</span><Badge variant={statusVariant(o.status)}>{o.status}</Badge></p>
-                    <p className="mt-0.5 text-[12px] text-ink-3">{fmtDate(o.createdAt)} · {o.lines.reduce((s, l) => s + l.qty, 0)} item · {o.fulfil.mode === 'kirim' ? 'Dikirim' : `Ambil di ${o.fulfil.outlet || 'outlet'}`}</p>
+                    <p className="flex flex-wrap items-center gap-2"><span className="t-code text-[13px] font-semibold text-ink">{o.id}</span><Badge variant={statusVariant(o.status)}>{STATUS_LABEL[o.status]}</Badge></p>
+                    <p className="mt-0.5 text-[12px] text-ink-3">{fmtDate(o.createdAt)} · {o.lines.reduce((s, l) => s + l.qty, 0)} item · {o.fulfil.mode === 'DELIVERY' ? 'Dikirim' : `Ambil di ${o.fulfil.outlet || 'outlet'}`}</p>
                   </div>
                   <p className="t-fig shrink-0 text-[14px] text-ink">{rupiah(o.total)}</p>
                   <ArrowRight className="h-4 w-4 shrink-0 text-ink-4" strokeWidth={1.6} />

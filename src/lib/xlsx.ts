@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx'
 import type { Order, OrderStatus } from '@/model/types'
-import { ORDER_STATUSES } from '@/model/types'
+import { STATUS_LABEL, statusFromLabel } from '@/model/types'
 
 /* Mirrors crm-apique primitives.jsx downloadXLSX (autosized columns, phone/ID forced to text)
    and the POS import idiom (crm_pages2.jsx:8331). File naming per PRD: golden-privilege-transaksi-YYYYMMDD.xlsx */
@@ -9,8 +9,8 @@ export const HEADER = ['ID Pesanan', 'Tanggal', 'Status', 'Nama Pembeli', 'Nama 
 
 export function orderToRow(o: Order): (string | number)[] {
   return [
-    o.id, o.createdAt.slice(0, 19).replace('T', ' '), o.status, o.buyer.name, o.buyer.laundry, o.buyer.phone,
-    o.fulfil.mode === 'kirim' ? 'Kirim' : 'Ambil di outlet', o.fulfil.outlet || '', o.fulfil.address || '', o.payment.method,
+    o.id, o.createdAt.slice(0, 19).replace('T', ' '), STATUS_LABEL[o.status], o.buyer.name, o.buyer.laundry, o.buyer.phone,
+    o.fulfil.mode === 'DELIVERY' ? 'Kirim' : 'Ambil di outlet', o.fulfil.outlet || '', o.fulfil.address || '', o.payment.method,
     o.lines.map(l => `${l.code}×${l.qty}`).join('; '), o.total, o.savings, o.payment.proofName || '', o.verifiedAt ? o.verifiedAt.slice(0, 19).replace('T', ' ') : '', o.rejectReason || '',
   ]
 }
@@ -33,7 +33,7 @@ export function exportOrders(orders: Order[]) {
 }
 
 export function downloadTemplate() {
-  const sample: (string | number)[] = ['GS-202609-9001', '2026-09-05 10:00:00', 'Lunas', 'Nama PIC', 'Nama Laundry', '+628123456789', 'Ambil di outlet', 'Jakarta', '', 'QRIS', '000004×2; 000148×1', 350000, 60000, 'bukti.jpg', '2026-09-05 12:00:00', '']
+  const sample: (string | number)[] = ['GS-20260905-9001', '2026-09-05 10:00:00', 'Lunas', 'Nama PIC', 'Nama Laundry', '+628123456789', 'Ambil di outlet', 'Jakarta', '', 'QRIS', '000004×2; 000148×1', 350000, 60000, 'bukti.jpg', '2026-09-05 12:00:00', '']
   downloadXLSX(`golden-privilege-template-import.xlsx`, HEADER, [sample], 'Template')
 }
 
@@ -53,8 +53,9 @@ export async function parseOrdersFile(file: File, catalog: { id: string; code: s
   aoa.slice(1).forEach((r, i) => {
     const id = String(r[c.id] ?? '').trim()
     if (!id) { skipped.push(`Baris ${i + 2}: ID kosong`); return }
-    const status = String(r[c.status] ?? 'Lunas').trim() as OrderStatus
-    if (!ORDER_STATUSES.includes(status)) { skipped.push(`Baris ${i + 2}: status "${status}" tidak dikenal`); return }
+    const statusRaw = String(r[c.status] ?? 'Lunas').trim()
+    const status: OrderStatus | undefined = statusFromLabel(statusRaw)
+    if (!status) { skipped.push(`Baris ${i + 2}: status "${statusRaw}" tidak dikenal`); return }
     const lines = String(r[c.item] ?? '').split(';').map(s => s.trim()).filter(Boolean).map(s => {
       const [code, q] = s.split('×').length > 1 ? s.split('×') : s.split('x')
       const it = catalog.find(x => x.code === code.trim())
@@ -66,7 +67,7 @@ export async function parseOrdersFile(file: File, catalog: { id: string; code: s
     rows.push({
       id, createdAt, expiresAt: createdAt, status,
       buyer: { name: String(r[c.nama] ?? ''), laundry: String(r[c.laundry] ?? ''), phone: String(r[c.hp] ?? '') },
-      fulfil: { mode: /kirim/i.test(String(r[c.ambil] ?? '')) ? 'kirim' : 'ambil', outlet: (String(r[c.outlet] ?? '') || undefined) as Order['fulfil']['outlet'], address: String(r[c.alamat] ?? '') || undefined },
+      fulfil: { mode: /kirim/i.test(String(r[c.ambil] ?? '')) ? 'DELIVERY' : 'PICKUP', outlet: (String(r[c.outlet] ?? '') || undefined) as Order['fulfil']['outlet'], address: String(r[c.alamat] ?? '') || undefined },
       payment: { method: (String(r[c.metode] ?? 'QRIS') as Order['payment']['method']) || 'QRIS', proofName: String(r[c.bukti] ?? '') || undefined },
       lines, total: Number(String(r[c.total] ?? '0').replace(/[^\d.-]/g, '')) || lines.reduce((s, l) => s + l.qty * l.promoPrice, 0),
       savings: Number(String(r[c.hemat] ?? '0').replace(/[^\d.-]/g, '')) || 0,

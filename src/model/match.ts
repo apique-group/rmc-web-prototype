@@ -48,3 +48,17 @@ export function matchRegistration(reg: RegistrationInput, customers: CrmCustomer
   // 4. new lead
   return { path: 4, link: 'NEW_CUSTOMER', customer: null, score: bestScore, backfillPhone: false }
 }
+
+/** Checkout identity match for GUESTS (staging matchCheckoutIdentityWithPhone): a CRM customer with the same phone is
+    linked silently; otherwise the best laundry-name match ≥ threshold is offered as a candidate the buyer must confirm
+    ("Apakah benar Anda terdaftar sebagai outlet berikut?"). Never exposes the candidate's phone or e-mail. */
+export interface CheckoutCandidate { id: string; outlet: string; pic: string; kota: string; rsl?: string; score: number }
+export function matchCheckoutIdentity(input: { laundry: string; phone: string }, customers: CrmCustomer[], threshold = 0.8): { byPhone: CrmCustomer } | { candidate: CheckoutCandidate } | null {
+  const phone = normalizePhone(input.phone)
+  const c = phone ? customers.find(x => normalizePhone(x.hp) === phone) : undefined
+  if (c) return { byPhone: c }
+  let best: CrmCustomer | null = null, bestScore = 0
+  for (const x of customers) { const s = dice(input.laundry, x.outlet); if (s > bestScore) { bestScore = s; best = x } }
+  if (!best || bestScore < threshold) return null
+  return { candidate: { id: best.id, outlet: best.outlet, pic: best.pic, kota: best.kota, rsl: best.rsl, score: bestScore } }
+}

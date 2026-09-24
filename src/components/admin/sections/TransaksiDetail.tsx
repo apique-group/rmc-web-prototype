@@ -3,7 +3,7 @@ import { useAdminAccess } from '../access'
 import { useCrm } from '@/store/crm'
 import { toast } from 'sonner'
 import { CheckCircle2, FileText, RotateCcw, XCircle } from 'lucide-react'
-import type { Order } from '@/model/types'
+import { STATUS_LABEL, type Order } from '@/model/types'
 import { fmtDate, rupiah } from '@/lib/format'
 import { displayPhone } from '@/model/phone'
 import { useOrders } from '@/store/orders'
@@ -25,10 +25,10 @@ export function TransaksiDetail({ order, onClose }: { order: Order | null; onClo
   const act = (status: Order['status'], r?: string) => {
     if (!order || !canEdit) return
     setStatus(order.id, status, r)
-    useCrm.getState().log('Status pesanan diubah', `${order.id} → ${status} · oleh ${actor || '-'}`)
-    toast.success(`${order.id} → ${status}`)
+    useCrm.getState().log('Status pesanan diubah', `${order.id} → ${STATUS_LABEL[status]} · oleh ${actor || '-'}`)
+    toast.success(`${order.id} → ${STATUS_LABEL[status]}`)
     setRejecting(false); setReason('')
-    if (status !== 'Menunggu Pembayaran') onClose()
+    if (status !== 'AWAITING_PAYMENT') onClose()
   }
 
   const o = order
@@ -43,7 +43,7 @@ export function TransaksiDetail({ order, onClose }: { order: Order | null; onClo
             <DialogHeader>
               <div className="flex flex-wrap items-center gap-2 pr-8">
                 <DialogTitle className="t-code text-[17px]">{o.id}</DialogTitle>
-                <Badge variant={statusVariant(o.status)}>{o.status}</Badge>
+                <Badge variant={statusVariant(o.status)}>{STATUS_LABEL[o.status]}</Badge>{o.payment.proofLate && <Badge variant="warn">Bukti terlambat</Badge>}
               </div>
               <DialogDescription>{fmtDate(o.createdAt, true)} · {o.payment.method}{o.verifiedAt ? ` · diverifikasi ${fmtDate(o.verifiedAt, true)}` : ''}</DialogDescription>
             </DialogHeader>
@@ -54,11 +54,12 @@ export function TransaksiDetail({ order, onClose }: { order: Order | null; onClo
               {/* Orders stored before these fields existed render a dash rather than crashing. */}
               <Item k="Email" v={o.buyer.email || '-'} mono />
               <Item k="Bersedia dihubungi" v={o.consentAt ? `Ya · ${fmtDate(o.consentAt)}` : '-'} />
-              <Item k="Pengambilan" v={o.fulfil.mode === 'kirim' ? `Kirim · ${o.fulfil.address || '-'}` : `Ambil di outlet ${o.fulfil.outlet || '-'}`} />
+              <Item k="Pengambilan" v={o.fulfil.mode === 'DELIVERY' ? `Kirim · ${o.fulfil.address || '-'}` : `Ambil di outlet ${o.fulfil.outlet || '-'}`} />
               <Item k="Akun" v={o.accountId || 'Tamu'} mono />
               <Item k="Pelanggan CRM" v={o.crmCustomerId || '-'} mono />
               {o.note && <Item k="Catatan" v={o.note} />}
               {o.rejectReason && <Item k="Alasan tolak" v={o.rejectReason} />}
+              {o.cancelReason && <Item k="Alasan batal" v={o.cancelReason} />}
             </dl>
 
             <Table>
@@ -95,18 +96,19 @@ export function TransaksiDetail({ order, onClose }: { order: Order | null; onClo
 
             <DialogFooter className="sm:justify-between">
               <div className="flex gap-2">
-                {o.status !== 'Menunggu Pembayaran' && <Button type="button" variant="ghost" size="sm" disabled={!canEdit} onClick={() => act('Menunggu Pembayaran')}><RotateCcw strokeWidth={1.6} />Tandai Menunggu</Button>}
+                {o.status !== 'AWAITING_PAYMENT' && <Button type="button" variant="ghost" size="sm" disabled={!canEdit} onClick={() => act('AWAITING_PAYMENT')}><RotateCcw strokeWidth={1.6} />Tandai Menunggu</Button>}
+                {(o.status === 'AWAITING_PAYMENT' || o.status === 'EXPIRED') && <Button type="button" variant="ghost" size="sm" className="text-ink-3" disabled={!canEdit} onClick={() => act('CANCELLED', 'dibatalkan admin')}>Batalkan</Button>}
               </div>
               <div className="flex gap-2">
                 {rejecting ? (
                   <>
                     <Button type="button" variant="ghost" size="sm" onClick={() => setRejecting(false)}>Batal</Button>
-                    <Button type="button" variant="destructive" size="sm" disabled={!canEdit || !reason.trim()} onClick={() => act('Ditolak', reason.trim())}><XCircle strokeWidth={1.6} />Konfirmasi tolak</Button>
+                    <Button type="button" variant="destructive" size="sm" disabled={!canEdit || !reason.trim()} onClick={() => act('REJECTED', reason.trim())}><XCircle strokeWidth={1.6} />Konfirmasi tolak</Button>
                   </>
                 ) : (
                   <>
-                    {o.status !== 'Ditolak' && <Button type="button" variant="outline" size="sm" className="text-danger" disabled={!canEdit} onClick={() => setRejecting(true)}><XCircle strokeWidth={1.6} />Tolak</Button>}
-                    {o.status !== 'Lunas' && <Button type="button" size="sm" disabled={!canEdit} title={canEdit ? undefined : 'Hanya lihat'} onClick={() => act('Lunas')}><CheckCircle2 strokeWidth={1.6} />Verifikasi (Lunas)</Button>}
+                    {o.status !== 'REJECTED' && <Button type="button" variant="outline" size="sm" className="text-danger" disabled={!canEdit} onClick={() => setRejecting(true)}><XCircle strokeWidth={1.6} />Tolak</Button>}
+                    {o.status !== 'PAID' && <Button type="button" size="sm" disabled={!canEdit} title={canEdit ? undefined : 'Hanya lihat'} onClick={() => act('PAID')}><CheckCircle2 strokeWidth={1.6} />Verifikasi (Lunas)</Button>}
                   </>
                 )}
               </div>

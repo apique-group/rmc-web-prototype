@@ -193,8 +193,13 @@ export interface AuditRow { id: string; t: string; event: string; meta: string }
 
 export interface Redemption { id: string; accountId: string; prizeId: string; prizeName: string; points: number; at: string }
 
-export type OrderStatus = 'Menunggu Pembayaran' | 'Bukti Diunggah' | 'Lunas' | 'Ditolak' | 'Kedaluwarsa'
-export const ORDER_STATUSES: OrderStatus[] = ['Menunggu Pembayaran', 'Bukti Diunggah', 'Lunas', 'Ditolak', 'Kedaluwarsa']
+/** Staging GoldenSaleOrder.status codes; the Indonesian labels are display-only (STATUS_LABEL). */
+export type OrderStatus = 'AWAITING_PAYMENT' | 'PROOF_UPLOADED' | 'PAID' | 'REJECTED' | 'EXPIRED' | 'CANCELLED'
+export const ORDER_STATUSES: OrderStatus[] = ['AWAITING_PAYMENT', 'PROOF_UPLOADED', 'PAID', 'REJECTED', 'EXPIRED', 'CANCELLED']
+export const STATUS_LABEL: Record<OrderStatus, string> = { AWAITING_PAYMENT: 'Menunggu Pembayaran', PROOF_UPLOADED: 'Bukti Diunggah', PAID: 'Lunas', REJECTED: 'Ditolak', EXPIRED: 'Kedaluwarsa', CANCELLED: 'Dibatalkan' }
+export const statusFromLabel = (v: string): OrderStatus | undefined => (ORDER_STATUSES as string[]).includes(v) ? (v as OrderStatus) : (Object.keys(STATUS_LABEL) as OrderStatus[]).find(k => STATUS_LABEL[k].toLowerCase() === v.trim().toLowerCase())
+/** Staging GsFulfilMode; labels Ambil / Kirim are display-only. */
+export type FulfilMode = 'PICKUP' | 'DELIVERY'
 
 /** An order line is either an item (itemId) or a package (packageId) — never both (staging POST /member/orders lines[]). */
 export interface OrderLine { itemId?: string; packageId?: string; code: string; name: string; qty: number; promoPrice: number; realPrice: number }
@@ -204,11 +209,13 @@ export interface Order {
   createdAt: string
   expiresAt: string
   status: OrderStatus
-  buyer: { name: string; laundry: string; phone: string; email?: string }
+  buyer: { name: string; laundry: string; phone: string; email?: string; /** guest identity match answer (staging matchDecision) */ matchDecision?: { customerId: string; confirmed: boolean } }
   accountId?: string
   crmCustomerId?: string
-  fulfil: { mode: 'ambil' | 'kirim'; outlet?: Kota; address?: string }
-  payment: { method: 'QRIS' | 'VA' | 'EWALLET'; proofName?: string; proofDataUrl?: string; proofType?: string; uploadedAt?: string }
+  fulfil: { mode: FulfilMode; outlet?: Kota; address?: string }
+  payment: { method: 'QRIS' | 'VA' | 'EWALLET'; proofName?: string; proofDataUrl?: string; proofType?: string; uploadedAt?: string; /** proof arrived after expiresAt (staging allows it; staff verifies manually) */ proofLate?: boolean }
+  /** admin cancel (staging CANCELLED) */
+  cancelReason?: string
   lines: OrderLine[]
   total: number
   savings: number

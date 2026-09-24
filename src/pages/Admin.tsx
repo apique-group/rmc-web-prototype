@@ -45,7 +45,7 @@ export function AdminPage() {
 
   const logo = useConfig(s => s.config.assets.logo)
   const openClaims = useCrm(s => s.claims.filter(c => c.status === 'open').length)
-  const pendingProofs = useOrders(s => s.orders.filter(o => o.status === 'Bukti Diunggah').length)
+  const pendingProofs = useOrders(s => s.orders.filter(o => o.status === 'PROOF_UPLOADED').length)
 
   React.useEffect(() => { document.title = 'Golden Privilege · Konfigurasi' }, [])
 

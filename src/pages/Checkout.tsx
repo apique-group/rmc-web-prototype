@@ -9,6 +9,9 @@ import { cn } from '@/lib/utils'
 import { rupiah } from '@/lib/format'
 import { Reveal } from '@/lib/reveal'
 import { normalizePhone, displayPhone } from '@/model/phone'
+import { matchCheckoutIdentity, type CheckoutCandidate } from '@/model/match'
+import { useCrm } from '@/store/crm'
+import { loadGuestBuyer, saveGuestBuyer } from '@/lib/guest-buyer'
 import type { Kota, Order } from '@/model/types'
 import { useConfig } from '@/store/config'
 import { useOrders } from '@/store/orders'
@@ -21,6 +24,7 @@ import { Field } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioCard } from '@/components/ui/radio-group'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Separator, EmptyState } from '@/components/ui/misc'
 import { QtyStepper } from '@/components/shop/QtyStepper'
@@ -32,7 +36,7 @@ const schema = z
     laundry: z.string().trim().min(2, 'Nama laundry wajib diisi'),
     phone: z.string().refine(v => normalizePhone(v) !== null, 'Nomor HP tidak valid. Contoh: 0812 3456 7890'),
     email: z.string().trim().min(1, 'Email wajib diisi').email('Format email tidak valid. Contoh: nama@laundrykamu.co.id'),
-    mode: z.enum(['ambil', 'kirim']),
+    mode: z.enum(['PICKUP', 'DELIVERY']),
     outlet: z.string().optional(),
     address: z.string().optional(),
     note: z.string().optional(),
@@ -43,8 +47,8 @@ const schema = z
     consent: z.boolean().refine(v => v === true, 'Centang persetujuan dihubungi dulu.'),
   })
   .superRefine((v, ctx) => {
-    if (v.mode === 'ambil' && !v.outlet) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['outlet'], message: 'Pilih outlet pengambilan' })
-    if (v.mode === 'kirim' && !(v.address || '').trim()) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['address'], message: 'Alamat pengiriman wajib diisi' })
+    if (v.mode === 'PICKUP' && !v.outlet) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['outlet'], message: 'Pilih outlet pengambilan' })
+    if (v.mode === 'DELIVERY' && (v.address || '').trim().length < 10) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['address'], message: 'Alamat pengiriman minimal 10 karakter' })
     if (v.method === 'EWALLET' && !v.ewallet) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['ewallet'], message: 'Pilih e-wallet' })
   })
 type FormValues = z.infer<typeof schema>
@@ -65,18 +69,21 @@ export function CheckoutPage() {
 
   const [placed, setPlaced] = React.useState<Order | null>(null)
   const [sheetOpen, setSheetOpen] = React.useState(false)
+  const [pendingMatch, setPendingMatch] = React.useState<{ candidate: CheckoutCandidate; values: FormValues } | null>(null)
+  const customers = useCrm(s => s.customers)
+  const guest = React.useMemo(() => (acc ? null : loadGuestBuyer()), [acc])
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     mode: 'onTouched',
     defaultValues: {
-      name: acc?.pic || '',
-      laundry: acc?.laundry || '',
-      phone: acc?.phone || '',
-      email: acc?.email || '',
-      mode: 'ambil',
-      outlet: cfg.outlets.length === 1 ? cfg.outlets[0] : undefined,
-      address: '',
+      name: acc?.pic || guest?.name || '',
+      laundry: acc?.laundry || guest?.laundry || '',
+      phone: acc?.phone || guest?.phone || '',
+      email: acc?.email || guest?.email || '',
+      mode: guest?.mode || 'PICKUP',
+      outlet: guest?.outlet || (cfg.outlets.length === 1 ? cfg.outlets[0] : undefined),
+      address: guest?.address || '',
       note: '',
       method: 'QRIS',
       ewallet: undefined,
@@ -106,18 +113,32 @@ export function CheckoutPage() {
     consentRef.current?.querySelector<HTMLElement>('button,input')?.focus()
   }
 
+  const placeOrder = (v: FormValues, matchDecision?: { customerId: string; confirmed: boolean }) => {
+    try {
+      const order = useOrders.getState().create({
+        name: v.name, laundry: v.laundry, phone: v.phone, email: v.email, consent: v.consent,
+        mode: v.mode, outlet: v.mode === 'PICKUP' ? (v.outlet as Kota) : undefined, address: v.mode === 'DELIVERY' ? v.address : undefined,
+        lines, method: v.method, note: v.note?.trim() || undefined, matchDecision,
+      })
+      if (!acc) saveGuestBuyer({ name: v.name, laundry: v.laundry, phone: v.phone, email: v.email, mode: v.mode, outlet: v.outlet as Kota | undefined, address: v.address })
+      useCart.getState().clear()
+      setPendingMatch(null)
+      setPlaced(order)
+      setSheetOpen(true)
+      toast.success(`Pesanan ${order.id} dibuat, selesaikan pembayaran QRIS`)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Pesanan gagal dibuat')
+    }
+  }
   const onSubmit = (v: FormValues) => {
     if (lines.length === 0) return toast.error('Keranjang kosong')
     if (v.method !== 'QRIS') return toast.warning('Metode ini belum tersedia. Pakai QRIS')
-    const order = useOrders.getState().create({
-      name: v.name, laundry: v.laundry, phone: v.phone, email: v.email, consent: v.consent,
-      mode: v.mode, outlet: v.mode === 'ambil' ? (v.outlet as Kota) : undefined, address: v.mode === 'kirim' ? v.address : undefined,
-      lines, method: v.method, note: v.note?.trim() || undefined,
-    })
-    useCart.getState().clear()
-    setPlaced(order)
-    setSheetOpen(true)
-    toast.success(`Pesanan ${order.id} dibuat, selesaikan pembayaran QRIS`)
+    // staging identity match (guests only): a same-phone customer links silently; a similar laundry name must be confirmed first
+    if (!acc) {
+      const m = matchCheckoutIdentity({ laundry: v.laundry, phone: v.phone }, customers, cfg.matching.fuzzyThreshold)
+      if (m && 'candidate' in m) { setPendingMatch({ candidate: m.candidate, values: v }); return }
+    }
+    placeOrder(v)
   }
 
   /* Post-submit: cart is empty by design, so show the order handoff instead of the empty state. */
@@ -144,13 +165,34 @@ export function CheckoutPage() {
           </Card>
         </Reveal>
         <Reveal delay={140} className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <Button asChild variant="outline" size="lg" className=""><Link to={'/order/' + placed.id}>Lihat status pesanan</Link></Button>
+          <Button asChild variant="outline" size="lg" className=""><Link to={'/order/' + placed.id + (acc ? '' : '?phone=' + encodeURIComponent(placed.buyer.phone))}>Lihat status pesanan</Link></Button>
           <Button asChild variant="ghost" size="lg" className=""><Link to="/">Kembali ke beranda</Link></Button>
         </Reveal>
         <QrisSheet order={placed} open={sheetOpen} onOpenChange={setSheetOpen} />
       </div>
     )
   }
+
+  const matchDialog = pendingMatch && (
+    <Dialog open onOpenChange={o => { if (!o) setPendingMatch(null) }}>
+      <DialogContent data-match-dialog className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Apakah benar Anda terdaftar sebagai outlet berikut?</DialogTitle>
+          <DialogDescription>Nomor HP yang kamu isi belum tercatat, tapi nama laundry mirip dengan data pelanggan Resique berikut. Konfirmasi kalau ini outletmu supaya transaksi tercatat dengan benar.</DialogDescription>
+        </DialogHeader>
+        <dl className="grid grid-cols-[120px_1fr] gap-y-2 rounded-xl border border-line bg-surface-2 p-4 text-[13px]">
+          <dt className="text-ink-3">Nama outlet</dt><dd className="font-semibold text-ink">{pendingMatch.candidate.outlet}</dd>
+          <dt className="text-ink-3">PIC</dt><dd className="text-ink">{pendingMatch.candidate.pic}</dd>
+          <dt className="text-ink-3">Kota</dt><dd className="text-ink">{pendingMatch.candidate.kota}</dd>
+          {pendingMatch.candidate.rsl && <><dt className="text-ink-3">Nomor kartu</dt><dd className="t-code text-ink">{pendingMatch.candidate.rsl}</dd></>}
+        </dl>
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={() => placeOrder(pendingMatch.values, { customerId: pendingMatch.candidate.id, confirmed: false })}>Bukan, lanjutkan sebagai tamu</Button>
+          <Button type="button" onClick={() => placeOrder(pendingMatch.values, { customerId: pendingMatch.candidate.id, confirmed: true })}>Ya, ini outlet saya</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
 
   if (lines.length === 0) {
     return (
@@ -167,8 +209,25 @@ export function CheckoutPage() {
     )
   }
 
+  // staging PAYMENT_NOT_CONFIGURED: no order may be created while the admin has not uploaded a QRIS image
+  if (!cfg.assets.qrisImage) {
+    return (
+      <div className="container max-w-xl pb-16 pt-24 sm:pt-32">
+        <Reveal>
+          <p className="t-eyebrow">Checkout</p>
+          <h1 className="t-h1 mt-3 text-ink">QRIS belum disiapkan</h1>
+        </Reveal>
+        <Reveal delay={80}>
+          <EmptyState data-qris-missing className="mt-8" title="Pembayaran belum bisa dibuka" desc="Admin Resique belum mengunggah QRIS pembayaran. Coba lagi nanti atau hubungi sales Resique."
+            action={<Button asChild size="lg" variant="outline" className=""><Link to="/#golden-sale">Kembali ke Golden Sale</Link></Button>} />
+        </Reveal>
+      </div>
+    )
+  }
+
   return (
     <div className="container pb-32 pt-24 sm:pt-32 lg:pb-16">
+      {matchDialog}
       <Reveal>
         <Link to="/#golden-sale" className="inline-flex h-11 items-center gap-1.5 text-[13px] font-semibold text-ink-3 transition-colors hover:text-ink"><ArrowLeft className="h-4 w-4" strokeWidth={1.6} /> Kembali ke Golden Sale</Link>
         <p className="t-eyebrow mt-2">Checkout</p>
@@ -184,18 +243,18 @@ export function CheckoutPage() {
               <h2 className="t-h2 text-ink">Data pemesan</h2>
               <div className="mt-5 space-y-5">
                 <Field label="Nama" required htmlFor="co-name" error={errors.name?.message}>
-                  <Input id="co-name" autoComplete="name" placeholder="Nama lengkap" aria-invalid={!!errors.name} {...register('name')} />
+                  <Input id="co-name" autoComplete="name" placeholder="Nama lengkap" readOnly={!!acc} aria-invalid={!!errors.name} {...register('name')} />
                 </Field>
                 <Field label="Nama laundry" required htmlFor="co-laundry" error={errors.laundry?.message}>
-                  <Input id="co-laundry" autoComplete="organization" placeholder="Contoh: Laundry Bersih Jaya" aria-invalid={!!errors.laundry} {...register('laundry')} />
+                  <Input id="co-laundry" autoComplete="organization" placeholder="Contoh: Laundry Bersih Jaya" readOnly={!!acc} aria-invalid={!!errors.laundry} {...register('laundry')} />
                 </Field>
                 <Field label="No. HP (WhatsApp)" required htmlFor="co-phone" error={errors.phone?.message}
-                  hint={phoneNorm ? `Tersimpan sebagai ${phoneNorm} · ${displayPhone(phoneNorm)}` : 'Sales Resique menghubungi lewat nomor ini.'}>
-                  <Input id="co-phone" type="tel" spellCheck={false} inputMode="tel" autoComplete="tel" placeholder="0812 3456 7890" aria-invalid={!!errors.phone} {...register('phone')} />
+                  hint={acc ? 'Terisi otomatis dari akunmu.' : phoneNorm ? `Tersimpan sebagai ${phoneNorm} · ${displayPhone(phoneNorm)}` : 'Sales Resique menghubungi lewat nomor ini.'}>
+                  <Input id="co-phone" type="tel" spellCheck={false} inputMode="tel" autoComplete="tel" placeholder="0812 3456 7890" readOnly={!!acc} aria-invalid={!!errors.phone} {...register('phone')} />
                 </Field>
                 <Field label="Email" required htmlFor="co-email" error={errors.email?.message}
-                  hint="Email digunakan untuk tracking transaksi ini.">
-                  <Input id="co-email" type="email" spellCheck={false} inputMode="email" autoComplete="email" placeholder="nama@laundrykamu.co.id" aria-invalid={!!errors.email} {...register('email')} />
+                  hint={acc ? 'Terisi otomatis dari akunmu.' : 'Untuk menerima konfirmasi pembayaran via email.'}>
+                  <Input id="co-email" type="email" spellCheck={false} inputMode="email" autoComplete="email" placeholder="nama@email.com" readOnly={!!acc} aria-invalid={!!errors.email} {...register('email')} />
                 </Field>
               </div>
             </Reveal>
@@ -204,11 +263,11 @@ export function CheckoutPage() {
               <h2 className="t-h2 text-ink">Pengambilan</h2>
               <Controller control={control} name="mode" render={({ field }) => (
                 <RadioGroup value={field.value} onValueChange={field.onChange} className="mt-5" aria-label="Cara pengambilan">
-                  <RadioCard value="ambil" title="Ambil di outlet Resique" desc="Gratis. Ambil setelah pembayaran diverifikasi." badge={<Store className="h-4 w-4 text-ink-4" strokeWidth={1.6} />} />
-                  <RadioCard value="kirim" title="Kirim ke alamat" desc="Ongkir dihitung sales via WhatsApp, di luar QR." badge={<Truck className="h-4 w-4 text-ink-4" strokeWidth={1.6} />} />
+                  <RadioCard value="PICKUP" title="Ambil di outlet Resique" desc="Gratis. Ambil setelah pembayaran diverifikasi." badge={<Store className="h-4 w-4 text-ink-4" strokeWidth={1.6} />} />
+                  <RadioCard value="DELIVERY" title="Kirim ke alamat" desc="Ongkir dihitung sales via WhatsApp, di luar QR." badge={<Truck className="h-4 w-4 text-ink-4" strokeWidth={1.6} />} />
                 </RadioGroup>
               )} />
-              {mode === 'ambil' && (
+              {mode === 'PICKUP' && (
                 <Field className="mt-4" label="Outlet pengambilan" required htmlFor="co-outlet" error={errors.outlet?.message}>
                   <Controller control={control} name="outlet" render={({ field }) => (
                     <Select value={field.value ?? ''} onValueChange={field.onChange}>
@@ -218,7 +277,7 @@ export function CheckoutPage() {
                   )} />
                 </Field>
               )}
-              {mode === 'kirim' && (
+              {mode === 'DELIVERY' && (
                 <Field className="mt-4" label="Alamat pengiriman" required htmlFor="co-address" error={errors.address?.message}
                   hint="Ongkir dihitung sales via WhatsApp setelah pesanan dibuat. Tidak termasuk dalam QR.">
                   <Textarea id="co-address" autoComplete="street-address" placeholder="Nama jalan, nomor, kelurahan, kota, kode pos" aria-invalid={!!errors.address} {...register('address')} />
@@ -230,8 +289,15 @@ export function CheckoutPage() {
             </Reveal>
 
             <Reveal delay={140} as="section">
-              <h2 className="t-h2 text-ink">Pilih pembayaran</h2>
-              <Controller control={control} name="method" render={({ field }) => (
+              <h2 className="t-h2 text-ink">Pembayaran</h2>
+              {!(cfg.payment.vaEnabled || cfg.payment.ewalletEnabled) && (
+                <div data-payment-fixed className="mt-5 flex items-center gap-3 rounded-xl border border-line bg-white p-4">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-navy-50 text-navy-700"><QrCode className="h-5 w-5" strokeWidth={1.6} /></span>
+                  <div className="min-w-0"><p className="text-[14px] font-bold text-ink">QRIS · {cfg.payment.qrisMerchant}</p><p className="text-[13px] text-ink-3">Scan dengan aplikasi bank / e-wallet apa pun, lalu unggah bukti bayar.</p></div>
+                  <Badge variant="gold" className="ml-auto">Aktif</Badge>
+                </div>
+              )}
+              {(cfg.payment.vaEnabled || cfg.payment.ewalletEnabled) && <Controller control={control} name="method" render={({ field }) => (
                 <RadioGroup value={field.value} onValueChange={field.onChange} className="mt-5" aria-label="Metode pembayaran">
                   <RadioCard value="QRIS" title="QRIS" desc="Scan dengan aplikasi bank / e-wallet apa pun" badge={<Badge variant="gold">Aktif</Badge>} />
                   <RadioCard value="VA" title="Virtual Account" disabled={!cfg.payment.vaEnabled}
@@ -241,7 +307,7 @@ export function CheckoutPage() {
                     desc={cfg.payment.ewallets.length ? cfg.payment.ewallets.join(', ') : 'Bayar lewat dompet digital'}
                     badge={!cfg.payment.ewalletEnabled ? <Badge variant="muted">Segera</Badge> : undefined} />
                 </RadioGroup>
-              )} />
+              )} />}
               {method === 'EWALLET' && cfg.payment.ewalletEnabled && (
                 <Field className="mt-4" label="E-wallet" required htmlFor="co-ewallet" error={errors.ewallet?.message}>
                   <Controller control={control} name="ewallet" render={({ field }) => (

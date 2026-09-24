@@ -11,7 +11,8 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 
-const MAX_PROOF_BYTES = 2 * 1024 * 1024
+const MAX_PROOF_BYTES = 10 * 1024 * 1024
+const PROOF_ALLOWED = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf']
 const DOWNSCALE_ABOVE = 300 * 1024
 const DOWNSCALE_MAX_PX = 1200
 /** PDF proofs keep only the file name; the thumbnail slot gets this tiny placeholder. */
@@ -81,11 +82,13 @@ export function QrisSheet({ order, open, onOpenChange }: { order: Order; open: b
 
   const expiresMs = Date.parse(live.expiresAt)
   const remainingSec = Number.isFinite(expiresMs) ? Math.max(0, Math.ceil((expiresMs - now) / 1000)) : 0
-  const waiting = live.status === 'Menunggu Pembayaran'
-  const expired = live.status === 'Kedaluwarsa' || (waiting && remainingSec <= 0)
-  const uploaded = live.status !== 'Menunggu Pembayaran' && live.status !== 'Kedaluwarsa'
+  const waiting = live.status === 'AWAITING_PAYMENT'
+  const expired = live.status === 'EXPIRED' || (waiting && remainingSec <= 0)
+  const uploaded = live.status !== 'AWAITING_PAYMENT' && live.status !== 'EXPIRED'
   const waitLeft = openedAt === null ? cfg.payment.uploadDelaySec : Math.max(0, cfg.payment.uploadDelaySec - Math.floor((now - openedAt) / 1000))
-  const canUpload = waiting && !expired && waitLeft === 0 && !busy
+  // staging: proof is still accepted after expiry (late transfer → manual verification by staff)
+  const lateWindow = expired && live.status !== 'PROOF_UPLOADED' && live.status !== 'PAID' && live.status !== 'REJECTED' && live.status !== 'CANCELLED'
+  const canUpload = (waiting || lateWindow) && waitLeft === 0 && !busy
 
   // Countdown hit zero → flip the order to Kedaluwarsa in the store (same rule Shell runs every 15s).
   React.useEffect(() => {
@@ -137,9 +140,8 @@ export function QrisSheet({ order, open, onOpenChange }: { order: Order; open: b
     const file = e.target.files?.[0]
     e.target.value = ''
     if (!file) return
-    const okType = file.type.startsWith('image/') || file.type === 'application/pdf'
-    if (!okType) return toast.error('Format tidak didukung. Unggah JPG, PNG, atau PDF')
-    if (file.size > MAX_PROOF_BYTES) return toast.error('Ukuran file maksimal 2 MB')
+    if (file.size > MAX_PROOF_BYTES) return toast.error('File melebihi batas 10MB')
+    if (!PROOF_ALLOWED.includes(file.type)) return toast.error('Tipe file tidak diizinkan (PNG, JPEG, WEBP, atau PDF)')
     setBusy(true)
     try {
       const dataUrl = await proofToDataUrl(file)
@@ -201,9 +203,16 @@ export function QrisSheet({ order, open, onOpenChange }: { order: Order; open: b
             )}
           </div>
 
-          {expired ? (
+          {expired && !lateWindow ? (
             <div className="mt-6 space-y-3">
               <p className="text-center text-[13px] leading-relaxed text-ink-3">Batas waktu pembayaran habis dan pesanan ini ditutup. Buat pesanan baru untuk mendapatkan QR yang baru.</p>
+              <Button size="xl" variant="gold" className="w-full" onClick={() => go('/#golden-sale')}>Buat pesanan baru</Button>
+            </div>
+          ) : lateWindow ? (
+            <div className="mt-6 space-y-3">
+              <p data-late-proof className="text-center text-[13px] leading-relaxed text-ink-3">Batas waktu pembayaran sudah lewat. Kalau kamu sudah terlanjur membayar, unggah buktinya di sini — admin Resique memverifikasinya secara manual. Kalau belum, buat pesanan baru.</p>
+              <Button data-upload-btn size="xl" variant="outline" className="w-full" disabled={!canUpload} onClick={() => fileRef.current?.click()}><Upload className="h-4 w-4" strokeWidth={1.6} />{busy ? 'Memproses…' : 'Unggah bukti (terlambat)'}</Button>
+              <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,application/pdf" className="sr-only" tabIndex={-1} onChange={onFile} aria-hidden />
               <Button size="xl" variant="gold" className="w-full" onClick={() => go('/#golden-sale')}>Buat pesanan baru</Button>
             </div>
           ) : uploaded ? (
@@ -222,8 +231,8 @@ export function QrisSheet({ order, open, onOpenChange }: { order: Order; open: b
                   <Upload className="h-4 w-4" strokeWidth={1.6} />
                   {busy ? 'Memproses…' : waitLeft > 0 ? <>Unggah bukti pembayaran <span className="t-code text-[12px] font-bold opacity-70">· Aktif dalam {waitLeft} dtk</span></> : 'Unggah bukti pembayaran'}
                 </Button>
-                <input ref={fileRef} type="file" accept="image/*,.pdf" className="sr-only" tabIndex={-1} onChange={onFile} aria-hidden />
-                <p id="upload-hint" className="mt-2 text-center text-[12px] text-ink-4">JPG, PNG, atau PDF, maks. 2 MB. Admin Resique cek buktinya setelah diunggah.</p>
+                <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,application/pdf" className="sr-only" tabIndex={-1} onChange={onFile} aria-hidden />
+                <p id="upload-hint" className="mt-2 text-center text-[12px] text-ink-4">PNG, JPEG, WEBP, atau PDF, maks. 10 MB. Admin Resique cek buktinya setelah diunggah.</p>
               </div>
             </div>
           )}

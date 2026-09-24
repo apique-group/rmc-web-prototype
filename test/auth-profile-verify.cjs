@@ -38,7 +38,7 @@ const { ok, launch, go, resetStores, readStore, fill, text, finish } = require('
   const expected = await p.evaluate(() => {
     const c = window.__rmcweb.crm().customers.find(x => x.id === 'C-2026-0028')
     const cfg = window.__rmcweb.config()
-    const lunas = window.__rmcweb.orders().filter(o => o.status === 'Lunas' && o.crmCustomerId === c.id && o.createdAt.startsWith('2026')).reduce((s, o) => s + o.total, 0)
+    const lunas = window.__rmcweb.orders().filter(o => o.status === 'PAID' && o.crmCustomerId === c.id && o.createdAt.startsWith('2026')).reduce((s, o) => s + o.total, 0)
     const year = Object.entries(c.monthly).filter(([k]) => k.startsWith('2026')).reduce((s, [, v]) => s + v, 0) + lunas
     return Math.floor(year / cfg.rules.earnPerRp)
   })

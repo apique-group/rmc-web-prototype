@@ -57,7 +57,8 @@ async function setPassword(p, pw, expectEnabled = true) {
   ok(/mirip|verifikasi/i.test(t) && !/Karpet Bersih Bandung/.test(t), 'path 2 → PENDING result screen, candidate name not revealed')
   const crm = await readStore(p, 'crm')
   const tono = crm.customers.find(c => c.id === 'C-2026-0015')
-  ok(!tono.hp && crm.claims.length === 1 && acc.accounts[0].link === 'PENDING' && acc.accounts[0].matchPath === 2, `path 2: claim row created, phone NOT backfilled until sales approves (${tono.hp || 'kosong'})`)
+  const acc2 = await readStore(p, 'accounts')
+  ok(!tono.hp && crm.claims.length === 1 && acc2.accounts[0].link === 'PENDING' && acc2.accounts[0].matchPath === 2, `path 2: claim row created, phone NOT backfilled until sales approves (${tono.hp || 'kosong'})`)
 
   // path 3 — fuzzy (Laundry Bunda Palembang / Rina Marlina, no phone) with a typo
   await go(p, '/register')

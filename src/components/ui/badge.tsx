@@ -28,11 +28,11 @@ function Badge({ className, variant, ...props }: BadgeProps) {
 /** Order status → badge variant (single source for admin + order page). */
 export function statusVariant(status: string): BadgeProps['variant'] {
   switch (status) {
-    case 'Lunas': return 'ok'
-    case 'Bukti Diunggah': return 'info'
-    case 'Menunggu Pembayaran': return 'warn'
-    case 'Ditolak': return 'danger'
-    case 'Kedaluwarsa': return 'muted'
+    case 'PAID': return 'ok'
+    case 'PROOF_UPLOADED': return 'info'
+    case 'AWAITING_PAYMENT': return 'warn'
+    case 'REJECTED': return 'danger'
+    case 'EXPIRED': return 'muted'
     default: return 'outline'
   }
 }

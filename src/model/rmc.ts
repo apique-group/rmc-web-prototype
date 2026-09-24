@@ -60,7 +60,7 @@ export function rmcFor(
   const win = currentWindow(today)
   const monthlyMap: Record<string, number> = { ...(cust?.monthly || {}) }
   orders
-    .filter(o => o.status === 'Lunas' && (o.accountId === accountId || (cust && o.crmCustomerId === cust.id)))
+    .filter(o => o.status === 'PAID' && (o.accountId === accountId || (cust && o.crmCustomerId === cust.id)))
     .forEach(o => { const k = ym(o.createdAt); monthlyMap[k] = (monthlyMap[k] || 0) + o.total })
 
   const inWin = (k: string) => k >= win.start.slice(0, 7) && k <= win.end.slice(0, 7)

@@ -1,7 +1,7 @@
 import { useAdminAccess } from '../access'
 import { useCrm } from '@/store/crm'
 import { toast } from 'sonner'
-import type { Order } from '@/model/types'
+import { STATUS_LABEL, type Order } from '@/model/types'
 import type { ImportPreview } from '@/lib/xlsx'
 import { fmtDate, rupiah } from '@/lib/format'
 import { useOrders } from '@/store/orders'
@@ -49,7 +49,7 @@ export function TransaksiImport({ preview, fileName, onClose }: { preview: Impor
                     <TD><span className="font-semibold">{r.buyer.laundry || '-'}</span><span className="block text-[12px] text-ink-3">{r.buyer.name}</span></TD>
                     <TD className="text-[12px] text-ink-3">{r.lines.map(l => `${l.code}×${l.qty}`).join(', ') || '-'}</TD>
                     <TD className="t-num text-right font-semibold">{rupiah(r.total)}</TD>
-                    <TD><Badge variant={statusVariant(r.status)}>{r.status}</Badge></TD>
+                    <TD><Badge variant={statusVariant(r.status)}>{STATUS_LABEL[r.status]}</Badge></TD>
                   </TR>
                 )
               })}
