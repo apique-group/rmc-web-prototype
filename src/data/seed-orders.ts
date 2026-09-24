@@ -18,7 +18,8 @@ function mk(n: number, custId: string, day: number, lines: ReturnType<typeof lin
     createdAt,
     expiresAt: createdAt,
     status,
-    buyer: { name: c.pic, laundry: c.outlet, phone: normalizePhone(c.hp) || '', email: c.email },
+    // a staging order always carries the buyer's phone (checkout requires it); customers seeded without HP (path 2/3 fixtures) get a guest number
+    buyer: { name: c.pic, laundry: c.outlet, phone: normalizePhone(c.hp) || `+62851000${String(1000 + n).slice(-4)}`, email: c.email },
     crmCustomerId: c.id,
     fulfil: { mode: n % 3 === 0 ? 'DELIVERY' : 'PICKUP', outlet: c.kota, address: n % 3 === 0 ? `Jl. Contoh No. ${n}, ${c.kota}` : undefined },
     payment: { method: 'QRIS', proofName: status === 'AWAITING_PAYMENT' ? undefined : 'bukti-transfer.jpg', uploadedAt: status === 'AWAITING_PAYMENT' ? undefined : createdAt },

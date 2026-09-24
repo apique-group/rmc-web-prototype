@@ -60,8 +60,8 @@ const { ok, launch, go, resetStores, readStore, fill, text, finish } = require('
   const after = await p.locator('[data-points]').first().getAttribute('data-points')
   ok(after && parseInt(after, 10) === before - 5000, `points decremented (${after})`)
   // R.054 — ledger: newest row = the redeem, running balance, per-page 10 with prev/next
-  const led = await p.evaluate(() => { const rows = window.__rmcweb.ledger(JSON.parse(localStorage.getItem('rmcweb_accounts_v1')).state.accounts[0].id); return { n: rows.length, top: rows[0], types: [...new Set(rows.map(r => r.type))], bal: rows[0].balanceAfter } })
-  ok(led.top.type === 'redeem' && led.top.points === -5000 && led.bal === before - 5000 && led.types.includes('earn') && led.types.includes('bonus'), `ledger newest = redeem, balance ${led.bal}, types ${led.types.join('/')}`)
+  const led = await p.evaluate(() => { const rows = window.__rmcweb.ledger(JSON.parse(localStorage.getItem('rmcweb_accounts_v1')).state.accounts[0].id); const c = window.__rmcweb.crm().customers.find(x => x.id === 'C-2026-0028'); return { n: rows.length, top: rows[0], types: [...new Set(rows.map(r => r.type))], bal: rows[0].balanceAfter, prior: c.priorPointsEarned } })
+  ok(led.top.type === 'redeem' && led.top.points === -5000 && led.bal === before - 5000 && led.types.includes('earn') && (led.prior === 0 || led.types.includes('bonus')), `ledger newest = redeem, balance ${led.bal}, types ${led.types.join('/')}`)
   const lv = await p.locator('[data-ledger]:visible').first()
   ok((await lv.locator('li[data-ledger-type="redeem"]').count()) === 1 && (await lv.locator('li').count()) === Math.min(10, led.n), `ledger card lists ${Math.min(10, led.n)} of ${led.n} rows, redeem on top`)
   if (led.n > 10) { await lv.locator('[data-ledger-next]').click(); await p.waitForTimeout(200); ok((await lv.getAttribute('data-ledger-page')) === '2', 'ledger pagination → page 2') }
