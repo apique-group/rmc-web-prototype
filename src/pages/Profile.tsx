@@ -68,7 +68,7 @@ function ProfileBody({ account }: { account: Account }) {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-12 lg:items-start lg:gap-8">
         {/* Left column: hero + lists */}
-        <div className="space-y-6 lg:col-span-5">
+        <div className="min-w-0 space-y-6 lg:col-span-5">
           <Reveal>
             {linked ? (
               <PointsHero account={account} customer={customer} rmc={rmc} isMitra={isMitra} />
@@ -88,7 +88,7 @@ function ProfileBody({ account }: { account: Account }) {
         </div>
 
         {/* Right column: chart + prizes + orders */}
-        <div className="space-y-6 lg:col-span-7">
+        <div className="min-w-0 space-y-6 lg:col-span-7">
           {linked ? (
             <>
               <Reveal delay={40}><PointsChart rmc={rmc} earnPerRp={cfg.rules.earnPerRp} /></Reveal>

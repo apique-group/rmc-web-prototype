@@ -116,7 +116,8 @@ export function ledgerFor(cfg: Config, cust: CrmCustomer | null, orders: Order[]
     if (v <= 0) return
     const [y, mo] = ym.split('-').map(Number)
     const last = new Date(y, mo, 0)
-    const at = last.getTime() > Date.now() ? new Date().toISOString() : `${ym}-${String(last.getDate()).padStart(2, '0')}T12:00:00.000Z`
+    // a past month is dated on its last day; the running month on its first day, so a redemption made today always sorts above it
+    const at = last.getTime() > Date.now() ? `${ym}-01T00:00:00.000Z` : `${ym}-${String(last.getDate()).padStart(2, '0')}T12:00:00.000Z`
     rows.push({ id: `L-${ym}`, type: 'earn', points: pointsFromSpend(v, earn), at, note: `Belanja outlet ${last.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}`, refType: 'pos' })
   })
   if (cust?.priorPointsEarned) rows.push({ id: 'L-opening', type: 'bonus', points: cust.priorPointsEarned, at: `${new Date().getFullYear()}-01-01T00:00:00.000Z`, note: 'Saldo poin awal (sebelum RMC Web)', refType: 'opening' })
