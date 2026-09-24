@@ -1,10 +1,10 @@
 import * as React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
-import { ArrowLeft, ArrowRight, CheckCircle2, Clock, MessageCircle, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CheckCircle2, Clock, MessageCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Reveal } from '@/lib/reveal'
 import { Narrow } from '@/components/layout/Shell'
@@ -26,6 +26,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/misc'
 import { MockInboxCard } from '@/components/auth/MockInboxCard'
 import { PasswordChecklist, PasswordInput } from '@/components/auth/PasswordChecklist'
+import { InviteRegisterForm } from '@/components/auth/InviteRegisterForm'
 
 /* ---------------------------------------------------------------------------
    Registration, PRD Fitur 2. The form never shows a password up front: the matching cascade
@@ -37,7 +38,6 @@ const KOTA_TUPLE = KOTA_LIST as [Kota, ...Kota[]]
 const YA_TIDAK = ['ya', 'tidak'] as const
 
 const schema = z.object({
-  isMitra: z.enum(YA_TIDAK, { required_error: 'Pilih salah satu' }),
   hasCard: z.enum(YA_TIDAK, { required_error: 'Pilih salah satu' }),
   laundry: z.string().trim().min(2, 'Nama laundry minimal 2 karakter'),
   pic: z.string().trim().min(2, 'Nama PIC wajib diisi'),
@@ -54,6 +54,7 @@ type Step = 'form' | 'password' | 'done'
 
 export function RegisterPage() {
   const password = useConfig(s => s.config.password)
+  const inviteToken = useSearchParams()[0].get('invite')
   const [step, setStep] = React.useState<Step>('form')
   const [draft, setDraft] = React.useState<{ form: RegisterForm; match: MatchResult } | null>(null)
   const [outcome, setOutcome] = React.useState<RegisterOutcome | null>(null)
@@ -77,12 +78,11 @@ export function RegisterPage() {
     const phone = normalizePhone(v.phone)
     if (!phone) return
     if (useAccounts.getState().byPhone(phone)) {
-      setSubmitError('Nomor HP ini sudah terdaftar')
+      setSubmitError('Nomor HP sudah terdaftar')
       toast.error('Nomor HP sudah terdaftar')
       return
     }
     const form: RegisterForm = {
-      isMitra: v.isMitra === 'ya',
       hasCard: v.hasCard === 'ya',
       laundry: v.laundry,
       pic: v.pic,
@@ -102,6 +102,9 @@ export function RegisterPage() {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
+
+  // R.052 — invite mode (/register?invite=<token>) is a separate one-step form, like staging
+  if (inviteToken) return <Narrow><InviteRegisterForm token={inviteToken} /></Narrow>
 
   return (
     <Narrow>
@@ -149,15 +152,6 @@ function RegisterFormStep({ onValid, submitError }: { onValid: (v: FormValues) =
 
       <Reveal delay={80}>
         <form onSubmit={handleSubmit(onValid)} noValidate className="mt-8 space-y-6">
-          <Field label="Status Mitra Apique Management" required error={errors.isMitra?.message}>
-            <Controller name="isMitra" control={control} render={({ field }) => (
-              <RadioGroup value={field.value} onValueChange={field.onChange} className="grid-cols-2" aria-invalid={!!errors.isMitra}>
-                <RadioCard id="rc-mitra-ya" value="ya" title="Ya" />
-                <RadioCard id="rc-mitra-tidak" value="tidak" title="Tidak" />
-              </RadioGroup>
-            )} />
-          </Field>
-
           <Field label="Sudah punya Resique Member Card" required error={errors.hasCard?.message}>
             <Controller name="hasCard" control={control} render={({ field }) => (
               <RadioGroup value={field.value} onValueChange={field.onChange} className="grid-cols-2" aria-invalid={!!errors.hasCard}>
@@ -256,14 +250,14 @@ function PasswordStep({ match, minLength, onBack, onSubmit, error }: { match: Ma
         <h1 className="t-h1 mt-2 text-ink">Buat kata sandi</h1>
         <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base">
           {match.link === 'PENDING'
-            ? 'Ada data mirip di Resique. Sales cek dulu, biasanya 1×24 jam. Akun sudah bisa dipakai belanja Golden Sale.'
-            : 'Data laundry-mu belum ada di Resique. Sales akan menghubungi via WhatsApp. Akun sudah bisa dipakai belanja Golden Sale.'}
+            ? 'Kami menemukan data yang mirip di Resique. Sales cek dulu, biasanya 1×24 jam. Akun sudah bisa dipakai belanja Golden Sale.'
+            : 'Data laundry-mu belum ada di Resique, jadi dicatat sebagai pelanggan baru. Akun sudah bisa dipakai belanja Golden Sale.'}
         </p>
       </Reveal>
       <Reveal delay={80}>
         <form onSubmit={submit} noValidate className="mt-8 space-y-6">
           <Field label="Kata sandi" required htmlFor="pw" error={touched && !check.ok ? 'Lengkapi syarat kata sandi di bawah' : undefined}>
-            <PasswordInput id="pw" value={pw} onChange={e => setPw(e.target.value)} autoComplete="new-password" aria-invalid={touched && !check.ok} placeholder="Minimal 8 karakter" />
+            <PasswordInput id="pw" value={pw} onChange={e => setPw(e.target.value)} autoComplete="new-password" aria-invalid={touched && !check.ok} placeholder={`Minimal ${minLength} karakter`} />
           </Field>
           <PasswordChecklist password={pw} minLength={minLength} />
           <Field label="Ulangi kata sandi" required htmlFor="pw2" error={mismatch ? 'Kata sandi tidak sama' : undefined}>
@@ -295,16 +289,10 @@ function ResultScreen({ outcome }: { outcome: RegisterOutcome }) {
           <Reveal>
             <span className="grid h-14 w-14 place-items-center rounded-xl bg-navy-50 text-navy-700"><CheckCircle2 className="h-7 w-7" strokeWidth={1.6} /></span>
             <p className="t-eyebrow mt-5">Pendaftaran berhasil</p>
-            <h1 className="t-h1 mt-2 text-ink">Akun terhubung ke {match.customer?.outlet}</h1>
+            <h1 className="t-h1 mt-2 text-ink">Akun terhubung ke data Resique</h1>
             <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base">
               Kata sandi sementara sudah dikirim ke <strong className="text-ink">{account.email}</strong>. Masuk dengan nomor HP <span className="t-num font-semibold text-ink">{displayPhone(account.phone)}</span>, lalu kamu akan diminta membuat kata sandi baru.
             </p>
-            {match.path === 2 && (
-              <div className="mt-4 flex items-start gap-2 rounded-xl border border-navy-100 bg-navy-50/70 px-4 py-3 text-[13px] text-navy-700">
-                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.6} />
-                <span>Nomor HP-mu dilengkapi ke data pelanggan Resique, dicocokkan lewat nomor Member Card <span className="t-code">{account.rsl}</span> dan nama PIC.</span>
-              </div>
-            )}
           </Reveal>
           <Reveal delay={80}><MockInboxCard email={account.email} className="mt-8" /></Reveal>
           <Reveal delay={140} className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -321,7 +309,7 @@ function ResultScreen({ outcome }: { outcome: RegisterOutcome }) {
             <p className="t-eyebrow mt-5">Menunggu verifikasi</p>
             <h1 className="t-h1 mt-2 text-ink">Akun aktif. Data RMC dicek sales dulu</h1>
             <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base">
-              Kami menemukan data mirip: <strong className="text-ink">{match.customer.outlet}</strong>, {match.customer.pic}. Sales Resique akan memverifikasi (biasanya 1×24 jam).
+              Kami menemukan data yang mirip di Resique. Sales akan memverifikasi (biasanya 1×24 jam). Belanja Golden Sale sudah bisa.
             </p>
           </Reveal>
           <Reveal delay={80}>
@@ -342,14 +330,14 @@ function ResultScreen({ outcome }: { outcome: RegisterOutcome }) {
             <p className="t-eyebrow mt-5">Pendaftaran diterima</p>
             <h1 className="t-h1 mt-2 text-ink">Akun sudah aktif, {account.pic.split(' ')[0]}</h1>
             <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base">
-              Data laundry-mu belum ada di Resique. Sales akan menghubungi via WhatsApp. Belanja Golden Sale sudah bisa.
+              {account.link === 'NEW_CUSTOMER' ? 'Laundry-mu sudah tercatat sebagai pelanggan Resique.' : 'Data laundry-mu belum ada di Resique. Sales akan menghubungi via WhatsApp.'} Belanja Golden Sale sudah bisa.
             </p>
           </Reveal>
           <Reveal delay={80}>
             <Card className="mt-8">
               <CardContent className="space-y-3 pt-5 sm:pt-6">
                 <Row ok label="Belanja Golden Sale" desc="Sudah bisa checkout dan cek status pesanan." />
-                <Row label="Poin & tier RMC" desc="Mulai dihitung setelah sales mendaftarkan laundry-mu di Resique." badge={<Badge variant="muted">Belum aktif</Badge>} />
+                <Row label="Poin & tier RMC" desc={account.link === 'NEW_CUSTOMER' ? 'Mulai dihitung setelah transaksi pertamamu di outlet Resique.' : 'Mulai dihitung setelah sales mendaftarkan laundry-mu di Resique.'} badge={<Badge variant="muted">Belum aktif</Badge>} />
                 <p className="text-[12px] text-ink-4">Masuk dengan nomor HP {displayPhone(account.phone)} dan kata sandi yang barusan kamu buat.</p>
               </CardContent>
             </Card>

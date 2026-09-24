@@ -25,6 +25,7 @@ window.__rmcweb = {
   crm: () => useCrm.getState(),
   orders: () => useOrders.getState().orders,
   config: () => useConfig.getState().config,
+  invite: (customerId: string) => useCrm.getState().generateInvites([customerId], 'gate')[0]?.token,
   access: () => parseActor(new URLSearchParams(location.hash.split('?')[1] || '')),
   model: {
     normalizePhone, dice, normName, matchRegistration, checkPassword, genTempPassword, currentWindow, tierForSpend, rmcFor,

@@ -3,9 +3,9 @@
    (email, backfill, claim, lead) are applied by the accounts store.
 
    1. phone exact                       → LINKED
-   2. RSL card no + PIC name ≥ threshold → LINKED + backfill phone into CRM
+   2. RSL card no + PIC name ≥ threshold → PENDING (staging autoLinkPath2 = false; sales confirms, phone backfilled on approval)
    3. laundry+PIC fuzzy ≥ threshold     → PENDING (sales confirms via Klaim Akun)
-   4. otherwise                         → LEAD (auto-created in CRM Resique)
+   4. otherwise                         → NEW_CUSTOMER (a new Customer is created in CRM Resique, not a Lead)
    --------------------------------------------------------------------------- */
 import type { CrmCustomer, LinkStatus, MatchPath } from './types'
 import { normalizePhone } from './phone'
@@ -33,7 +33,7 @@ export function matchRegistration(reg: RegistrationInput, customers: CrmCustomer
     const c = customers.find(x => (x.rsl || '').toUpperCase() === card)
     if (c) {
       const s = dice(reg.pic, c.pic)
-      if (s >= threshold) return { path: 2, link: 'LINKED', customer: c, score: s, backfillPhone: !normalizePhone(c.hp) }
+      if (s >= threshold) return { path: 2, link: 'PENDING', customer: c, score: s, backfillPhone: !normalizePhone(c.hp) }
     }
   }
 
@@ -46,5 +46,5 @@ export function matchRegistration(reg: RegistrationInput, customers: CrmCustomer
   if (best && bestScore >= threshold) return { path: 3, link: 'PENDING', customer: best, score: bestScore, backfillPhone: false }
 
   // 4. new lead
-  return { path: 4, link: 'LEAD', customer: null, score: bestScore, backfillPhone: false }
+  return { path: 4, link: 'NEW_CUSTOMER', customer: null, score: bestScore, backfillPhone: false }
 }

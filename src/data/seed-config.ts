@@ -86,5 +86,5 @@ export const DEFAULT_CONFIG: Config = {
   klasemen: { topN: 10, showPic: true },
   outlets: ['Jakarta', 'Palembang', 'Jambi', 'Bandung', 'Palu', 'Pontianak'],
   matching: { fuzzyThreshold: 0.8 },
-  password: { minLength: 8 },
+  password: { minLength: 9 },
 }

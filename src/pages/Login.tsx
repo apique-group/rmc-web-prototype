@@ -19,6 +19,7 @@ export function LoginPage() {
   const nav = useNavigate()
   const [params] = useSearchParams()
   const prefill = params.get('phone') || ''
+  const redirectTo = params.get('redirect')
   const [phone, setPhone] = React.useState(() => (normalizePhone(prefill) ? displayPhone(prefill) : prefill))
   const [pw, setPw] = React.useState('')
   const [error, setError] = React.useState<string | null>(null)
@@ -34,7 +35,7 @@ export function LoginPage() {
     setError(null)
     useSession.getState().signIn(res.account.id)
     toast.success(`Masuk sebagai ${res.account.pic.split(' ')[0]}`)
-    nav(res.account.mustChangePassword ? '/change-password' : '/profile')
+    nav(res.account.mustChangePassword ? '/change-password' : (redirectTo && redirectTo.startsWith('/') ? redirectTo : '/profile'))
   }
 
   return (
@@ -55,13 +56,13 @@ export function LoginPage() {
           </Reveal>
           <Reveal delay={80}>
             <form onSubmit={submit} noValidate className="mt-8 space-y-6">
-              <Field label="No. HP" required htmlFor="phone" error={error && /HP|terdaftar/i.test(error) ? error : undefined} hint={phoneNorm ? `Masuk sebagai ${phoneNorm}` : undefined}>
+              <Field label="No. HP" required htmlFor="phone" error={error && /^Nomor HP tidak valid/i.test(error) ? error : undefined} hint={phoneNorm ? `Masuk sebagai ${phoneNorm}` : undefined}>
                 <Input id="phone" type="tel" spellCheck={false} inputMode="tel" autoComplete="username" placeholder="0812 3456 7890" value={phone} onChange={e => { setPhone(e.target.value); setError(null) }} aria-invalid={!!error && /HP|terdaftar/i.test(error)} autoFocus={!prefill} />
               </Field>
-              <Field label="Kata sandi" required htmlFor="pw" error={error && /sandi/i.test(error) ? error : undefined}>
+              <Field label="Kata sandi" required htmlFor="pw" error={error && /^Kata sandi wajib/i.test(error) ? error : undefined}>
                 <PasswordInput id="pw" value={pw} onChange={e => { setPw(e.target.value); setError(null) }} autoComplete="current-password" placeholder="Kata sandi atau sandi sementara" aria-invalid={!!error && /sandi/i.test(error)} autoFocus={!!prefill} />
               </Field>
-              {error && !/HP|terdaftar|sandi/i.test(error) && <p role="alert" className="rounded-xl border border-danger-100 bg-danger-50 px-4 py-3 text-[13px] text-danger">{error}</p>}
+              {error && !/^Nomor HP tidak valid|^Kata sandi wajib/i.test(error) && <p role="alert" className="rounded-xl border border-danger-100 bg-danger-50 px-4 py-3 text-[13px] text-danger">{error}</p>}
               <Button type="submit" size="xl" className="w-full">
                 Masuk
                 <ArrowRight className="h-4 w-4" strokeWidth={2} />
@@ -98,13 +99,13 @@ function ResetForm({ initialPhone, onBack, onSent }: { initialPhone: string; onB
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!phoneNorm) { setError('Nomor HP tidak valid'); return }
+    // staging: the answer is the same whether or not the number exists — never reveal registered numbers
     const acc = useAccounts.getState().byPhone(phoneNorm)
-    const res = useAccounts.getState().requestReset(phoneNorm)
-    if (!res.ok || !acc) { setError('Nomor HP belum terdaftar'); toast.error('Nomor HP belum terdaftar'); return }
+    useAccounts.getState().requestReset(phoneNorm)
     setError(null)
-    setSentTo(acc.email)
+    setSentTo(acc ? acc.email : '')
     onSent(phoneNorm)
-    toast.success('Kata sandi sementara dikirim ke email')
+    toast.success('Kalau nomor ini terdaftar, kata sandi sementara sudah dikirim ke e-mail akunnya')
   }
 
   return (
@@ -122,9 +123,10 @@ function ResetForm({ initialPhone, onBack, onSent }: { initialPhone: string; onB
           <Button type="submit" size="xl" className="w-full" variant={sentTo ? 'outline' : 'default'}>{sentTo ? 'Kirim ulang' : 'Kirim kata sandi sementara'}</Button>
         </form>
       </Reveal>
-      {sentTo && (
+      {sentTo !== null && (
         <Reveal delay={40} className="mt-8 space-y-4">
-          <MockInboxCard email={sentTo} limit={2} />
+          <p data-forgot-sent className="rounded-xl border border-navy-100 bg-navy-50/70 px-4 py-3 text-[13px] text-navy-700">Kalau nomor ini terdaftar, kata sandi sementara sudah dikirim ke e-mail akunnya. Cek kotak masuk (dan folder spam), lalu masuk dengan kata sandi itu.</p>
+          {sentTo && <MockInboxCard email={sentTo} limit={2} />}
           <Button size="xl" className="w-full" onClick={onBack}>
             Masuk dengan kata sandi sementara
             <ArrowRight className="h-4 w-4" strokeWidth={2} />

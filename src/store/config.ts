@@ -76,6 +76,8 @@ function mergeConfig(stored: Partial<Config> | undefined): Config {
     return { ...rest, quota: rest.quota === 0 || rest.quota === undefined ? null : rest.quota }
   })
   if (!Array.isArray(out.packages) || !out.packages.length) out.packages = DEFAULT_CONFIG.packages
+  // R.052: staging's member password policy is minimum 9 characters — a stored old default (8) follows
+  if (out.password.minLength === 8) out.password = { ...out.password, minLength: DEFAULT_CONFIG.password.minLength }
   // R.017: the placeholder "R" monogram became the real Resique lockup (colour / white / mark); uploads (data:) untouched
   const OLD_LOGO = '/img/resique-logo.svg'
   if (!out.assets.logo || out.assets.logo === OLD_LOGO) out.assets = { ...out.assets, logo: DEFAULT_CONFIG.assets.logo }

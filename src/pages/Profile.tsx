@@ -27,7 +27,7 @@ const SALES_WA = CONTACTS.wa
 /* Profile, PRD Fitur 4 (poin & tier), Fitur 5 (tukar hadiah), Fitur 6 (riwayat). */
 export function ProfilePage() {
   const account = useCurrentAccount()
-  if (!account) return <Navigate to="/login" replace />
+  if (!account) return <Navigate to="/login?redirect=%2Fprofile" replace />
   return <ProfileBody account={account} />
 }
 
