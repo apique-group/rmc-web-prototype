@@ -155,7 +155,7 @@ export function OrderStatusPage() {
             {/* stacked rows, a 4-column table wraps item names letter-by-letter at 390px */}
             <ul className="divide-y divide-line-2">
               {order.lines.map(l => (
-                <li key={l.itemId} className="flex items-start justify-between gap-4 py-3">
+                <li key={l.packageId || l.itemId} className="flex items-start justify-between gap-4 py-3">
                   <div className="min-w-0 flex-1">
                     <p className="text-[14px] font-semibold leading-snug text-ink">{l.name}</p>
                     <p className="t-code mt-0.5 text-[12px] text-ink-3">{l.qty} × {rupiah(l.promoPrice)}{l.realPrice > l.promoPrice && <span className="strike ml-1.5 text-[11px] text-ink-4">{rupiah(l.realPrice)}</span>} <span className="ml-1.5 t-code text-[10px] text-ink-4">{l.code}</span></p>

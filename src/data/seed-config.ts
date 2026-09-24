@@ -1,5 +1,5 @@
 import type { Config, Tier, Benefit, HeroPrize, Prize } from '@/model/types'
-import { SEED_ITEMS } from './seed-products'
+import { SEED_ITEMS, SEED_PACKAGES } from './seed-products'
 
 /* Tiers per "Kebijakan Program RMC" RSQ-RMC-001 v2.0 (Drive 1g2OJQFKHG5zp1E4JKNfvllhaL3YSZ1tQ), the canonical source.
    Gratis ongkir: belanja ≥ Rp500.000 (Starter–Intermediate) / ≥ Rp350.000 (Winner–Ultimate). Konsultasi = sesi per BULAN,
@@ -70,6 +70,7 @@ export const DEFAULT_CONFIG: Config = {
   rules: { earnPerRp: 1000, poinToRp: 20, minRedeem: 500, expiry: '20 Des' },
   campaign: { start: '2026-09-01', end: '2026-10-31', label: 'Golden Privilege Sep–Okt 2026' },
   items: SEED_ITEMS,
+  packages: SEED_PACKAGES,
   prizes: SEED_PRIZES,
   prizeTypes: SEED_PRIZE_TYPES,
   payment: {

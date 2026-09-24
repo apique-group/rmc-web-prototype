@@ -28,26 +28,37 @@ export interface Tier {
 export interface Benefit { id: string; icon: string; title: string; desc: string; figure?: string; figureNote?: string }
 export interface HeroPrize { id: string; image: string; label: string }
 
-export type SaleKind = 'item' | 'paket'
-
 export interface GoldenSaleItem {
   id: string
   code: string
   name: string
-  /** 'paket' = a Paket Usaha bundle from the CRM catalog (one price for the whole set); default 'item' (R.050) */
-  kind?: SaleKind
-  /** one-line contents summary, shown on paket cards */
-  desc?: string
   cat: string
   unit: string
   realPrice: number
   promoPrice: number
   image: string
-  /** 0 = unlimited */
-  quota: number
+  /** null = unlimited (admin leaves Kuota blank); a number is the live counter that order creation consumes (R.051, staging model) */
+  quota: number | null
   /** 0 = unlimited */
   maxPerCustomer: number
   active: boolean
+}
+
+/** R.051 — a Golden Sale package: a bundle of Golden Sale ITEMS (contents with qty) sold at one price. No stock of its own:
+    how many sets are left is derived from the contents (min over items of floor(item remaining ÷ qty)). Own maxPerCustomer;
+    its contents never count toward the per-item caps. Mirrors GET /member/packages on staging. */
+export interface GoldenSalePackage {
+  id: string
+  code: string
+  name: string
+  desc?: string
+  image: string
+  realPrice: number
+  promoPrice: number
+  /** 0 = unlimited */
+  maxPerCustomer: number
+  active: boolean
+  items: { itemId: string; qty: number }[]
 }
 
 /** type = admin-defined label from Config.prizeTypes (🟣). */
@@ -82,6 +93,8 @@ export interface Config {
   rules: { earnPerRp: number; poinToRp: number; minRedeem: number; expiry: string }
   campaign: { start: string; end: string; label: string }
   items: GoldenSaleItem[]
+  /** R.051 — bundles of items, shown under "Diskon Paket" above the items */
+  packages: GoldenSalePackage[]
   prizes: Prize[]
   /** admin-defined prize categories, e.g. Voucher · Produk Resique · Elektronik · Layanan */
   prizeTypes: string[]
@@ -174,7 +187,8 @@ export interface Redemption { id: string; accountId: string; prizeId: string; pr
 export type OrderStatus = 'Menunggu Pembayaran' | 'Bukti Diunggah' | 'Lunas' | 'Ditolak' | 'Kedaluwarsa'
 export const ORDER_STATUSES: OrderStatus[] = ['Menunggu Pembayaran', 'Bukti Diunggah', 'Lunas', 'Ditolak', 'Kedaluwarsa']
 
-export interface OrderLine { itemId: string; code: string; name: string; qty: number; promoPrice: number; realPrice: number }
+/** An order line is either an item (itemId) or a package (packageId) — never both (staging POST /member/orders lines[]). */
+export interface OrderLine { itemId?: string; packageId?: string; code: string; name: string; qty: number; promoPrice: number; realPrice: number }
 
 export interface Order {
   id: string

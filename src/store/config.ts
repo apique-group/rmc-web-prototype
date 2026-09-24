@@ -69,9 +69,13 @@ function mergeConfig(stored: Partial<Config> | undefined): Config {
   out.assets = { ...out.assets, heroPrizes: (out.assets.heroPrizes || []).map(h => isSeedSvg(h.image) ? { ...h, image: jpg(h.image) } : h) }
   out.prizes = out.prizes.map(p => isSeedSvg(p.image) ? { ...p, image: jpg(p.image) } : p)
   out.items = (out.items || []).map(it => { if (!isSeedSvg(it.image)) return it; const seed = DEFAULT_CONFIG.items.find(d => d.id === it.id); return { ...it, image: seed ? seed.image : jpg(it.image) } })
-  // R.050: Golden Sale gained Paket Usaha. Stored items without `kind` are items; a store that has no paket yet gets the seed packages in front
-  out.items = (out.items || []).map(it => ({ ...it, kind: it.kind || 'item' }))
-  if (!out.items.some(it => it.kind === 'paket')) out.items = [...DEFAULT_CONFIG.items.filter(it => it.kind === 'paket'), ...out.items]
+  // R.051: packages are their own entity (staging GET /member/packages). R.050 "paket" rows inside items are dropped,
+  // legacy `kind`/`desc` fields stripped, and item quota 0 (old "unlimited") becomes null (blank = unlimited).
+  out.items = (out.items || []).filter(it => (it as { kind?: string }).kind !== 'paket').map(it => {
+    const { kind: _k, desc: _d, ...rest } = it as typeof it & { kind?: string; desc?: string }
+    return { ...rest, quota: rest.quota === 0 || rest.quota === undefined ? null : rest.quota }
+  })
+  if (!Array.isArray(out.packages) || !out.packages.length) out.packages = DEFAULT_CONFIG.packages
   // R.017: the placeholder "R" monogram became the real Resique lockup (colour / white / mark); uploads (data:) untouched
   const OLD_LOGO = '/img/resique-logo.svg'
   if (!out.assets.logo || out.assets.logo === OLD_LOGO) out.assets = { ...out.assets, logo: DEFAULT_CONFIG.assets.logo }

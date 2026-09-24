@@ -12,7 +12,7 @@ import { normalizePhone, displayPhone } from '@/model/phone'
 import type { Kota, Order } from '@/model/types'
 import { useConfig } from '@/store/config'
 import { useOrders } from '@/store/orders'
-import { useCart, cartLines, cartTotal, cartCount, cartSavings, soldQty } from '@/store/cart'
+import { useCart, cartLines, cartTotal, cartCount, cartSavings, cartPackageLines, itemLeft, packageRemaining, lineKey } from '@/store/cart'
 import { useCurrentAccount } from '@/store/session'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -53,11 +53,14 @@ export function CheckoutPage() {
   const cfg = useConfig(s => s.config)
   const orders = useOrders(s => s.orders)
   const qty = useCart(s => s.qty)
+  const pkgQty = useCart(s => s.pkgQty)
   const inc = useCart(s => s.inc)
   const dec = useCart(s => s.dec)
+  const incPkg = useCart(s => s.incPkg)
+  const decPkg = useCart(s => s.decPkg)
   const acc = useCurrentAccount()
 
-  const lines = cartLines(qty, cfg.items)
+  const lines = [...cartLines(qty, cfg.items), ...cartPackageLines(pkgQty, cfg.packages)]
   const total = cartTotal(lines), count = cartCount(lines), savings = cartSavings(lines)
 
   const [placed, setPlaced] = React.useState<Order | null>(null)
@@ -300,17 +303,19 @@ export function CheckoutPage() {
               <CardContent>
                 <ul className="divide-y divide-line-2">
                   {lines.map(l => {
-                    const it = cfg.items.find(i => i.id === l.itemId)
-                    const left = it && it.quota > 0 ? Math.max(0, it.quota - soldQty(orders, it.id)) : Infinity
-                    const max = Math.min(it && it.maxPerCustomer > 0 ? it.maxPerCustomer : Infinity, left)
+                    const pkg = l.packageId ? cfg.packages.find(p => p.id === l.packageId) : undefined
+                    const it = l.itemId ? cfg.items.find(i => i.id === l.itemId) : undefined
+                    const left = pkg ? packageRemaining(pkg, cfg.items, orders, cfg.packages) : it ? itemLeft(it, orders, cfg.packages) : Infinity
+                    const cap = (pkg ? pkg.maxPerCustomer : it ? it.maxPerCustomer : 0) > 0 ? (pkg ? pkg.maxPerCustomer : it!.maxPerCustomer) : Infinity
+                    const max = Math.min(cap, left)
+                    const bump = () => { if (Number.isFinite(max) && l.qty >= max) return toast.warning(cap <= left ? `Maksimal ${cap} per pelanggan` : `Stok tersisa ${left}`); if (pkg) incPkg(pkg.id, Number.isFinite(max) ? max : undefined); else inc(l.itemId!, Number.isFinite(max) ? max : undefined) }
+                    const drop = () => (pkg ? decPkg(pkg.id) : dec(l.itemId!))
                     return (
-                      <li key={l.itemId} className="py-3">
+                      <li key={lineKey(l)} className="py-3">
                         {/* name on its own line at 390px; stepper + subtotal share the second row */}
-                        <p className="text-[14px] font-semibold leading-snug text-ink">{l.name}</p>
+                        <p className="text-[14px] font-semibold leading-snug text-ink">{l.name}{pkg && <span className="ml-2 rounded-md bg-gold-100 px-1.5 py-px text-[11px] font-bold text-gold-ink">Paket</span>}</p>
                         <div className="mt-2 flex items-center justify-between gap-3">
-                          <QtyStepper qty={l.qty} label={l.name} max={Number.isFinite(max) ? max : undefined}
-                            onInc={() => { if (Number.isFinite(max) && l.qty >= max) return toast.warning(`Maksimal ${max} per pelanggan`); inc(l.itemId, Number.isFinite(max) ? max : undefined) }}
-                            onDec={() => dec(l.itemId)} />
+                          <QtyStepper qty={l.qty} label={l.name} max={Number.isFinite(max) ? max : undefined} onInc={bump} onDec={drop} />
                           <div className="text-right">
                             <p className="t-code text-[14px] font-bold text-ink">{rupiah(l.qty * l.promoPrice)}</p>
                             <p className="t-code text-[11px] text-ink-3">{l.qty} × {rupiah(l.promoPrice)}</p>

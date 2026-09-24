@@ -1,58 +1,53 @@
-import type { GoldenSaleItem } from '@/model/types'
+import type { GoldenSaleItem, GoldenSalePackage } from '@/model/types'
+import { CATALOG } from './catalog'
 
-/* Subset of crm-apique RESIQUE_PRODUCTS (data.jsx:482+), chemical & shoes-care lines.
-   Promo ≈ 85% of list price rounded to Rp500. Quota/limit 🟣 configurable (0 = unlimited). */
+/* Golden Sale items: chemical & shoes-care lines from the Resique catalog (src/data/catalog.ts).
+   Promo ≈ 85% of list price rounded to Rp500. Quota null = unlimited, maxPerCustomer 0 = unlimited
+   (the staging admin's input format: Quota left blank = unlimited, Max per Customer 0 = tanpa batas). */
 const promo = (p: number) => Math.round((p * 0.85) / 500) * 500
+const SALE_CODES = ['000004', '000031', '000122', '000148', '000244', '000305', '000553', '000202', '000401', '000226', '000448', '000216']
 
-const raw: Omit<GoldenSaleItem, 'id' | 'promoPrice' | 'image' | 'quota' | 'maxPerCustomer' | 'active'>[] = [
-  { code: '000004', name: 'Duta Deterjen 5L',                          cat: 'Perlengkapan Pakaian', unit: 'L',   realPrice: 70_000 },
-  { code: '000031', name: 'Molto Parfum Laundry Purple Delight 5L',    cat: 'Perlengkapan Pakaian', unit: 'L',   realPrice: 165_000 },
-  { code: '000122', name: 'So Klin Detergent Matic Professional 5L',   cat: 'Perlengkapan Pakaian', unit: 'L',   realPrice: 68_000 },
-  { code: '000148', name: 'Whiff Fresh Parfum Finishing Elegant 5L',   cat: 'Perlengkapan Pakaian', unit: 'L',   realPrice: 255_000 },
-  { code: '000244', name: 'Greendome Parfum Downy Black 5L',           cat: 'Perlengkapan Pakaian', unit: 'L',   realPrice: 210_000 },
-  { code: '000305', name: 'Rinso Matic Profesional 1.65L',             cat: 'Perlengkapan Pakaian', unit: 'L',   realPrice: 28_500 },
-  { code: '000553', name: 'Xtra Bersih Detergent Cair 5L',             cat: 'Perlengkapan Pakaian', unit: 'L',   realPrice: 80_000 },
-  { code: '000202', name: 'BARA Premium Apparel Cleaner 250ML',        cat: 'Shoes',                unit: 'pcs', realPrice: 125_000 },
-  { code: '000401', name: 'KAME Natural Shoes & Apparel Cleaner 250ML', cat: 'Shoes',               unit: 'pcs', realPrice: 99_000 },
-  { code: '000226', name: 'Glad Cleaner & Conditioner 1000ML',         cat: 'Shoes',                unit: 'pcs', realPrice: 140_000 },
-  { code: '000448', name: 'KAME Paket Sepatu',                         cat: 'Shoes',                unit: 'set', realPrice: 750_000 },
-  { code: '000216', name: 'Daijin Timbangan Digital 30KG',             cat: 'HouseHold',            unit: 'pcs', realPrice: 470_000 },
+export const SEED_ITEMS: GoldenSaleItem[] = SALE_CODES.map(code => {
+  const p = CATALOG.find(c => c.code === code)!
+  return {
+    id: `gs-${code}`,
+    code,
+    name: p.name,
+    cat: p.cat,
+    unit: p.unit,
+    realPrice: p.price,
+    promoPrice: promo(p.price),
+    image: `/img/product-${code}.jpg`, // real photo per product (Lurd rule 5); admin can replace it
+    quota: null,
+    maxPerCustomer: 0,
+    active: true,
+  }
+})
+
+/* R.051 — Golden Sale packages follow the staging model (GET /member/packages): a package is a bundle
+   of Golden Sale ITEMS with a quantity each, sold at one price. It has no stock of its own: how many
+   are left is derived from the contents (min over items of floor(item remaining ÷ qty)). The four
+   seeds bundle the promo lines above; photos are laundromat placeholders (public/img/CREDITS.md). */
+const item = (code: string) => SEED_ITEMS.find(i => i.code === code)!
+function pkg(n: number, code: string, name: string, desc: string, contents: [string, number][], extraOff = 0.05, maxPerCustomer = 0): GoldenSalePackage {
+  const realPrice = contents.reduce((s, [c, q]) => s + item(c).realPrice * q, 0)
+  const promoSum = contents.reduce((s, [c, q]) => s + item(c).promoPrice * q, 0)
+  return {
+    id: `gsp-${code}`,
+    code,
+    name,
+    desc,
+    image: `/img/paket-PKG-00${n}.jpg`,
+    realPrice,
+    promoPrice: Math.round((promoSum * (1 - extraOff)) / 500) * 500,
+    maxPerCustomer,
+    active: true,
+    items: contents.map(([c, q]) => ({ itemId: item(c).id, qty: q })),
+  }
+}
+export const SEED_PACKAGES: GoldenSalePackage[] = [
+  pkg(1, 'GS-PKG-01', 'Paket Hemat Deterjen', 'Stok deterjen sebulan untuk outlet kecil.', [['000004', 3], ['000122', 2]]),
+  pkg(2, 'GS-PKG-02', 'Paket Wangi Lengkap', 'Parfum finishing premium dan softener wangi tahan lama.', [['000031', 2], ['000148', 1], ['000244', 1]], 0.05, 2),
+  pkg(3, 'GS-PKG-03', 'Paket Perawatan Sepatu', 'Semua yang dibutuhkan untuk membuka layanan cuci sepatu.', [['000202', 2], ['000401', 2], ['000226', 1]]),
+  pkg(4, 'GS-PKG-04', 'Paket Starter Laundry', 'Deterjen cair, deterjen matic, dan timbangan digital untuk outlet baru.', [['000553', 3], ['000305', 4], ['000216', 1]]),
 ]
-
-/* R.050 — Paket Usaha: the four bundles of crm-apique RESIQUE_PACKAGES (data.jsx X.216), sold at ONE price for the set.
-   Promo = 10% off the package price, rounded to Rp1.000. Contents summarised in `desc`; photos are laundromat placeholders (see public/img/CREDITS.md). */
-const promoPkg = (p: number) => Math.round((p * 0.9) / 1000) * 1000
-const rawPkg: { code: string; name: string; realPrice: number; desc: string }[] = [
-  { code: 'PKG-001', name: 'Paket Usaha 1', realPrice: 24_999_000, desc: '1 dryer konversi + 1 washer 8,5 kg, boiler, meja & kepala setrika, timbangan, rak, plastik, chemical 5L (parfum, deterjen, softener), brosur & banner.' },
-  { code: 'PKG-002', name: 'Paket Usaha 2', realPrice: 39_999_000, desc: '2 dryer konversi + 2 washer 8,5 kg untuk volume harian tinggi, boiler, meja & kepala setrika, timbangan, rak, plastik, chemical 5L, brosur & banner.' },
-  { code: 'PKG-003', name: 'Paket Usaha 3', realPrice: 39_999_000, desc: 'LG Washer Home 20 kg + LG Dryer Giant Max, boiler, meja & kepala setrika, timbangan, rak, plastik, chemical 5L, brosur & banner.' },
-  { code: 'PKG-004', name: 'Paket Usaha 4', realPrice: 69_999_000, desc: '2 LG Washer Home 20 kg + 2 Dryer Giant Max untuk outlet skala penuh, boiler, meja & kepala setrika, timbangan, rak, plastik, chemical 5L, brosur & banner.' },
-]
-export const SEED_PACKAGES: GoldenSaleItem[] = rawPkg.map(r => ({
-  id: `gs-${r.code}`,
-  kind: 'paket',
-  code: r.code,
-  name: r.name,
-  cat: 'Paket Usaha',
-  unit: 'paket',
-  realPrice: r.realPrice,
-  promoPrice: promoPkg(r.realPrice),
-  desc: r.desc,
-  image: `/img/paket-${r.code}.jpg`,
-  quota: 0,
-  maxPerCustomer: 0,
-  active: true,
-}))
-
-export const SEED_PRODUCTS: GoldenSaleItem[] = raw.map(r => ({
-  id: `gs-${r.code}`,
-  ...r,
-  promoPrice: promo(r.realPrice),
-  image: `/img/product-${r.code}.jpg`, // real photo per product (Lurd rule 5); admin can replace it
-  quota: 0,
-  maxPerCustomer: 0,
-  active: true,
-}))
-
-/** Golden Sale catalogue: packages first (the landing shows "Diskon Paket" above "Diskon Item"), then items. */
-export const SEED_ITEMS: GoldenSaleItem[] = [...SEED_PACKAGES, ...SEED_PRODUCTS]

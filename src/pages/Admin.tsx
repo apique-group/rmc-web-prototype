@@ -15,6 +15,7 @@ import { BenefitSection } from '@/components/admin/sections/BenefitSection'
 import { KampanyeSection } from '@/components/admin/sections/KampanyeSection'
 import { HadiahSection } from '@/components/admin/sections/HadiahSection'
 import { ItemsSection } from '@/components/admin/sections/ItemsSection'
+import { PaketSection } from '@/components/admin/sections/PaketSection'
 import { PembayaranSection } from '@/components/admin/sections/PembayaranSection'
 import { TransaksiSection } from '@/components/admin/sections/TransaksiSection'
 import { KlaimSection } from '@/components/admin/sections/KlaimSection'
@@ -23,13 +24,13 @@ import { ResetSection } from '@/components/admin/sections/ResetSection'
 
 const SECTIONS: Record<AdminSectionId, React.ComponentType> = {
   konten: KontenSection, aset: AsetSection, benefit: BenefitSection,
-  kampanye: KampanyeSection, hadiah: HadiahSection, items: ItemsSection,
+  kampanye: KampanyeSection, hadiah: HadiahSection, items: ItemsSection, paket: PaketSection,
   pembayaran: PembayaranSection, transaksi: TransaksiSection, klaim: KlaimSection,
   akun: AkunSection, reset: ResetSection,
 }
 /* Form-only sections are wrapped in <fieldset disabled> when read-only; the operational ones keep their
    filters/rows usable and guard each mutating control explicitly (Verifikasi, Setujui, import, reset). */
-const FORM_SECTIONS: AdminSectionId[] = ['konten', 'aset', 'benefit', 'kampanye', 'hadiah', 'items', 'pembayaran']
+const FORM_SECTIONS: AdminSectionId[] = ['konten', 'aset', 'benefit', 'kampanye', 'hadiah', 'items', 'paket', 'pembayaran']
 
 const CRM_URL = 'https://crm-apique.vercel.app'
 

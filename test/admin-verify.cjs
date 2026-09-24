@@ -68,6 +68,14 @@ const { ok, launch, go, resetStores, readStore, fill, text, finish } = require('
   ok((await p.locator('header[data-site-header]').count()) === 0, 'embed: no site header')
   ok((await p.locator('[data-admin-section]').count()) >= 1, 'embed: admin renders')
 
+  // R.051 — Paket Golden Sale section: table with the seed bundles, contents column, derived remaining, staging form
+  await go(p, '/admin?embed=1&actor=Satrio%20Wibowo&role=BoD&level=Full&caps=super_admin,manage_config&tab=paket')
+  const pk = await p.evaluate(() => ({ rows: document.querySelectorAll('[data-admin-section="paket"] tbody tr').length, contents: [...document.querySelectorAll('[data-admin-section="paket"] [data-contents]')].map(e => e.textContent).filter(t => / x\d/.test(t)).length, left: [...document.querySelectorAll('[data-admin-section="paket"] [data-left]')].map(e => e.textContent) }))
+  ok(pk.rows === 4 && pk.contents === 4 && pk.left.every(t => t === '∞' || /^\d+$/.test(t)), `paket section: 4 bundles with contents + derived remaining (${JSON.stringify(pk)})`)
+  await p.locator('button:has-text("Tambah paket")').first().click(); await p.waitForTimeout(300)
+  await p.locator('[data-paket-form] button:has-text("Tambah paket")').last().click(); await p.waitForTimeout(300)
+  ok(/Kode dan nama wajib diisi/.test(await text(p)), 'paket form refuses an empty code/name with the staging message')
+  await p.keyboard.press('Escape'); await p.waitForTimeout(200)
   ok(errs.length === 0, `no page errors (${errs.length})`)
   await finish(b, errs, 'admin-verify')
 })().catch(e => { console.error(e); process.exit(1) })

@@ -65,7 +65,7 @@ export function TransaksiDetail({ order, onClose }: { order: Order | null; onClo
               <THead><TR><TH>Kode</TH><TH>Item</TH><TH className="text-right">Qty</TH><TH className="text-right">Harga promo</TH><TH className="text-right">Subtotal</TH></TR></THead>
               <TBody>
                 {o.lines.map(l => (
-                  <TR key={l.itemId}><TD className="t-code text-ink-3">{l.code}</TD><TD>{l.name}</TD><TD className="t-num text-right">{l.qty}</TD><TD className="t-num text-right">{rupiah(l.promoPrice)}</TD><TD className="t-num text-right font-semibold">{rupiah(l.qty * l.promoPrice)}</TD></TR>
+                  <TR key={l.packageId || l.itemId}><TD className="t-code text-ink-3">{l.code}</TD><TD>{l.name}</TD><TD className="t-num text-right">{l.qty}</TD><TD className="t-num text-right">{rupiah(l.promoPrice)}</TD><TD className="t-num text-right font-semibold">{rupiah(l.qty * l.promoPrice)}</TD></TR>
                 ))}
                 <TR className="hover:bg-transparent"><TD colSpan={4} className="text-right text-ink-3">Hemat {rupiah(o.savings)}</TD><TD className="t-num text-right text-[15px] font-extrabold text-navy-700">{rupiah(o.total)}</TD></TR>
               </TBody>

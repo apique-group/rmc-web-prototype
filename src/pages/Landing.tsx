@@ -14,14 +14,14 @@ import { cn } from '@/lib/utils'
 import { rupiah, fmtDate } from '@/lib/format'
 import { useConfig } from '@/store/config'
 import { useOrders, klasemen } from '@/store/orders'
-import { useCart, cartLines, cartTotal, cartCount, cartSavings, soldQty } from '@/store/cart'
+import { useCart, cartLines, cartTotal, cartCount, cartSavings, cartPackageLines, itemLeft, packageRemaining, lineKey } from '@/store/cart'
 import { useCurrentAccount } from '@/store/session'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/ui/misc'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { QtyStepper } from '@/components/shop/QtyStepper'
-import type { Config, GoldenSaleItem, Tier } from '@/model/types'
+import type { Config, GoldenSaleItem, GoldenSalePackage, Tier } from '@/model/types'
 
 /* Landing (R.026, 11 Sep: the stakeholder keeps the RGP UI mock as the landing page). Rhythm follows the mock: banner
    card with a slider (hook) → prize grid "Tingkatkan Transaksi dan Dapatkan Hadiahnya!" (hero) → navy benefit band with
@@ -680,17 +680,18 @@ function GoldenSaleSection() {
   const cfg = useConfig(s => s.config)
   const orders = useOrders(s => s.orders)
   const qty = useCart(s => s.qty)
+  const pkgQty = useCart(s => s.pkgQty)
   const inc = useCart(s => s.inc)
   const dec = useCart(s => s.dec)
+  const incPkg = useCart(s => s.incPkg)
+  const decPkg = useCart(s => s.decPkg)
   const items = cfg.items.filter(i => i.active)
-  // R.050 (Lurd): packages first, items under them, each group under its own highlighted title
-  const groups = ([
-    { key: 'paket', title: cfg.copy.salePaketTitle, list: items.filter(i => i.kind === 'paket') },
-    { key: 'item', title: cfg.copy.saleItemTitle, list: items.filter(i => i.kind !== 'paket') },
-  ] as const).filter(g => g.list.length > 0)
-  const nPaket = items.filter(i => i.kind === 'paket').length, nItem = items.length - nPaket
+  const packages = cfg.packages.filter(p => p.active)
   const maxPct = Math.max(...items.map(i => i.realPrice > i.promoPrice ? Math.round((1 - i.promoPrice / i.realPrice) * 100) : 0), 0)
   const ribbon = Array.from({ length: 8 }, (_, i) => i)
+  const empty = items.length === 0 && packages.length === 0
+  /* R.050 (Lurd): the package group sits above the item group, each under its own highlighted title.
+     R.051: packages are bundles of items (staging model) — availability comes from the contents. */
   return (
     <section id="golden-sale" className="relative isolate scroll-mt-20 overflow-hidden bg-navy-900 pb-16 pt-20 text-white lg:pb-24 lg:pt-24">
       <Streaks />
@@ -707,74 +708,115 @@ function GoldenSaleSection() {
             <p className="inline-flex items-center gap-1.5 rounded-md bg-gold px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-[0.06em] text-gold-ink"><Zap className="h-3.5 w-3.5" strokeWidth={2.4} aria-hidden />Flash Sale</p>
             <h2 className="t-h1 mt-3 text-balance uppercase text-white"><Marked text={cfg.copy.saleTitle} className="mark-gold text-gold" /></h2>
             <p className="mt-3 text-[15px] leading-relaxed text-pretty text-white/80 sm:text-[17px]">{cfg.copy.saleSub.replace('{pct}', String(maxPct))}</p>
-            <p className="t-num mt-2 text-[13px] text-white/60">{nPaket > 0 ? `${nPaket} paket · ` : ''}{nItem} produk · sampai {fmtDate(cfg.campaign.end)} · selama stok ada</p>
+            <p className="t-num mt-2 text-[13px] text-white/60">{packages.length > 0 ? `${packages.length} paket · ` : ''}{items.length} produk · sampai {fmtDate(cfg.campaign.end)} · selama stok ada</p>
           </Reveal>
           <Reveal delay={80}><Countdown end={cfg.campaign.end} /></Reveal>
         </div>
-        {items.length === 0 ? (
+        {empty ? (
           <EmptyState className="mt-8" title="Belum ada item Golden Sale" desc="Item promo belum dibuka. Cek lagi nanti." />
         ) : (
-          groups.map((g, gi) => (
-          <div key={g.key} data-sale-group={g.key} className={gi === 0 ? 'mt-10' : 'mt-12 lg:mt-16'}>
-            <Reveal><h3 className="t-h2 text-balance uppercase text-white"><Marked text={g.title} className="mark-gold text-gold" /></h3></Reveal>
-          <ul className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
-            {g.list.map((it, idx) => {
-              const sold = soldQty(orders, it.id)
-              const left = it.quota > 0 ? Math.max(0, it.quota - sold) : Infinity
-              const q = qty[it.id] || 0
-              const max = Math.min(it.maxPerCustomer > 0 ? it.maxPerCustomer : Infinity, left)
-              return (
-                <Reveal as="li" key={it.id} delay={Math.min(idx, 11) * 40} className="reveal-pop">
-                  <ProductCard item={it} qty={q} left={left} max={Number.isFinite(max) ? max : undefined}
-                    onInc={() => { if (left <= 0) return toast.error('Stok habis'); if (Number.isFinite(max) && q >= max) return toast.warning(`Maksimal ${max} per pelanggan`); inc(it.id) }}
-                    onDec={() => dec(it.id)} />
-                </Reveal>
-              )
-            })}
-          </ul>
-          </div>
-          ))
+          <>
+            {packages.length > 0 && (
+              <div data-sale-group="paket" className="mt-10">
+                <Reveal><h3 className="t-h2 text-balance uppercase text-white"><Marked text={cfg.copy.salePaketTitle} className="mark-gold text-gold" /></h3></Reveal>
+                <ul className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
+                  {packages.map((pkg, idx) => {
+                    const left = packageRemaining(pkg, cfg.items, orders, cfg.packages)
+                    const q = pkgQty[pkg.id] || 0
+                    const cap = pkg.maxPerCustomer > 0 ? pkg.maxPerCustomer : Infinity
+                    const max = Math.min(cap, left)
+                    return (
+                      <Reveal as="li" key={pkg.id} delay={Math.min(idx, 11) * 40} className="reveal-pop">
+                        <PackageCard pkg={pkg} items={cfg.items} qty={q} left={left} max={Number.isFinite(max) ? max : undefined}
+                          onInc={() => { if (left <= 0) return toast.error('Stok habis'); if (Number.isFinite(max) && q >= max) return toast.warning(cap <= left ? `Maksimal ${cap} per pelanggan` : `Stok tersisa ${left}`); incPkg(pkg.id) }}
+                          onDec={() => decPkg(pkg.id)} />
+                      </Reveal>
+                    )
+                  })}
+                </ul>
+              </div>
+            )}
+            {items.length > 0 && (
+              <div data-sale-group="item" className={packages.length > 0 ? 'mt-12 lg:mt-16' : 'mt-10'}>
+                <Reveal><h3 className="t-h2 text-balance uppercase text-white"><Marked text={cfg.copy.saleItemTitle} className="mark-gold text-gold" /></h3></Reveal>
+                <ul className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
+                  {items.map((it, idx) => {
+                    const left = itemLeft(it, orders, cfg.packages)
+                    const q = qty[it.id] || 0
+                    const cap = it.maxPerCustomer > 0 ? it.maxPerCustomer : Infinity
+                    const max = Math.min(cap, left)
+                    return (
+                      <Reveal as="li" key={it.id} delay={Math.min(idx, 11) * 40} className="reveal-pop">
+                        <ProductCard item={it} qty={q} left={left} max={Number.isFinite(max) ? max : undefined}
+                          onInc={() => { if (left <= 0) return toast.error('Stok habis'); if (Number.isFinite(max) && q >= max) return toast.warning(cap <= left ? `Maksimal ${cap} per pelanggan` : `Stok tersisa ${left}`); inc(it.id) }}
+                          onDec={() => dec(it.id)} />
+                      </Reveal>
+                    )
+                  })}
+                </ul>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>
   )
 }
-function ProductCard({ item, qty, left, max, onInc, onDec }: { item: GoldenSaleItem; qty: number; left: number; max?: number; onInc: () => void; onDec: () => void }) {
+/** Shared card chrome for items and packages: photo, -N% badge, Habis / Sisa N badge, name, meta line, price pair, chips, stepper. */
+function SaleCard({ image, name, meta, contents, realPrice, promoPrice, maxPerCustomer, qty, left, max, onInc, onDec, extra }: { image: string; name: string; meta: string; contents?: string; realPrice: number; promoPrice: number; maxPerCustomer: number; qty: number; left: number; max?: number; onInc: () => void; onDec: () => void; extra?: React.ReactNode }) {
   const soldOut = left <= 0
-  const pct = item.realPrice > 0 ? Math.round((1 - item.promoPrice / item.realPrice) * 100) : 0
-  const save = item.realPrice - item.promoPrice
+  const pct = realPrice > 0 ? Math.round((1 - promoPrice / realPrice) * 100) : 0
+  const save = realPrice - promoPrice
   return (
     <article className={cn('lift card-fx sweep group flex h-full flex-col rounded-lg bg-white p-3 text-ink sm:p-4', qty > 0 ? 'ring-2 ring-green' : 'ring-1 ring-white/10', soldOut && 'opacity-70')} style={{ '--tint': '#FBF5E8' } as React.CSSProperties}>
       <div className="relative overflow-hidden rounded-md bg-surface-2">
-        <img src={item.image} alt={item.name} width={800} height={600} className="zoom-img aspect-[4/3] w-full object-cover" loading="lazy" />
+        <img src={image} alt={name} width={800} height={600} className="zoom-img aspect-[4/3] w-full object-cover" loading="lazy" />
         {pct > 0 && <span className="absolute left-2 top-2 rounded-md bg-danger px-2 py-0.5 text-[11px] font-extrabold text-white shadow-1">-{pct}%</span>}
         {soldOut ? <Badge variant="muted" className="absolute right-2 top-2">Habis</Badge>
           : Number.isFinite(left) && left <= 10 ? <Badge variant="warn" className="absolute right-2 top-2">Sisa {left}</Badge> : null}
       </div>
-      <h3 className="mt-3 line-clamp-2 min-h-[2.6em] text-[13px] font-bold leading-snug text-ink sm:text-[14px]">{item.name}</h3>
-      <p className="mt-0.5 text-[12px] text-ink-3">{item.cat} · per {item.unit}</p>
-      {item.kind === 'paket' && item.desc && <p className="mt-1.5 line-clamp-3 text-[12px] leading-snug text-ink-2">{item.desc}</p>}
+      <h3 className="mt-3 line-clamp-2 min-h-[2.6em] text-[13px] font-bold leading-snug text-ink sm:text-[14px]">{name}</h3>
+      <p className="mt-0.5 text-[12px] text-ink-3">{meta}</p>
+      {contents && <p data-contents className="mt-1 line-clamp-2 text-[12px] leading-snug text-ink-2">Isi: {contents}</p>}
+      {extra}
       <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <span className="t-fig text-[16px] text-navy-700 sm:text-[17px]">{rupiah(item.promoPrice)}</span>
-        {save > 0 && <span className="t-num strike text-[12px] text-ink-4">{rupiah(item.realPrice)}</span>}
+        <span className="t-fig text-[16px] text-navy-700 sm:text-[17px]">{rupiah(promoPrice)}</span>
+        {save > 0 && <span className="t-num strike text-[12px] text-ink-4">{rupiah(realPrice)}</span>}
       </div>
-      {save > 0 && <span className="t-num mt-1.5 inline-flex w-fit rounded-md bg-gold-100 px-2 py-0.5 text-[11px] font-extrabold text-gold-ink">Hemat {rupiah(save)}</span>}
+      {(save > 0 || maxPerCustomer > 0) && (
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          {save > 0 && <span className="t-num inline-flex w-fit rounded-md bg-gold-100 px-2 py-0.5 text-[11px] font-extrabold text-gold-ink">Hemat {rupiah(save)}</span>}
+          {maxPerCustomer > 0 && <span data-max-chip className="t-num inline-flex w-fit rounded-md bg-surface-2 px-2 py-0.5 text-[11px] font-semibold text-ink-3">Maks {maxPerCustomer}/pelanggan</span>}
+        </div>
+      )}
       <div className="mt-3">
-        <QtyStepper qty={qty} onInc={onInc} onDec={onDec} max={max} disabled={soldOut} label={item.name} className="w-full justify-center" />
+        <QtyStepper qty={qty} onInc={onInc} onDec={onDec} max={max} disabled={soldOut} label={name} className="w-full justify-center" />
       </div>
     </article>
   )
 }
+function ProductCard({ item, qty, left, max, onInc, onDec }: { item: GoldenSaleItem; qty: number; left: number; max?: number; onInc: () => void; onDec: () => void }) {
+  return <SaleCard image={item.image} name={item.name} meta={`${item.cat} · per ${item.unit}`} realPrice={item.realPrice} promoPrice={item.promoPrice} maxPerCustomer={item.maxPerCustomer} qty={qty} left={left} max={max} onInc={onInc} onDec={onDec} />
+}
+/** Package card (staging PackageCard): the contents line "Isi: A x1, B x2" comes from the bundle, the optional description under it. */
+function PackageCard({ pkg, items, qty, left, max, onInc, onDec }: { pkg: GoldenSalePackage; items: GoldenSaleItem[]; qty: number; left: number; max?: number; onInc: () => void; onDec: () => void }) {
+  const contents = pkg.items.map(c => `${items.find(i => i.id === c.itemId)?.name || '?'} x${c.qty}`).join(', ')
+  return <SaleCard image={pkg.image} name={pkg.name} meta={`Paket · ${pkg.items.length} jenis item`} contents={contents} realPrice={pkg.realPrice} promoPrice={pkg.promoPrice} maxPerCustomer={pkg.maxPerCustomer} qty={qty} left={left} max={max} onInc={onInc} onDec={onDec}
+    extra={pkg.desc ? <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-ink-3">{pkg.desc}</p> : undefined} />
+}
 
-/* Basket bar + sheet (floating → shadow, no border) */
+/* Basket bar + sheet (floating → shadow, no border). Item lines and package lines live side by side (staging BasketBarClient). */
 function BasketBar() {
   const cfg = useConfig(s => s.config)
   const qty = useCart(s => s.qty)
+  const pkgQty = useCart(s => s.pkgQty)
   const setQty = useCart(s => s.set)
+  const setPkg = useCart(s => s.setPkg)
   const [open, setOpen] = React.useState(false)
-  const lines = cartLines(qty, cfg.items)
+  const lines = [...cartLines(qty, cfg.items), ...cartPackageLines(pkgQty, cfg.packages)]
   const count = cartCount(lines), total = cartTotal(lines), savings = cartSavings(lines)
   const show = count > 0
+  const setLine = (l: (typeof lines)[number], q: number) => (l.packageId ? setPkg(l.packageId, q) : setQty(l.itemId!, q))
   return (
     <>
       <div data-basket-bar aria-hidden={!show} className={cn('fixed inset-x-0 bottom-0 z-30 px-3 pb-[max(12px,env(safe-area-inset-bottom))]', show ? 'bar-in' : 'pointer-events-none translate-y-6 opacity-0')}>
@@ -791,10 +833,10 @@ function BasketBar() {
           <SheetHeader><SheetTitle>Keranjang</SheetTitle><SheetDescription>{count} item · total {rupiah(total)}</SheetDescription></SheetHeader>
           <ul className="mt-4 divide-y divide-line-2">
             {lines.map(l => (
-              <li key={l.itemId} className="py-3">
-                <p className="text-[15px] font-semibold text-ink">{l.name}</p>
+              <li key={lineKey(l)} className="py-3">
+                <p className="text-[15px] font-semibold text-ink">{l.name}{l.packageId && <span className="ml-2 rounded-md bg-gold-100 px-1.5 py-px text-[11px] font-bold text-gold-ink">Paket</span>}</p>
                 <div className="mt-2 flex items-center justify-between gap-3">
-                  <QtyStepper qty={l.qty} onInc={() => setQty(l.itemId, l.qty + 1)} onDec={() => setQty(l.itemId, l.qty - 1)} label={l.name} />
+                  <QtyStepper qty={l.qty} onInc={() => setLine(l, l.qty + 1)} onDec={() => setLine(l, l.qty - 1)} label={l.name} />
                   <p className="t-code text-[15px] font-bold text-ink">{rupiah(l.qty * l.promoPrice)}</p>
                 </div>
               </li>

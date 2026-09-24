@@ -1,9 +1,9 @@
 import * as React from 'react'
-import { BadgePercent, CreditCard, Database, FileText, Gift, Image, ListChecks, Receipt, ShieldCheck, Trophy, UserCheck, type LucideIcon } from 'lucide-react'
+import { BadgePercent, Boxes, CreditCard, Database, FileText, Gift, Image, ListChecks, Receipt, ShieldCheck, Trophy, UserCheck, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useIsMobile } from '@/lib/reveal'
 
-export type AdminSectionId = 'konten' | 'aset' | 'benefit' | 'kampanye' | 'hadiah' | 'items' | 'pembayaran' | 'transaksi' | 'klaim' | 'akun' | 'reset'
+export type AdminSectionId = 'konten' | 'aset' | 'benefit' | 'kampanye' | 'hadiah' | 'items' | 'paket' | 'pembayaran' | 'transaksi' | 'klaim' | 'akun' | 'reset'
 
 export interface AdminNavItem { id: AdminSectionId; label: string; icon: LucideIcon; badge?: number }
 export interface AdminNavGroup { label: string; items: AdminNavItem[] }
@@ -18,6 +18,7 @@ export const ADMIN_GROUPS: AdminNavGroup[] = [
     { id: 'kampanye', label: 'Kampanye & Klasemen', icon: Trophy },
     { id: 'hadiah', label: 'Hadiah / Prizes', icon: Gift },
     { id: 'items', label: 'Golden Sale Items', icon: ListChecks },
+    { id: 'paket', label: 'Paket Golden Sale', icon: Boxes },
   ] },
   { label: 'Transaksi', items: [
     { id: 'pembayaran', label: 'Pembayaran', icon: CreditCard },

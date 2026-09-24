@@ -17,7 +17,7 @@ const { ok, launch, go, resetStores, patchConfig, readStore, fill, text, finish 
   await p.locator('#golden-sale button[aria-label^="Tambah"]').nth(1).click(); await p.waitForTimeout(300)
   ok(/3 item/.test(await text(p, '[data-basket-bar]')), 'basket bar shows 3 items')
   const cart = await readStore(p, 'cart')
-  ok(Object.values(cart.qty).reduce((a, c) => a + c, 0) === 3, 'cart store qty = 3')
+  ok(Object.values(cart.qty).reduce((a, c) => a + c, 0) + Object.values(cart.pkgQty || {}).reduce((a, c) => a + c, 0) === 3, 'cart store qty = 3 (items + packages, R.051)')
 
   // checkout as guest
   await go(p, '/checkout')
@@ -39,7 +39,8 @@ const { ok, launch, go, resetStores, patchConfig, readStore, fill, text, finish 
   const order = orders0.orders[0]
   ok(order && order.status === 'Menunggu Pembayaran' && order.buyer.phone === '+6281100002222', `order created ${order && order.id} Menunggu Pembayaran`)
   ok(order && order.buyer.email === 'budi@laundrytamu.co.id' && !!order.consentAt, `order carries email + consent stamp (${order && order.buyer.email})`)
-  ok((await readStore(p, 'cart')).qty && Object.keys((await readStore(p, 'cart')).qty).length === 0, 'cart cleared after order')
+  ok(Object.keys((await readStore(p, 'cart')).qty).length === 0 && Object.keys((await readStore(p, 'cart')).pkgQty || {}).length === 0, 'cart cleared after order (items + packages)')
+  ok(order.lines.some(l => l.packageId) && order.lines.every(l => (l.packageId && !l.itemId) || (l.itemId && !l.packageId)), `order lines carry packageId OR itemId, never both (${order.lines.map(l => (l.packageId ? 'pkg' : 'item') + '×' + l.qty).join(', ')})`)
 
   const cd = p.locator('[data-qr-countdown]').first()
   ok(await cd.isVisible(), 'QR countdown visible')
