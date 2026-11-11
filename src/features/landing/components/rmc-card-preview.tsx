@@ -4,15 +4,17 @@ import * as React from 'react'
 import { poin } from '@/lib/format'
 import type { Config } from '@/types/member'
 import { srcSet2x } from '@/lib/logo'
-import { rmcFor } from '@/lib/rules/rmc'
+import { rmcFor } from '@/lib/rmc'
 import { SEED_ACCOUNTS } from '@/lib/api/mock/seed/seed-accounts'
 import { cn } from '@/lib/utils'
-import { useAppConfig, useOrderList, useCustomers } from '@/hooks/use-member-data'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
+import { useMyOrders } from '@/features/order/hooks/use-order'
+import { useCustomers } from '@/features/checkout/hooks/use-checkout'
 
 /* The demo member's card, computed with the same rmcFor() the profile uses, real tier, real points, real months. */
 export function RmcCardPreview({ rules }: { rules: Config['rules'] }) {
   const cfg = useAppConfig()
-  const orders = useOrderList()
+  const orders = useMyOrders()
   const demo = SEED_ACCOUNTS[0]
   const customer = useCustomers().find(c => c.id === demo.crmCustomerId) || null
   const rmc = React.useMemo(() => rmcFor(cfg, customer, orders, [], demo.id, demo.isMitra), [cfg, customer, orders, demo.id, demo.isMitra])

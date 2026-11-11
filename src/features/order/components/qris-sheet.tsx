@@ -4,13 +4,13 @@ import { CheckCircle2, Clock, Download, FileText, Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { mmss, rupiah } from '@/lib/format'
-import { useExpireOrders, useOrderById, useUploadProof } from '@/hooks/use-member-data'
+import { useExpireOrders, useOrder, useUploadProof } from '@/features/order/hooks/use-order'
 import type { Order } from '@/types/member'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { loadImage, MAX_PROOF_BYTES, PROOF_ALLOWED, proofToDataUrl } from '@/lib/image'
-import { useAppConfig } from '@/hooks/use-member-data'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
 
 /**
  * QRIS payment sheet, shared by Checkout (right after an order is created) and OrderStatus (re-open while
@@ -19,7 +19,7 @@ import { useAppConfig } from '@/hooks/use-member-data'
 export function QrisSheet({ order, open, onOpenChange }: { order: Order; open: boolean; onOpenChange: (open: boolean) => void }) {
   const router = useRouter()
   const cfg = useAppConfig()
-  const live = useOrderById(order.id) || order
+  const live = useOrder(order.id) || order
   const { mutateAsync: uploadProofAsync } = useUploadProof()
   const uploadProof = (id: string, file: { name: string; type: string; dataUrl: string }) => uploadProofAsync({ id, file }).catch(() => undefined)
   const { mutate: expireOrders } = useExpireOrders()

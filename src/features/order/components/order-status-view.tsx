@@ -5,26 +5,26 @@ import Link from 'next/link'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, FileText, QrCode, Store, Trophy, Truck } from 'lucide-react'
 import { fmtDate, rupiah } from '@/lib/format'
-import { Reveal } from '@/components/common/reveal'
+import { Reveal } from '@/components/layout/reveal'
 import { displayPhone, normalizePhone } from '@/lib/phone'
 import { STATUS_LABEL } from '@/types/member'
-import { useCurrentAccount } from '@/hooks/use-member-data'
+import { useCurrentAccount } from '@/features/auth/hooks/use-auth'
 import { Input } from '@/components/ui/input'
 import { Field } from '@/components/ui/label'
-import { useOrderById } from '@/hooks/use-member-data'
+import { useOrder } from '@/features/order/hooks/use-order'
 import { Narrow } from '@/components/layout/narrow'
 import { Button } from '@/components/ui/button'
 import { Badge, statusVariant } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { EmptyState } from '@/components/common/empty-state'
+import { EmptyState } from '@/components/layout/empty-state'
 import { Separator } from '@/components/ui/separator'
-import { QrisSheet } from '@/components/common/qris-sheet'
+import { QrisSheet } from '@/features/order/components/qris-sheet'
 import { Item } from './order-item'
 import { Timeline } from './order-timeline'
 
 export function OrderStatusView() {
   const { id } = useParams<{ id: string }>()
-  const order = useOrderById(id) ?? undefined
+  const order = useOrder(id) ?? undefined
   const acc = useCurrentAccount()
   const params = useSearchParams()
   const pathname = usePathname()

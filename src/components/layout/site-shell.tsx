@@ -4,7 +4,8 @@ import * as React from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { SiteHeader } from '@/components/layout/site-header'
 import { SiteFooter } from '@/components/layout/site-footer'
-import { useCurrentAccount, useExpireOrders } from '@/hooks/use-member-data'
+import { useCurrentAccount } from '@/features/auth/hooks/use-auth'
+import { useExpireOrders } from '@/features/order/hooks/use-order'
 
 /** Consumer shell: floating nav + page + footer. The admin route renders outside this shell. */
 export function SiteShell({ children }: { children: React.ReactNode }) {

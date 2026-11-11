@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
-import { Reveal } from '@/components/common/reveal'
+import { Reveal } from '@/components/layout/reveal'
 import { checkPassword } from '@/lib/password'
 import type { MatchResult } from '../types'
 import { Button } from '@/components/ui/button'

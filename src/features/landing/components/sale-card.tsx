@@ -5,7 +5,7 @@ import { rupiah } from '@/lib/format'
 import type { GoldenSaleItem, GoldenSalePackage } from '@/types/member'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
-import { QtyStepper } from '@/components/common/qty-stepper'
+import { QtyStepper } from '@/features/landing/components/qty-stepper'
 
 /** Shared card chrome for items and packages: photo, -N% badge, Habis / Sisa N badge, name, meta line, price pair, chips, stepper. */
 function SaleCard({ image, name, meta, contents, realPrice, promoPrice, maxPerCustomer, qty, left, max, onInc, onDec, extra }: { image: string; name: string; meta: string; contents?: string; realPrice: number; promoPrice: number; maxPerCustomer: number; qty: number; left: number; max?: number; onInc: () => void; onDec: () => void; extra?: React.ReactNode }) {

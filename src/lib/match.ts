@@ -9,7 +9,7 @@
    --------------------------------------------------------------------------- */
 import type { CrmCustomer, LinkStatus, MatchPath } from '@/types/member'
 import { normalizePhone } from '@/lib/phone'
-import { dice } from '@/lib/rules/similarity'
+import { dice } from '@/lib/similarity'
 
 export interface RegistrationInput { phone: string; laundry: string; pic: string; rsl?: string }
 export interface MatchResult { path: MatchPath; link: LinkStatus; customer: CrmCustomer | null; score: number; backfillPhone: boolean }

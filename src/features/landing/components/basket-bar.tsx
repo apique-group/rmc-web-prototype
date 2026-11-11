@@ -8,8 +8,8 @@ import { cn } from '@/lib/utils'
 import { cartCount, cartLines, cartPackageLines, cartSavings, cartTotal, lineKey, useCart } from '@/stores/cart.store'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { QtyStepper } from '@/components/common/qty-stepper'
-import { useAppConfig } from '@/hooks/use-member-data'
+import { QtyStepper } from '@/features/landing/components/qty-stepper'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
 
 /* Basket bar + sheet (floating → shadow, no border). Item lines and package lines live side by side (staging BasketBarClient). */
 export function BasketBar() {

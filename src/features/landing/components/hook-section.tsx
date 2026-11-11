@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { BannerGround } from './banner-ground'
 import { Marked } from './marked'
 import { StaggerWords } from './stagger-words'
-import { useAppConfig } from '@/hooks/use-member-data'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
 
 /* 1, Hook = the RGP mock's banner card with a slider, styled like the drenched R.025 hook (Lurd, 11 Sep): navy-900
    drench, wire-frame cubes, floating green dot, doodle; slide 1 carries the mock's exact words and a floating collage

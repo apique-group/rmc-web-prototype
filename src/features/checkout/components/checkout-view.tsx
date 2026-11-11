@@ -9,15 +9,18 @@ import { ArrowLeft, QrCode, Store, Truck, ShieldCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { rupiah } from '@/lib/format'
-import { Reveal } from '@/components/common/reveal'
+import { Reveal } from '@/components/layout/reveal'
 import { normalizePhone, displayPhone } from '@/lib/phone'
-import { matchCheckoutIdentity, type CheckoutCandidate } from '@/lib/rules/match'
+import { matchCheckoutIdentity, type CheckoutCandidate } from '@/lib/match'
 import { loadGuestBuyer, saveGuestBuyer } from '@/features/checkout/lib/guest-buyer'
 import type { Kota, Order } from '@/types/member'
 import { getErrorMessage } from '@/lib/api/get-error-message'
 import { useCreateOrder } from '../hooks/use-checkout'
 import { useCart, cartLines, cartTotal, cartCount, cartSavings, cartPackageLines, itemLeft, packageRemaining, lineKey } from '@/stores/cart.store'
-import { useAppConfig, useCurrentAccount, useCustomers, useOrderList } from '@/hooks/use-member-data'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
+import { useCurrentAccount } from '@/features/auth/hooks/use-auth'
+import { useCustomers } from '@/features/checkout/hooks/use-checkout'
+import { useMyOrders } from '@/features/order/hooks/use-order'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input, Textarea } from '@/components/ui/input'
@@ -28,9 +31,9 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { EmptyState } from '@/components/common/empty-state'
-import { QtyStepper } from '@/components/common/qty-stepper'
-import { QrisSheet } from '@/components/common/qris-sheet'
+import { EmptyState } from '@/components/layout/empty-state'
+import { QtyStepper } from '@/features/landing/components/qty-stepper'
+import { QrisSheet } from '@/features/order/components/qris-sheet'
 
 const schema = z
   .object({
@@ -57,7 +60,7 @@ type FormValues = z.infer<typeof schema>
 
 export function CheckoutView() {
   const cfg = useAppConfig()
-  const orders = useOrderList()
+  const orders = useMyOrders()
   const qty = useCart(s => s.qty)
   const pkgQty = useCart(s => s.pkgQty)
   const inc = useCart(s => s.inc)

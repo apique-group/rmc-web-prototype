@@ -4,8 +4,8 @@ import * as React from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Gift, LogOut } from 'lucide-react'
-import { Reveal } from '@/components/common/reveal'
-import { ledgerFor, rmcFor } from '@/lib/rules/rmc'
+import { Reveal } from '@/components/layout/reveal'
+import { ledgerFor, rmcFor } from '@/lib/rmc'
 import type { Account, CrmCustomer } from '@/types/member'
 import { CONTACTS } from '@/lib/contacts'
 import { useAuthStore } from '@/stores/auth.store'
@@ -18,7 +18,10 @@ import { PendingHero } from './pending-hero'
 import { PointsChart } from './points-chart'
 import { PointsHero } from './points-hero'
 import { PrizeGrid } from './prize-grid'
-import { useAppConfig, useOrderList, useCustomers, useRedemptions } from '@/hooks/use-member-data'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
+import { useMyOrders } from '@/features/order/hooks/use-order'
+import { useCustomers } from '@/features/checkout/hooks/use-checkout'
+import { useRedemptions } from '@/features/profile/hooks/use-profile'
 
 export const SALES_WA = CONTACTS.wa
 
@@ -26,7 +29,7 @@ export function ProfileBody({ account }: { account: Account }) {
   const router = useRouter()
   const cfg = useAppConfig()
   const customers = useCustomers()
-  const orders = useOrderList()
+  const orders = useMyOrders()
   const redemptions = useRedemptions()
   const signOut = useAuthStore(s => s.signOut)
 

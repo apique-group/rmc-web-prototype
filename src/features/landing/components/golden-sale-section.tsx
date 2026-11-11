@@ -1,17 +1,18 @@
 'use client'
 
 import { Sparkles, Zap } from 'lucide-react'
-import { Reveal } from '@/components/common/reveal'
+import { Reveal } from '@/components/layout/reveal'
 import { fmtDate } from '@/lib/format'
 import { toast } from 'sonner'
 import { itemLeft, packageRemaining, useCart } from '@/stores/cart.store'
-import { EmptyState } from '@/components/common/empty-state'
+import { EmptyState } from '@/components/layout/empty-state'
 import { Countdown } from './countdown'
 import { Marked } from './marked'
 import { PackageCard, ProductCard } from './sale-card'
 import { SaleConfetti } from './sale-confetti'
 import { Streaks } from './streaks'
-import { useAppConfig, useOrderList } from '@/hooks/use-member-data'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
+import { useMyOrders } from '@/features/order/hooks/use-order'
 
 /* 6, Golden Sale = the latest Figma (11 Sep, designer's note: "wow factor, like a Shopee flash sale"): dark navy band,
    an angled gold ribbon marquee "GOLDEN SALE • HARGA SPESIAL MEMBER RESIQUE", a FLASH SALE chip, "GOLDEN SALE!!" with
@@ -19,7 +20,7 @@ import { useAppConfig, useOrderList } from '@/hooks/use-member-data'
    and the green Tambah. Confetti drifts behind. Copy is config-driven ({pct} = the real biggest cut). */
 export function GoldenSaleSection() {
   const cfg = useAppConfig()
-  const orders = useOrderList()
+  const orders = useMyOrders()
   const qty = useCart(s => s.qty)
   const pkgQty = useCart(s => s.pkgQty)
   const inc = useCart(s => s.inc)

@@ -7,7 +7,7 @@ import { type Order, STATUS_LABEL } from '@/types/member'
 import { Button } from '@/components/ui/button'
 import { Badge, statusVariant } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { EmptyState } from '@/components/common/empty-state'
+import { EmptyState } from '@/components/layout/empty-state'
 
 export function OrderList({ rows }: { rows: Order[] }) {
   const show = rows.slice(0, 5)

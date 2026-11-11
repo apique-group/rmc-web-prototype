@@ -1,11 +1,11 @@
 'use client'
 
 import * as React from 'react'
-import { Reveal } from '@/components/common/reveal'
+import { Reveal } from '@/components/layout/reveal'
 import { cn } from '@/lib/utils'
 import { SectionTitle } from './section-title'
 import { TierCardV } from './tier-card'
-import { useAppConfig } from '@/hooks/use-member-data'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
 
 /* 4, Tier = the mock's six columns: emblem, name, per-month, then "Benefit Diskon Tiap Transaksi" + %, "Gratis Ongkir /
    Min Belanja / Rp 500.000", "Gratis Sesi Konsultasi Bisnis / 1x /bulan", "Belanja 6 Bulan (Rp) / band" — the check and

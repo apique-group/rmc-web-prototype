@@ -1,6 +1,6 @@
 'use client'
 
-import { Reveal } from '@/components/common/reveal'
+import { Reveal } from '@/components/layout/reveal'
 import { cn } from '@/lib/utils'
 import { Marked } from './marked'
 

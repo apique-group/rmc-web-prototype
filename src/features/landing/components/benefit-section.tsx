@@ -2,14 +2,14 @@
 
 import * as React from 'react'
 import { ArrowRight, ShoppingBag, ShoppingCart, Star, Ticket } from 'lucide-react'
-import { Reveal } from '@/components/common/reveal'
+import { Reveal } from '@/components/layout/reveal'
 import { useInView } from '@/hooks/use-in-view'
 import { cn } from '@/lib/utils'
 import { BenefitRow } from './benefit-row'
 import { Marked } from './marked'
 import { MemberCardArt } from './member-card-art'
 import { Streaks } from './streaks'
-import { useAppConfig } from '@/hooks/use-member-data'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
 
 /* 3, Benefit = the mock's navy band: title with "Tak Terbatas" in green (translucent green band under it, not a
    solid one), the member card, four benefits (icon disc · title · one line) whose discs breathe, then the four-step

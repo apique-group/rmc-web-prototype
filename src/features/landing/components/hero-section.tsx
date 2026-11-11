@@ -1,10 +1,10 @@
 'use client'
 
-import { Reveal } from '@/components/common/reveal'
-import { EmptyState } from '@/components/common/empty-state'
+import { Reveal } from '@/components/layout/reveal'
+import { EmptyState } from '@/components/layout/empty-state'
 import { Marked } from './marked'
 import { PrizeCard } from './prize-card'
-import { useAppConfig } from '@/hooks/use-member-data'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
 
 /* 2, Hero = the mock's prize grid, made playful (Lurd, 11 Sep): the "TANPA DIUNDI!" of the sub is a gold sticker,
    the four prize cards rest with an alternating tilt, pop in staggered, straighten + zoom on hover with a light sweep,

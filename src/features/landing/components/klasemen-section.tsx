@@ -2,14 +2,16 @@
 
 import * as React from 'react'
 import { Medal, ShoppingBag, Sparkles, Trophy } from 'lucide-react'
-import { Reveal } from '@/components/common/reveal'
+import { Reveal } from '@/components/layout/reveal'
 import { rupiah } from '@/lib/format'
 import { maskPhone } from '@/lib/phone'
 import { cn } from '@/lib/utils'
 import { klasemen, klasemenIsYou } from '@/lib/klasemen'
-import { useAppConfig, useCurrentAccount, useOrderList } from '@/hooks/use-member-data'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
+import { useCurrentAccount } from '@/features/auth/hooks/use-auth'
+import { useMyOrders } from '@/features/order/hooks/use-order'
 import { Badge } from '@/components/ui/badge'
-import { EmptyState } from '@/components/common/empty-state'
+import { EmptyState } from '@/components/layout/empty-state'
 import { CountRupiah } from './count-rupiah'
 import { Rings } from './rings'
 import { SectionTitle } from './section-title'
@@ -20,7 +22,7 @@ import { Streaks } from './streaks'
    stays a single ordered list; the podium is laid out with CSS `order` so DOM order = rank order. */
 export function KlasemenSection() {
   const cfg = useAppConfig()
-  const orders = useOrderList()
+  const orders = useMyOrders()
   const acc = useCurrentAccount()
   const rows = React.useMemo(() => klasemen(orders, cfg.campaign.start, cfg.campaign.end, cfg.klasemen.showPic), [orders, cfg.campaign.start, cfg.campaign.end, cfg.klasemen.showPic])
   const top = rows.slice(0, cfg.klasemen.topN)

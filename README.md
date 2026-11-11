@@ -13,7 +13,7 @@ upload, spending Klasemen, and the admin config surface that the Apique CRM embe
 - Design notes: `DESIGN-RMC.md`
 
 ## Stack
-Next.js 15.5 (App Router) · React 19 · TypeScript · Tailwind 4 · shadcn ui (Radix) · zustand 5/persist (localStorage) · react-hook-form + zod · Recharts · SheetJS · sonner · lucide.
+Next.js 15.5 (App Router) · React 19 · TypeScript · Tailwind 4 · shadcn ui (base-ui) · zustand 5/persist (localStorage) · react-hook-form + zod · Recharts · SheetJS · sonner · lucide.
 No backend — CRM data, accounts, orders, config are seeded + persisted in the browser (`rmcweb_*_v1` keys).
 
 ## Run
@@ -28,13 +28,14 @@ npm start              # http://localhost:4173 (gates run against this)
 ```
 npx playwright install chromium   # once
 npm start &                        # keep running
-npm test                           # test/run-all.cjs → model · landing · register · auth-profile · shop · admin
+npm test                           # unit tests (src/**/*.spec.ts)
+npm run test:e2e                   # test/run-all.cjs → model · landing · register · auth-profile · shop · admin
 BASE=https://rmc-web-beta.vercel.app node test/landing-verify.cjs   # against live
 ```
 Each gate prints `PASS:`/`FAIL:` lines and exits non-zero on any failure or page error.
 
 ## Structure
-See [ARCHITECTURE.md](ARCHITECTURE.md): same layout as staging `apique-web-rmc` (app/ routes, features/<name>, components/{ui,common,layout,brand}, stores/, lib/api/mock).
+See [ARCHITECTURE.md](ARCHITECTURE.md): same layout as staging `apique-web-rmc` (app/ routes, features/<name>, components/{ui,layout}, stores/, lib/api/mock).
 
 ## Commit convention
 `R.NNN <type>(scope): message` — one phase per commit, `powershell -File tools\safe-commit.ps1 -m "..." -Files a,b,c`.

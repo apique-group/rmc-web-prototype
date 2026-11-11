@@ -2,14 +2,15 @@
 
 import { Clock, MessageCircle } from 'lucide-react'
 import { poin } from '@/lib/format'
-import type { RmcSummary } from '@/lib/rules/rmc'
+import type { RmcSummary } from '@/lib/rmc'
 import type { Account } from '@/types/member'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { HeroShell } from './hero-shell'
 import { SALES_WA } from './profile-body'
-import { useAppConfig, useCustomers } from '@/hooks/use-member-data'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
+import { useCustomers } from '@/features/checkout/hooks/use-checkout'
 
 export function PendingHero({ account, rmc }: { account: Account; rmc: RmcSummary }) {
   const cfg = useAppConfig()

@@ -7,7 +7,7 @@ import { fmtDate, poin } from '@/lib/format'
 import { LEDGER_LABEL, type LedgerEntry, type LedgerType } from '@/types/member'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { EmptyState } from '@/components/common/empty-state'
+import { EmptyState } from '@/components/layout/empty-state'
 
 /* ---------------------------------- Lists ---------------------------------- */
 const LEDGER_ICON: Record<LedgerType, typeof TrendingUp> = { earn: TrendingUp, redeem: Gift, expire: RotateCcw, bonus: Sparkles, adjust: History }

@@ -4,8 +4,14 @@ import * as React from 'react'
 import { useRouter } from 'next/navigation'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
-import { memberApi } from '@/lib/api/member.api'
-import { memberKeys } from '@/hooks/use-member-data'
+import { landingApi } from '@/features/landing/api/landing.api'
+import { configKey } from '@/features/landing/hooks/use-config'
+import { authApi } from '@/features/auth/api/auth.api'
+import { meKey } from '@/features/auth/hooks/use-auth'
+import { orderApi } from '@/features/order/api/order.api'
+import { orderKeys } from '@/features/order/hooks/use-order'
+import { checkoutApi } from '@/features/checkout/api/checkout.api'
+import { customersKey } from '@/features/checkout/hooks/use-checkout'
 
 function createQueryClient() {
   return new QueryClient({ defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false, gcTime: 5 * 60 * 1000 } } })
@@ -24,15 +30,15 @@ export function Providers({ children }: Readonly<{ children: React.ReactNode }>)
     void (async () => {
       const [{ MOCK_STORES, peekMe }] = await Promise.all([import('@/lib/api/mock/server'), import('@/lib/api/mock/test-bridge')])
       MOCK_STORES.forEach(s => unsubs.push(s.subscribe(() => {
-        queryClient.setQueryData(memberKeys.me, peekMe())
+        queryClient.setQueryData(meKey, peekMe())
         void queryClient.invalidateQueries({ predicate: q => !(q.queryKey[0] === 'member' && q.queryKey[1] === 'me') })
       })))
       // the data every page shows (header, footer, session) is fetched once before the first paint
       await Promise.all([
-        queryClient.prefetchQuery({ queryKey: memberKeys.config, queryFn: memberApi.config }),
-        queryClient.prefetchQuery({ queryKey: memberKeys.me, queryFn: memberApi.me }),
-        queryClient.prefetchQuery({ queryKey: memberKeys.orders, queryFn: memberApi.orders }),
-        queryClient.prefetchQuery({ queryKey: memberKeys.customers, queryFn: memberApi.customers }),
+        queryClient.prefetchQuery({ queryKey: configKey, queryFn: landingApi.getConfig }),
+        queryClient.prefetchQuery({ queryKey: meKey, queryFn: authApi.getMe }),
+        queryClient.prefetchQuery({ queryKey: orderKeys.list, queryFn: orderApi.getMyOrders }),
+        queryClient.prefetchQuery({ queryKey: customersKey, queryFn: checkoutApi.getCustomers }),
       ])
       if (!alive) return
       // Links from before the Next.js move used the hash router: /#/admin?embed=1… → /admin?embed=1…

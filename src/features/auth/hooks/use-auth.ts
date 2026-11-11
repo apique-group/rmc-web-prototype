@@ -11,3 +11,7 @@ export const useChangePassword = () => useMutation({ mutationFn: ({ accountId, n
 export const useInvite = (token: string) => useSuspenseQuery({ queryKey: ['member', 'invites', token], queryFn: () => authApi.invite(token) }).data
 export const useInbox = () => useSuspenseQuery({ queryKey: ['member', 'inbox'], queryFn: authApi.inbox }).data
 export const useMarkMailRead = () => useMutation({ mutationFn: authApi.markRead })
+
+export const meKey = ['member', 'me'] as const
+/** The signed-in member, or null (site header, checkout, profile). */
+export const useCurrentAccount = () => useSuspenseQuery({ queryKey: meKey, queryFn: authApi.getMe }).data

@@ -2,7 +2,7 @@
 
 rmc-web is the clickable prototype of the Resique Golden Privilege web. Since R.058 it uses the same stack and
 folder layout as the staging app `apique-group/apique-web-rmc` (Next.js 15.5, React 19, Tailwind 4, shadcn on
-base-ui, TanStack Query + axios, zustand), so screens can move to staging with little rework. The look did not change in the move: 26 screens at
+base-ui, TanStack Query + axios, zustand), so screens can move to staging with little rework. Benchmark: staging's `main` branch (re-audited 12 Nov 2026). The look did not change in the move: 26 screens at
 390 and 1280 px were compared pixel by pixel and by on-screen text with the R.056 build.
 
 ```
@@ -14,24 +14,25 @@ src/
     (auth)/               /login, /register, /change-password     (site header + footer)
     admin/                /admin, the config surface the CRM embeds
   features/<name>/        landing · auth · checkout · order · profile · admin
-    api/*.api.ts          the feature's endpoints, called with the shared axios client (auth, checkout, profile, admin)
+    api/*.api.ts          the feature's endpoints, called with the shared axios client (landingApi.getConfig,
+                          orderApi.getMyOrders / getOrder, authApi.getMe, checkoutApi.getCustomers, profileApi, adminApi)
     components/           the feature's screens, one component per file
-    hooks/                TanStack Query hooks over api/ (use-auth, use-checkout, use-profile, use-admin, use-draft)
+    hooks/                TanStack Query hooks over api/, staging names: useAppConfig, useMyOrders, useOrder,
+                          useCurrentAccount, useCustomers, useRedemptions, use-admin, use-draft, use-count-up
     lib/ types.ts         feature-only rules and types
     index.ts              public face: app/ pages import "@/features/<name>" only
   components/
     ui/                   shadcn primitives on base-ui (button, dialog, sheet, select, checkbox, radio, tabs, …)
-    common/               shared pieces built on ui/: empty-state, section-head, reveal, qty-stepper, qris-sheet
-    layout/               site shell, header, footer, narrow page
-    brand/                Resique look (doodle)
-  hooks/                  use-member-data (shared reads: config, orders, me, customers), use-in-view, use-count-up, …
+    layout/               site shell, header, footer, narrow page, social-icons, and shared app pieces (empty-state,
+                          reveal), as in staging
+  hooks/                  use-in-view, use-mobile (shared)
   stores/                 browser-only stores, like staging: auth.store (session), cart.store
-  types/member.ts         domain types
+  types/member.ts         domain types; react-query.d.ts (query/mutation meta, as in staging)
   lib/
-    api/client.ts         axios rmcClient (as in staging); member.api.ts (shared member reads)
+    api/client.ts         axios rmcClient (as in staging)
     api/mock/             stand-in for crm-rsq-service: server.ts answers /member/… and /admin/… in the browser,
                           backed by accounts, crm, orders, config, inbox (zustand + localStorage), seed/, test-bridge
-    rules/                RMC tier/points, registration matching, similarity
+    rmc, match, similarity   RMC tier/points, registration matching, name similarity (with *.spec.ts unit tests)
     klasemen, invite, format, phone, password, image, contacts, logo, xlsx, utils
 ```
 
@@ -39,9 +40,10 @@ src/
 
 - One component per file, kebab-case names, named exports. Aim for files under ~250 lines
   (checkout-view is still one 400-line component).
-- A feature does not import another feature's components; shared UI goes in `components/common/`.
+- Pieces live in their feature (qty-stepper in landing, qris-sheet in order); a piece used across the app goes in
+  `components/layout/`, as in staging (there is no components/common).
 - `components/ui/` holds shadcn primitives; restyle through the tokens in `app/globals.css`.
-- Data: screens never touch the stores in `lib/api/mock`; they call `features/<x>/api` (or `lib/api/member.api`)
+- Data: screens never touch the stores in `lib/api/mock`; they call `features/<x>/api`
   through TanStack Query hooks. With no `NEXT_PUBLIC_RMC_API_URL` the axios client answers from
   `lib/api/mock/server.ts`; setting it sends the same calls to crm-rsq-service. Any change to the mock data
   refreshes the queries, and GET /member/me is updated instantly so sign-in / sign-out never shows a stale page.
@@ -62,4 +64,7 @@ build that still uses the old address keeps opening the config surface.
 
 ## Checks
 
-`npm run build && npm start` (port 4173), then `npm test` runs the Playwright gates in `test/` against it.
+- `npm test` runs the unit tests (`src/**/*.spec.ts` with `tsx --test`, as in staging).
+- `npm run build && npm start` (port 4173), then `npm run test:e2e` runs the Playwright gates in `test/` against it.
+- `npm run verify` does all three. Icons: lucide-react 1.x like staging; it has no brand icons, so Instagram /
+  YouTube / Facebook come from `components/layout/social-icons.tsx` (copied from staging).

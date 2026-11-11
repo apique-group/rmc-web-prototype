@@ -2,14 +2,15 @@ import * as React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCart } from '@/stores/cart.store'
-import { Clock, ExternalLink, Facebook, Instagram, Mail, MessageCircle, Store, Youtube } from 'lucide-react'
+import { Clock, ExternalLink, Mail, MessageCircle, Store } from 'lucide-react'
+import { FacebookIcon, InstagramIcon, YoutubeIcon } from '@/components/layout/social-icons'
 import { srcSet2x } from '@/lib/logo'
-import { Reveal } from '@/components/common/reveal'
+import { Reveal } from '@/components/layout/reveal'
 import { cn } from '@/lib/utils'
 import { CONTACTS, EXT, SOCIALS } from '@/lib/contacts'
-import { useAppConfig } from '@/hooks/use-member-data'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
 
-const SOCIAL_ICON = { instagram: Instagram, youtube: Youtube, facebook: Facebook } as const
+const SOCIAL_ICON = { instagram: InstagramIcon, youtube: YoutubeIcon, facebook: FacebookIcon } as const
 
 /* Footer (R.017): navy-900 with the white lockup, three columns — brand + socials · Hubungi kami (real contacts) ·
    Golden Privilege links. Single scroll-in reveal for the block, per-link underline + press. */

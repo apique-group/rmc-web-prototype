@@ -4,6 +4,8 @@ import type { RegisterForm, RegisterOutcome } from '../types'
 
 /** Member auth endpoints (apique-web-rmc features/auth/api/auth.api.ts). */
 export const authApi = {
+  /** GET /member/me — the signed-in member, or null */
+  getMe: async () => (await rmcClient.get<Account | null>('/member/me')).data,
   login: async (phone: string, password: string) => (await rmcClient.post<{ ok: true; account: Account }>('/member/auth/login', { phone, password })).data,
   register: async (form: RegisterForm) => (await rmcClient.post<RegisterOutcome>('/member/auth/register', form)).data,
   registerInvite: async (input: { token: string; pic: string; phone: string; email: string; password: string }) =>

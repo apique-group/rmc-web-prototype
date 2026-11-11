@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { Check, Crown, Medal, X } from 'lucide-react'
-import { Reveal } from '@/components/common/reveal'
+import { Reveal } from '@/components/layout/reveal'
 import type { Tier } from '@/types/member'
 import { cn } from '@/lib/utils'
 import { CountPct } from './count-pct'

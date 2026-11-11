@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { Sparkles } from 'lucide-react'
 import { BENEFIT_ICONS } from '@/lib/benefit-icons'
-import { Reveal } from '@/components/common/reveal'
+import { Reveal } from '@/components/layout/reveal'
 import type { Benefit } from '@/types/member'
 
 export function BenefitRow({ b, idx }: { b: Benefit; idx: number }) {

@@ -1,12 +1,12 @@
 'use client'
 
 import { poin, rupiah } from '@/lib/format'
-import type { RmcSummary } from '@/lib/rules/rmc'
+import type { RmcSummary } from '@/lib/rmc'
 import type { Account, CrmCustomer } from '@/types/member'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { HeroShell } from './hero-shell'
-import { useAppConfig } from '@/hooks/use-member-data'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
 
 export function PointsHero({ account, customer, rmc, isMitra }: { account: Account; customer: CrmCustomer | null; rmc: RmcSummary; isMitra: boolean }) {
   const cfg = useAppConfig()

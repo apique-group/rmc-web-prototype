@@ -5,14 +5,14 @@ import { toast } from 'sonner'
 import { Gift } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { poin } from '@/lib/format'
-import { Reveal } from '@/components/common/reveal'
+import { Reveal } from '@/components/layout/reveal'
 import type { Account, Prize } from '@/types/member'
 import { useRedeemPrize } from '../hooks/use-profile'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { EmptyState } from '@/components/common/empty-state'
-import { useAppConfig } from '@/hooks/use-member-data'
+import { EmptyState } from '@/components/layout/empty-state'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
 
 /* --------------------------------- Prizes --------------------------------- */
 export function PrizeGrid({ account, points }: { account: Account; points: number }) {

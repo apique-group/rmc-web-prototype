@@ -1,6 +1,6 @@
 'use client'
 
-import { useCountUp } from '@/hooks/use-count-up'
+import { useCountUp } from '@/features/landing/hooks/use-count-up'
 import { useInView } from '@/hooks/use-in-view'
 import { cn } from '@/lib/utils'
 

@@ -1,11 +1,13 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Clock, Facebook, Instagram, MessageCircle, Phone, Youtube } from 'lucide-react'
+import { Clock, MessageCircle, Phone } from 'lucide-react'
+import { FacebookIcon, InstagramIcon, YoutubeIcon } from '@/components/layout/social-icons'
 import { cn } from '@/lib/utils'
 import { srcSet2x } from '@/lib/logo'
 import { useAuthStore } from '@/stores/auth.store'
-import { useAppConfig, useCurrentAccount } from '@/hooks/use-member-data'
+import { useAppConfig } from '@/features/landing/hooks/use-config'
+import { useCurrentAccount } from '@/features/auth/hooks/use-auth'
 import { CONTACTS, EXT, SOCIALS } from '@/lib/contacts'
 import { Button } from '@/components/ui/button'
 
@@ -18,7 +20,7 @@ const NAV = [
 ]
 const SPY_IDS = ['benefit', 'golden-sale', 'klasemen']
 
-const SOCIAL_ICON = { instagram: Instagram, youtube: Youtube, facebook: Facebook } as const
+const SOCIAL_ICON = { instagram: InstagramIcon, youtube: YoutubeIcon, facebook: FacebookIcon } as const
 
 /* Two-tier header (R.017): a utility row (customer services · jam buka · lokasi · Hubungi Kami) above the main row
    (real Resique lockup · nav · socials · Cek poin). The utility row slides away once the page scrolls (lg only, transform
