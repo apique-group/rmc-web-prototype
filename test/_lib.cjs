@@ -16,9 +16,9 @@ async function launch(viewport = { width: 390, height: 844 }) {
   return { b, ctx, p, errs }
 }
 
-/** Navigate to a hash route and wait for React to settle. */
+/** Navigate to a route and wait for React to settle. */
 async function go(p, route = '/', wait = 600) {
-  await p.goto(`${BASE}/#${route}`, { waitUntil: 'domcontentloaded' })
+  await p.goto(`${BASE}${route}`, { waitUntil: "domcontentloaded" })
   await p.reload({ waitUntil: 'domcontentloaded' })
   await p.waitForSelector('#root > *', { timeout: 20000 })
   await p.waitForTimeout(wait)

@@ -10,7 +10,7 @@ const { ok, launch, go, resetStores, readStore, fill, text, finish } = require('
 
   // R.014 — no passcode: direct URL is denied, the CRM embed passes actor + level + caps
   await go(p, '/admin')
-  ok((await p.locator('[data-admin-denied]').count()) === 1 && !(await p.locator('[data-admin-section]').count()), 'direct #/admin → access denied, no config rendered')
+  ok((await p.locator('[data-admin-denied]').count()) === 1 && !(await p.locator('[data-admin-section]').count()), 'direct /admin → access denied, no config rendered')
   await go(p, '/admin?embed=1&actor=Andi&role=Admin&level=None&caps=manage_config')
   ok((await p.locator('[data-admin-denied]').count()) === 1, 'level None → denied even when embedded')
   await go(p, '/admin?embed=1&actor=Andi%20Prasetyo&role=Sales%20Team%20Leader&level=View&caps=crm_sales_member&tab=konten')

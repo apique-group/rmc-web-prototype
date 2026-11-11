@@ -9,3 +9,7 @@ test/_shots
 
 .vercel
 .env*
+
+.next/
+next-env.d.ts
+*.tsbuildinfo

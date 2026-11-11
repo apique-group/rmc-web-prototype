@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx'
-import type { Order, OrderStatus } from '@/model/types'
-import { STATUS_LABEL, statusFromLabel } from '@/model/types'
+import type { Order, OrderStatus } from '@/types/member'
+import { STATUS_LABEL, statusFromLabel } from '@/types/member'
 
 /* Mirrors crm-apique primitives.jsx downloadXLSX (autosized columns, phone/ID forced to text)
    and the POS import idiom (crm_pages2.jsx:8331). File naming per PRD: golden-privilege-transaksi-YYYYMMDD.xlsx */

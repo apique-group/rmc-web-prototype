@@ -18,7 +18,7 @@ export function useInView<T extends HTMLElement>(opts: { once?: boolean; margin?
   return { ref, inView }
 }
 
-export function Reveal({ children, className, delay = 0, as: Tag = 'div', ...rest }: { children: React.ReactNode; className?: string; delay?: number; as?: keyof JSX.IntrinsicElements } & Record<string, unknown>) {
+export function Reveal({ children, className, delay = 0, as: Tag = 'div', ...rest }: { children: React.ReactNode; className?: string; delay?: number; as?: keyof React.JSX.IntrinsicElements } & Record<string, unknown>) {
   const { ref, inView } = useInView<HTMLDivElement>()
   const Comp = Tag as unknown as React.ElementType
   // the stagger delay only applies to the entrance; once revealed it is cleared so hover/press stay instant

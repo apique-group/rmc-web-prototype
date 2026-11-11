@@ -1,4 +1,4 @@
-/* Runs every gate sequentially against BASE (default vite preview :4173). Exit 1 if any fails. */
+/* Runs every gate sequentially against BASE (default next start :4173). Exit 1 if any fails. */
 const { spawnSync } = require('node:child_process')
 const path = require('node:path')
 const gates = ['model-verify', 'landing-verify', 'register-verify', 'auth-profile-verify', 'shop-verify', 'admin-verify']

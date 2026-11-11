@@ -5,10 +5,11 @@
   "type": "module",
   "description": "Resique Golden Privilege — RMC consumer web prototype (landing, RMC profile, Golden Sale, admin config)",
   "scripts": {
-    "dev": "vite --port 5173",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview --port 4173 --strictPort",
-    "typecheck": "tsc -b --noEmit",
+    "dev": "next dev -p 5173",
+    "build": "next build",
+    "start": "next start -p 4173",
+    "type-check": "tsc --noEmit",
+    "lint": "next lint",
     "test": "node test/run-all.cjs",
     "verify": "npm run build && npm run test"
   },
@@ -27,29 +28,29 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.454.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "next": "15.5.29",
+    "react": "19.1.10",
+    "react-dom": "19.1.10",
     "react-hook-form": "^7.53.1",
-    "react-router-dom": "^6.27.0",
     "recharts": "^2.13.3",
     "sonner": "^1.7.0",
-    "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7",
+    "tailwind-merge": "^3.7.0",
+    "tw-animate-css": "^1.4.0",
     "xlsx": "^0.18.5",
     "zod": "^3.23.8",
-    "zustand": "^4.5.5"
+    "zustand": "^5.1.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
     "@tailwindcss/postcss": "^4.3.5",
     "@types/node": "^22.8.0",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.3",
-    "autoprefixer": "^10.4.20",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "15.5.29",
     "playwright": "^1.48.2",
     "postcss": "^8.4.47",
     "tailwindcss": "^4.3.5",
-    "typescript": "~5.6.3",
-    "vite": "^5.4.10"
+    "typescript": "~5.6.3"
   }
 }
