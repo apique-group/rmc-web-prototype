@@ -5,8 +5,6 @@ import type { GoldenSalePackage } from '@/types/member'
 import { uid } from '@/lib/id'
 import { rupiah } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { useOrders } from '@/lib/api/mock/orders'
-import { useConfig } from '@/lib/api/mock/config'
 import { packageRemaining } from '@/stores/cart.store'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,6 +23,7 @@ import { SaveBar } from '@/features/admin/components/save-bar'
 import { SettingsCard } from '@/features/admin/components/settings-card'
 import { cell } from '@/features/admin/lib/cell'
 import { moveItem } from '@/features/admin/lib/move-item'
+import { useAdminConfig, useAdminOrders } from '@/features/admin/hooks/use-admin'
 
 /* R.051 — Paket Golden Sale, the staging model (CRM → RMC → Produk → tab Paket, GET /member/packages):
    a package bundles Golden Sale ITEMS (each with a qty) and is sold at one price. It has no stock of its
@@ -39,8 +38,8 @@ export function PaketSection() {
   const d = useDraft('packages', 'Paket Golden Sale')
   const list = d.draft
   const set = d.setDraft
-  const items = useConfig(s => s.config.items)
-  const orders = useOrders(s => s.orders)
+  const items = useAdminConfig().items
+  const orders = useAdminOrders()
   const [editing, setEditing] = React.useState<Draft | null>(null)
   const dupCodes = new Set(list.map(p => p.code).filter((c, i, a) => c && a.indexOf(c) !== i))
   const usedInOrders = (id: string) => orders.some(o => o.lines.some(l => l.packageId === id))
@@ -115,7 +114,7 @@ export function PaketSection() {
 
 /** The staging "Tambah Paket Baru / Edit Paket" modal, with its validation messages. */
 function PaketForm({ draft, existingCodes, onCancel, onSubmit }: { draft: Draft; existingCodes: Set<string>; onCancel: () => void; onSubmit: (p: GoldenSalePackage) => void }) {
-  const items = useConfig(s => s.config.items)
+  const items = useAdminConfig().items
   const [f, setF] = React.useState<Draft>(draft)
   const patch = (p: Partial<Draft>) => setF(s => ({ ...s, ...p }))
   const setRow = (idx: number, p: Partial<Draft['items'][number]>) => patch({ items: f.items.map((r, i) => i === idx ? { ...r, ...p } : r) })

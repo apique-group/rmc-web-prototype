@@ -1,7 +1,7 @@
 'use client'
 
 import { redirect } from 'next/navigation'
-import { useCurrentAccount } from '@/stores/auth.store'
+import { useCurrentAccount } from '@/hooks/use-member-data'
 import { ProfileBody } from './profile-body'
 
 /* Profile, PRD Fitur 4 (poin & tier), Fitur 5 (tukar hadiah), Fitur 6 (riwayat). */

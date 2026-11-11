@@ -4,19 +4,17 @@ import * as React from 'react'
 import { poin } from '@/lib/format'
 import type { Config } from '@/types/member'
 import { srcSet2x } from '@/lib/logo'
-import { rmcFor } from '@/lib/api/mock/rules/rmc'
-import { useCrm } from '@/lib/api/mock/crm'
+import { rmcFor } from '@/lib/rules/rmc'
 import { SEED_ACCOUNTS } from '@/lib/api/mock/seed/seed-accounts'
 import { cn } from '@/lib/utils'
-import { useConfig } from '@/lib/api/mock/config'
-import { useOrders } from '@/lib/api/mock/orders'
+import { useAppConfig, useOrderList, useCustomers } from '@/hooks/use-member-data'
 
 /* The demo member's card, computed with the same rmcFor() the profile uses, real tier, real points, real months. */
 export function RmcCardPreview({ rules }: { rules: Config['rules'] }) {
-  const cfg = useConfig(s => s.config)
-  const orders = useOrders(s => s.orders)
+  const cfg = useAppConfig()
+  const orders = useOrderList()
   const demo = SEED_ACCOUNTS[0]
-  const customer = useCrm(s => s.customers.find(c => c.id === demo.crmCustomerId)) || null
+  const customer = useCustomers().find(c => c.id === demo.crmCustomerId) || null
   const rmc = React.useMemo(() => rmcFor(cfg, customer, orders, [], demo.id, demo.isMitra), [cfg, customer, orders, demo.id, demo.isMitra])
   if (!customer) return null
   const months = rmc.monthly.slice(-6)

@@ -1,6 +1,6 @@
 import { rupiah, fmtDate, toLocalInput, fromLocalInput } from '@/lib/format'
 import { displayPhone } from '@/lib/phone'
-import { useOrders, klasemen } from '@/lib/api/mock/orders'
+import { klasemen } from '@/lib/klasemen'
 import { Input } from '@/components/ui/input'
 import { Field } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
@@ -12,13 +12,14 @@ import { NumInput } from '@/features/admin/components/num-input'
 import { PageHead } from '@/features/admin/components/page-head'
 import { SaveBar } from '@/features/admin/components/save-bar'
 import { SettingsCard } from '@/features/admin/components/settings-card'
+import { useAdminOrders } from '@/features/admin/hooks/use-admin'
 
 export function KampanyeSection() {
   const camp = useDraft('campaign', 'Kampanye')
   const kl = useDraft('klasemen', 'Klasemen')
   const match = useDraft('matching', 'Pencocokan akun')
   const pw = useDraft('password', 'Kata sandi')
-  const orders = useOrders(s => s.orders)
+  const orders = useAdminOrders()
   const rows = klasemen(orders, camp.draft.start, camp.draft.end, kl.draft.showPic)
   const shown = rows.slice(0, Math.max(1, kl.draft.topN))
   const badRange = new Date(camp.draft.start).getTime() > new Date(camp.draft.end).getTime()

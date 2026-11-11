@@ -5,19 +5,18 @@ import { ArrowRight, Check, UserX } from 'lucide-react'
 import type { Claim } from '@/types/member'
 import { fmtDate } from '@/lib/format'
 import { displayPhone } from '@/lib/phone'
-import { useCrm } from '@/lib/api/mock/crm'
-import { useAccounts } from '@/lib/api/mock/accounts'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/common/empty-state'
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table'
 import { PageHead } from '@/features/admin/components/page-head'
 import { SettingsCard } from '@/features/admin/components/settings-card'
+import { useAdminAccounts, useAdminClaims, useAdminCustomers, useAdminLeads, useAuditLog, useDecideClaim, useLinkAccount, useUnlinkAccount } from '@/features/admin/hooks/use-admin'
 
 export function KlaimSection() {
-  const claims = useCrm(s => s.claims)
-  const leads = useCrm(s => s.leads)
-  const customers = useCrm(s => s.customers)
+  const claims = useAdminClaims()
+  const leads = useAdminLeads()
+  const customers = useAdminCustomers()
   const open = claims.filter(c => c.status === 'open')
   const resolved = claims.filter(c => c.status !== 'open')
   const [showResolved, setShowResolved] = React.useState(false)
@@ -79,14 +78,18 @@ export function KlaimSection() {
 }
 
 function ClaimCard({ claim }: { claim: Claim }) {
-  const account = useAccounts(s => s.accounts.find(a => a.id === claim.accountId))
-  const customer = useCrm(s => s.customers.find(c => c.id === claim.candidateCustomerId))
-  const decide = useCrm(s => s.decideClaim)
-  const link = useAccounts(s => s.linkAccount)
-  const unlink = useAccounts(s => s.unlinkToLead)
+  const { mutate: auditLogMutate } = useAuditLog()
+  const auditLog = (event: string, meta: string) => auditLogMutate({ event, meta })
+  const account = useAdminAccounts().find(a => a.id === claim.accountId)
+  const customer = useAdminCustomers().find(c => c.id === claim.candidateCustomerId)
+  const { mutate: decideClaim } = useDecideClaim()
+  const decide = (id: string, status: 'approved' | 'rejected') => decideClaim({ id, status })
+  const { mutate: linkAccount } = useLinkAccount()
+  const link = (id: string, customerId: string) => linkAccount({ id, customerId })
+  const { mutate: unlink } = useUnlinkAccount()
   const { canEdit, actor } = useAdminAccess()
-  const approve = () => { if (!canEdit) return; decide(claim.id, 'approved'); link(claim.accountId, claim.candidateCustomerId); useCrm.getState().log('Klaim akun disetujui', `${claim.id} · oleh ${actor || '-'}`); toast.success(`${claim.id} disetujui, akun terhubung ke ${customer?.outlet || claim.candidateCustomerId}`) }
-  const reject = () => { if (!canEdit) return; decide(claim.id, 'rejected'); unlink(claim.accountId); useCrm.getState().log('Klaim akun ditolak', `${claim.id} · oleh ${actor || '-'}`); toast.success(`${claim.id} ditolak, akun dijadikan lead`) }
+  const approve = () => { if (!canEdit) return; decide(claim.id, 'approved'); link(claim.accountId, claim.candidateCustomerId); auditLog('Klaim akun disetujui', `${claim.id} · oleh ${actor || '-'}`); toast.success(`${claim.id} disetujui, akun terhubung ke ${customer?.outlet || claim.candidateCustomerId}`) }
+  const reject = () => { if (!canEdit) return; decide(claim.id, 'rejected'); unlink(claim.accountId); auditLog('Klaim akun ditolak', `${claim.id} · oleh ${actor || '-'}`); toast.success(`${claim.id} ditolak, akun dijadikan lead`) }
   return (
     <li className="rounded-xl border border-line p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -118,8 +121,8 @@ function Side({ title, rows }: { title: string; rows: [string, string | undefine
 }
 
 function ResolvedRow({ claim }: { claim: Claim }) {
-  const account = useAccounts(s => s.accounts.find(a => a.id === claim.accountId))
-  const customer = useCrm(s => s.customers.find(c => c.id === claim.candidateCustomerId))
+  const account = useAdminAccounts().find(a => a.id === claim.accountId)
+  const customer = useAdminCustomers().find(c => c.id === claim.candidateCustomerId)
   return (
     <TR>
       <TD className="t-code text-[12px]">{claim.id}</TD>

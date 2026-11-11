@@ -5,43 +5,48 @@ import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { Narrow } from '@/components/layout/narrow'
 import { normalizePhone } from '@/lib/phone'
-import { matchRegistration, type MatchResult } from '@/lib/api/mock/rules/match'
-import { type RegisterForm, type RegisterOutcome, useAccounts } from '@/lib/api/mock/accounts'
-import { useCrm } from '@/lib/api/mock/crm'
-import { cfg, useConfig } from '@/lib/api/mock/config'
+import { matchRegistration, type MatchResult } from '@/lib/rules/match'
+import { getErrorMessage } from '@/lib/api/get-error-message'
+import type { RegisterForm, RegisterOutcome } from '../types'
+import { authApi } from '../api/auth.api'
+import { useRegister } from '../hooks/use-auth'
 import { InviteRegisterForm } from './invite-register-form'
 import { FormValues, RegisterFormStep } from './register-form'
 import { PasswordStep } from './password-step'
 import { ResultScreen } from './register-result'
+import { useAppConfig, useCustomers } from '@/hooks/use-member-data'
 
 type Step = 'form' | 'password' | 'done'
 
 export function RegisterView() {
-  const password = useConfig(s => s.config.password)
+  const appConfig = useAppConfig()
+  const password = appConfig.password
+  const customers = useCustomers()
+  const register = useRegister()
   const inviteToken = useSearchParams().get('invite')
   const [step, setStep] = React.useState<Step>('form')
   const [draft, setDraft] = React.useState<{ form: RegisterForm; match: MatchResult } | null>(null)
   const [outcome, setOutcome] = React.useState<RegisterOutcome | null>(null)
   const [submitError, setSubmitError] = React.useState<string | null>(null)
 
-  const doRegister = (form: RegisterForm) => {
+  const doRegister = async (form: RegisterForm) => {
     try {
-      const out = useAccounts.getState().register(form)
+      const out = await register.mutateAsync(form)
       setOutcome(out)
       setStep('done')
       setSubmitError(null)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Pendaftaran gagal'
+      const msg = getErrorMessage(e, 'Pendaftaran gagal')
       setSubmitError(msg)
       toast.error(msg)
     }
   }
 
-  const onFormValid = (v: FormValues) => {
+  const onFormValid = async (v: FormValues) => {
     const phone = normalizePhone(v.phone)
     if (!phone) return
-    if (useAccounts.getState().byPhone(phone)) {
+    if (await authApi.lookup(phone)) {
       setSubmitError('Nomor HP sudah terdaftar')
       toast.error('Nomor HP sudah terdaftar')
       return
@@ -56,7 +61,7 @@ export function RegisterView() {
       rsl: v.hasCard === 'ya' && v.rsl?.trim() ? v.rsl.trim().toUpperCase() : undefined,
       referral: v.referral?.trim() || undefined,
     }
-    const match = matchRegistration({ phone, laundry: form.laundry, pic: form.pic, rsl: form.rsl }, useCrm.getState().customers, cfg().matching.fuzzyThreshold)
+    const match = matchRegistration({ phone, laundry: form.laundry, pic: form.pic, rsl: form.rsl }, customers, appConfig.matching.fuzzyThreshold)
     if (match.link === 'LINKED') {
       doRegister(form)
     } else {

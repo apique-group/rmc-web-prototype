@@ -4,15 +4,14 @@ import * as React from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { SiteHeader } from '@/components/layout/site-header'
 import { SiteFooter } from '@/components/layout/site-footer'
-import { useOrders } from '@/lib/api/mock/orders'
-import { useCurrentAccount } from '@/stores/auth.store'
+import { useCurrentAccount, useExpireOrders } from '@/hooks/use-member-data'
 
 /** Consumer shell: floating nav + page + footer. The admin route renders outside this shell. */
 export function SiteShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const acc = useCurrentAccount()
-  const expire = useOrders(s => s.expireStale)
+  const { mutate: expire } = useExpireOrders()
   // BR-3.3, a temp password must be replaced before any other page opens.
   React.useEffect(() => {
     if (acc?.mustChangePassword && pathname !== '/change-password') router.replace('/change-password')

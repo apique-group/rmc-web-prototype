@@ -4,9 +4,6 @@ import * as React from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Eye, ShieldAlert } from 'lucide-react'
-import { useConfig } from '@/lib/api/mock/config'
-import { useCrm } from '@/lib/api/mock/crm'
-import { useOrders } from '@/lib/api/mock/orders'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AdminShell, isAdminSection, type AdminSectionId } from '@/features/admin/components/admin-shell'
@@ -24,6 +21,7 @@ import { TransaksiSection } from '@/features/admin/components/sections/transaksi
 import { KlaimSection } from '@/features/admin/components/sections/klaim-section'
 import { AkunSection } from '@/features/admin/components/sections/akun-section'
 import { ResetSection } from '@/features/admin/components/sections/reset-section'
+import { useAdminClaims, useAdminConfig, useAdminOrders } from '@/features/admin/hooks/use-admin'
 
 const SECTIONS: Record<AdminSectionId, React.ComponentType> = {
   konten: KontenSection, aset: AsetSection, benefit: BenefitSection,
@@ -48,9 +46,9 @@ export function AdminView() {
   const tabParam = params.get('tab')
   const tab: AdminSectionId = isAdminSection(tabParam) ? tabParam : 'konten'
 
-  const logo = useConfig(s => s.config.assets.logo)
-  const openClaims = useCrm(s => s.claims.filter(c => c.status === 'open').length)
-  const pendingProofs = useOrders(s => s.orders.filter(o => o.status === 'PROOF_UPLOADED').length)
+  const logo = useAdminConfig().assets.logo
+  const openClaims = useAdminClaims().filter(c => c.status === 'open').length
+  const pendingProofs = useAdminOrders().filter(o => o.status === 'PROOF_UPLOADED').length
 
   React.useEffect(() => { document.title = 'Golden Privilege · Konfigurasi' }, [])
 

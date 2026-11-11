@@ -5,14 +5,10 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Gift, LogOut } from 'lucide-react'
 import { Reveal } from '@/components/common/reveal'
-import { ledgerFor, rmcFor } from '@/lib/api/mock/rules/rmc'
+import { ledgerFor, rmcFor } from '@/lib/rules/rmc'
 import type { Account, CrmCustomer } from '@/types/member'
-import { useConfig } from '@/lib/api/mock/config'
 import { CONTACTS } from '@/lib/contacts'
-import { useCrm } from '@/lib/api/mock/crm'
-import { useOrders } from '@/lib/api/mock/orders'
-import { useAccounts } from '@/lib/api/mock/accounts'
-import { useSession } from '@/stores/auth.store'
+import { useAuthStore } from '@/stores/auth.store'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { LedgerCard } from './ledger-list'
@@ -22,16 +18,17 @@ import { PendingHero } from './pending-hero'
 import { PointsChart } from './points-chart'
 import { PointsHero } from './points-hero'
 import { PrizeGrid } from './prize-grid'
+import { useAppConfig, useOrderList, useCustomers, useRedemptions } from '@/hooks/use-member-data'
 
 export const SALES_WA = CONTACTS.wa
 
 export function ProfileBody({ account }: { account: Account }) {
   const router = useRouter()
-  const cfg = useConfig(s => s.config)
-  const customers = useCrm(s => s.customers)
-  const orders = useOrders(s => s.orders)
-  const redemptions = useAccounts(s => s.redemptions)
-  const signOut = useSession(s => s.signOut)
+  const cfg = useAppConfig()
+  const customers = useCustomers()
+  const orders = useOrderList()
+  const redemptions = useRedemptions()
+  const signOut = useAuthStore(s => s.signOut)
 
   const customer: CrmCustomer | null = account.link === 'LINKED' ? customers.find(c => c.id === account.crmCustomerId) || null : null
   const isMitra = account.isMitra || !!customer?.mitra

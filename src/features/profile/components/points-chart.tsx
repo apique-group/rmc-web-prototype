@@ -2,7 +2,7 @@
 
 import { Area, AreaChart, CartesianGrid, ReferenceDot, ResponsiveContainer, Tooltip, type TooltipProps, XAxis, YAxis } from 'recharts'
 import { fmtMonth, poin, rupiah } from '@/lib/format'
-import type { RmcSummary } from '@/lib/api/mock/rules/rmc'
+import type { RmcSummary } from '@/lib/rules/rmc'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 const TEAL = '#3E8A1E'

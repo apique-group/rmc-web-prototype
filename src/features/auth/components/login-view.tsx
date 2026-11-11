@@ -8,8 +8,10 @@ import { ArrowLeft, ArrowRight, KeyRound } from 'lucide-react'
 import { Reveal } from '@/components/common/reveal'
 import { Narrow } from '@/components/layout/narrow'
 import { normalizePhone, displayPhone } from '@/lib/phone'
-import { useAccounts } from '@/lib/api/mock/accounts'
-import { useSession } from '@/stores/auth.store'
+import { getErrorMessage } from '@/lib/api/get-error-message'
+import { authApi } from '../api/auth.api'
+import { useForgotPassword, useLogin } from '../hooks/use-auth'
+import { useAuthStore } from '@/stores/auth.store'
 import { Button } from '@/components/ui/button'
 import { Field } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -29,14 +31,15 @@ export function LoginView() {
   const [mode, setMode] = React.useState<'login' | 'reset'>('login')
   const phoneNorm = normalizePhone(phone)
 
-  const submit = (e: React.FormEvent) => {
+  const login = useLogin()
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!phoneNorm) { setError('Nomor HP tidak valid'); return }
     if (!pw) { setError('Kata sandi wajib diisi'); return }
-    const res = useAccounts.getState().login(phoneNorm, pw)
-    if (!res.ok) { setError(res.reason); toast.error(res.reason); return }
+    let res
+    try { res = await login.mutateAsync({ phone: phoneNorm, password: pw }) } catch (err) { const reason = getErrorMessage(err, 'Nomor atau kata sandi salah'); setError(reason); toast.error(reason); return }
     setError(null)
-    useSession.getState().signIn(res.account.id)
+    useAuthStore.getState().signIn(res.account.id)
     toast.success(`Masuk sebagai ${res.account.pic.split(' ')[0]}`)
     router.push(res.account.mustChangePassword ? '/change-password' : (redirectTo && redirectTo.startsWith('/') ? redirectTo : '/profile'))
   }
@@ -99,12 +102,13 @@ function ResetForm({ initialPhone, onBack, onSent }: { initialPhone: string; onB
   const [sentTo, setSentTo] = React.useState<string | null>(null)
   const phoneNorm = normalizePhone(phone)
 
-  const submit = (e: React.FormEvent) => {
+  const forgot = useForgotPassword()
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!phoneNorm) { setError('Nomor HP tidak valid'); return }
     // staging: the answer is the same whether or not the number exists — never reveal registered numbers
-    const acc = useAccounts.getState().byPhone(phoneNorm)
-    useAccounts.getState().requestReset(phoneNorm)
+    const acc = await authApi.lookup(phoneNorm)
+    await forgot.mutateAsync(phoneNorm)
     setError(null)
     setSentTo(acc ? acc.email : '')
     onSent(phoneNorm)

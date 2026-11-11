@@ -1,12 +1,10 @@
 import * as React from 'react'
 import { useAdminAccess } from '@/features/admin/hooks/use-admin-access'
-import { useCrm } from '@/lib/api/mock/crm'
 import { toast } from 'sonner'
 import { CheckCircle2, FileText, RotateCcw, XCircle } from 'lucide-react'
-import { STATUS_LABEL, type Order } from '@/types/member'
+import { STATUS_LABEL, type Order, type OrderStatus } from '@/types/member'
 import { fmtDate, rupiah } from '@/lib/format'
 import { displayPhone } from '@/lib/phone'
-import { useOrders } from '@/lib/api/mock/orders'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/input'
 import { Field } from '@/components/ui/label'
@@ -14,10 +12,14 @@ import { Badge, statusVariant } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table'
+import { useAuditLog, useSetOrderStatus } from '@/features/admin/hooks/use-admin'
 
 /** Order drawer: lines, fulfilment, proof preview, verify / reject / undo. */
 export function TransaksiDetail({ order, onClose }: { order: Order | null; onClose: () => void }) {
-  const setStatus = useOrders(s => s.setStatus)
+  const { mutate: auditLogMutate } = useAuditLog()
+  const auditLog = (event: string, meta: string) => auditLogMutate({ event, meta })
+  const { mutate: setOrderStatus } = useSetOrderStatus()
+  const setStatus = (id: string, status: OrderStatus, reason?: string) => setOrderStatus({ id, status, reason })
   const [rejecting, setRejecting] = React.useState(false)
   const [reason, setReason] = React.useState('')
   React.useEffect(() => { if (!order) { setRejecting(false); setReason('') } }, [order])
@@ -26,7 +28,7 @@ export function TransaksiDetail({ order, onClose }: { order: Order | null; onClo
   const act = (status: Order['status'], r?: string) => {
     if (!order || !canEdit) return
     setStatus(order.id, status, r)
-    useCrm.getState().log('Status pesanan diubah', `${order.id} → ${STATUS_LABEL[status]} · oleh ${actor || '-'}`)
+    auditLog('Status pesanan diubah', `${order.id} → ${STATUS_LABEL[status]} · oleh ${actor || '-'}`)
     toast.success(`${order.id} → ${STATUS_LABEL[status]}`)
     setRejecting(false); setReason('')
     if (status !== 'AWAITING_PAYMENT') onClose()

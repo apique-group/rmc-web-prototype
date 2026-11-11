@@ -1,15 +1,15 @@
 'use client'
 
 import { poin, rupiah } from '@/lib/format'
-import type { RmcSummary } from '@/lib/api/mock/rules/rmc'
+import type { RmcSummary } from '@/lib/rules/rmc'
 import type { Account, CrmCustomer } from '@/types/member'
-import { useConfig } from '@/lib/api/mock/config'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { HeroShell } from './hero-shell'
+import { useAppConfig } from '@/hooks/use-member-data'
 
 export function PointsHero({ account, customer, rmc, isMitra }: { account: Account; customer: CrmCustomer | null; rmc: RmcSummary; isMitra: boolean }) {
-  const cfg = useConfig(s => s.config)
+  const cfg = useAppConfig()
   const floorApplied = isMitra && rmc.discount === cfg.mitraFloorDiscount && rmc.tier.discount < cfg.mitraFloorDiscount
   return (
     <HeroShell>

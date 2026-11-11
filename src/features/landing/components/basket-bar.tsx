@@ -5,15 +5,15 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { rupiah } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { useConfig } from '@/lib/api/mock/config'
 import { cartCount, cartLines, cartPackageLines, cartSavings, cartTotal, lineKey, useCart } from '@/stores/cart.store'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { QtyStepper } from '@/components/common/qty-stepper'
+import { useAppConfig } from '@/hooks/use-member-data'
 
 /* Basket bar + sheet (floating → shadow, no border). Item lines and package lines live side by side (staging BasketBarClient). */
 export function BasketBar() {
-  const cfg = useConfig(s => s.config)
+  const cfg = useAppConfig()
   const qty = useCart(s => s.qty)
   const pkgQty = useCart(s => s.pkgQty)
   const setQty = useCart(s => s.set)

@@ -7,7 +7,6 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/common/empty-state'
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table'
 import { useDraft } from '@/features/admin/hooks/use-draft'
-import { useConfig } from '@/lib/api/mock/config'
 import { ImageField } from '@/features/admin/components/image-field'
 import { NumInput } from '@/features/admin/components/num-input'
 import { PageHead } from '@/features/admin/components/page-head'
@@ -16,6 +15,7 @@ import { SaveBar } from '@/features/admin/components/save-bar'
 import { SettingsCard } from '@/features/admin/components/settings-card'
 import { cell } from '@/features/admin/lib/cell'
 import { moveItem } from '@/features/admin/lib/move-item'
+import { useAdminConfig } from '@/features/admin/hooks/use-admin'
 
 export function HadiahSection() {
   const d = useDraft('prizes', 'Katalog hadiah')
@@ -26,7 +26,7 @@ export function HadiahSection() {
   const activeCount = list.filter(p => p.active).length
   const t = useDraft('prizeTypes', 'Jenis hadiah')
   const types = t.draft
-  const liveTypes = useConfig(s => s.config.prizeTypes)
+  const liveTypes = useAdminConfig().prizeTypes
 
   return (
     <div data-admin-section="hadiah" className="stack-y-4">

@@ -8,9 +8,8 @@ import { Reveal } from '@/components/common/reveal'
 import { Narrow } from '@/components/layout/narrow'
 import { checkPassword } from '@/lib/password'
 import { displayPhone } from '@/lib/phone'
-import { useAccounts } from '@/lib/api/mock/accounts'
-import { useCurrentAccount } from '@/stores/auth.store'
-import { useConfig } from '@/lib/api/mock/config'
+import { useChangePassword } from '../hooks/use-auth'
+import { useAppConfig, useCurrentAccount } from '@/hooks/use-member-data'
 import { Button } from '@/components/ui/button'
 import { Field } from '@/components/ui/label'
 import { PasswordChecklist, PasswordInput } from './password-checklist'
@@ -18,8 +17,9 @@ import { PasswordChecklist, PasswordInput } from './password-checklist'
 /* First sign-in after a temp password (PRD Fitur 3, BR-3.x): the temp password is single-use. */
 export function ChangePasswordView() {
   const account = useCurrentAccount()
-  const minLength = useConfig(s => s.config.password.minLength)
+  const minLength = useAppConfig().password.minLength
   const router = useRouter()
+  const changePassword = useChangePassword()
   const [pw, setPw] = React.useState('')
   const [confirm, setConfirm] = React.useState('')
   const [touched, setTouched] = React.useState(false)
@@ -30,11 +30,11 @@ export function ChangePasswordView() {
   const mismatch = confirm.length > 0 && confirm !== pw
   const canSubmit = check.ok && confirm === pw
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     setTouched(true)
     if (!canSubmit) return
-    useAccounts.getState().changePassword(account.id, pw)
+    await changePassword.mutateAsync({ accountId: account.id, newPassword: pw })
     toast.success('Kata sandi baru tersimpan')
     router.replace('/profile')
   }

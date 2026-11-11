@@ -2,19 +2,18 @@
 
 import { Clock, MessageCircle } from 'lucide-react'
 import { poin } from '@/lib/format'
-import type { RmcSummary } from '@/lib/api/mock/rules/rmc'
+import type { RmcSummary } from '@/lib/rules/rmc'
 import type { Account } from '@/types/member'
-import { useConfig } from '@/lib/api/mock/config'
-import { useCrm } from '@/lib/api/mock/crm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { HeroShell } from './hero-shell'
 import { SALES_WA } from './profile-body'
+import { useAppConfig, useCustomers } from '@/hooks/use-member-data'
 
 export function PendingHero({ account, rmc }: { account: Account; rmc: RmcSummary }) {
-  const cfg = useConfig(s => s.config)
-  const claimTarget = useCrm(s => s.customers.find(c => c.id === account.crmCustomerId))
+  const cfg = useAppConfig()
+  const claimTarget = useCustomers().find(c => c.id === account.crmCustomerId)
   return (
     <div className="relative">
       <div aria-hidden className="pointer-events-none select-none blur-[6px]">

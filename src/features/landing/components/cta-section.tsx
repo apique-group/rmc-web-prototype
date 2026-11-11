@@ -5,8 +5,7 @@ import Link from 'next/link'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { BENEFIT_ICONS } from '@/lib/benefit-icons'
 import { Reveal } from '@/components/common/reveal'
-import { useConfig } from '@/lib/api/mock/config'
-import { useCurrentAccount } from '@/stores/auth.store'
+import { useAppConfig, useCurrentAccount } from '@/hooks/use-member-data'
 import { Button } from '@/components/ui/button'
 import { Marked } from './marked'
 import { RmcCardPreview } from './rmc-card-preview'
@@ -16,7 +15,7 @@ import { Streaks } from './streaks'
    chips), then the three step chips and the RMC card preview kept from the earlier rounds. Primary = Daftar Sekarang
    (green), secondary = Masuk & cek poin (white). */
 export function CtaSection() {
-  const cfg = useConfig(s => s.config)
+  const cfg = useAppConfig()
   const { copy, rules, benefits } = cfg
   const acc = useCurrentAccount()
   return (

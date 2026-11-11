@@ -5,18 +5,18 @@ import Link from 'next/link'
 import { ArrowRight, ChevronLeft, ChevronRight, ChevronsRight } from 'lucide-react'
 import { rupiah } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { useConfig } from '@/lib/api/mock/config'
 import { Button } from '@/components/ui/button'
 import { BannerGround } from './banner-ground'
 import { Marked } from './marked'
 import { StaggerWords } from './stagger-words'
+import { useAppConfig } from '@/hooks/use-member-data'
 
 /* 1, Hook = the RGP mock's banner card with a slider, styled like the drenched R.025 hook (Lurd, 11 Sep): navy-900
    drench, wire-frame cubes, floating green dot, doodle; slide 1 carries the mock's exact words and a floating collage
    of the three biggest Golden Sale drops with the HEMAT seal. 3 slides, dots + arrows, autoplay paused on hover/focus
    and under reduced motion. Copy is config-driven. */
 export function HookSection() {
-  const { copy, items, assets } = useConfig(s => s.config)
+  const { copy, items, assets } = useAppConfig()
   const drops = items.filter(i => i.active && i.realPrice > i.promoPrice)
     .map(i => ({ ...i, pct: Math.round((1 - i.promoPrice / i.realPrice) * 100), save: i.realPrice - i.promoPrice }))
     .sort((a, b) => b.save - a.save)

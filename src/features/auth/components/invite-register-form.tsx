@@ -10,16 +10,17 @@ import { cn } from '@/lib/utils'
 import { Reveal } from '@/components/common/reveal'
 import { normalizePhone } from '@/lib/phone'
 import { checkPassword } from '@/lib/password'
-import { useAccounts } from '@/lib/api/mock/accounts'
-import { useCrm, inviteStatus, maskPosCode } from '@/lib/api/mock/crm'
-import { useSession } from '@/stores/auth.store'
-import { useConfig } from '@/lib/api/mock/config'
+import { inviteStatus, maskPosCode } from '@/lib/invite'
+import { getErrorMessage } from '@/lib/api/get-error-message'
+import { useInvite, useRegisterInvite } from '../hooks/use-auth'
+import { useAuthStore } from '@/stores/auth.store'
 import { Button } from '@/components/ui/button'
 import { Field } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { EmptyState } from '@/components/common/empty-state'
 import { PasswordChecklist, PasswordInput } from './password-checklist'
+import { useAppConfig } from '@/hooks/use-member-data'
 
 /* R.052 — invite registration (staging /register?invite=<token>): sales generates a link per RMC customer in the CRM;
    the customer opens it, sees their outlet pre-filled (read-only), fills Nama PIC / HP / Email / kata sandi / consent
@@ -36,9 +37,9 @@ type Values = z.infer<typeof schema>
 
 export function InviteRegisterForm({ token }: { token: string }) {
   const router = useRouter()
-  const minLength = useConfig(s => s.config.password.minLength)
-  const invite = useCrm(s => s.invites.find(i => i.token === token))
-  const customer = useCrm(s => (invite ? s.customers.find(c => c.id === invite.customerId) : undefined))
+  const minLength = useAppConfig().password.minLength
+  const { invite, customer } = useInvite(token)
+  const registerInvite = useRegisterInvite()
   const valid = !!invite && !!customer && inviteStatus(invite) === 'active'
   const [pw, setPw] = React.useState('')
   const [confirm, setConfirm] = React.useState('')
@@ -64,12 +65,12 @@ export function InviteRegisterForm({ token }: { token: string }) {
     )
   }
 
-  const onValid = (v: Values) => {
+  const onValid = async (v: Values) => {
     setTouched(true)
     if (!check.ok || confirm !== pw) return
-    const res = useAccounts.getState().registerInvite({ token, pic: v.pic, phone: v.phone, email: v.email, password: pw })
-    if (!res.ok) { toast.error(res.reason); return }
-    useSession.getState().signIn(res.account.id)
+    let res
+    try { res = await registerInvite.mutateAsync({ token, pic: v.pic, phone: v.phone, email: v.email, password: pw }) } catch (err) { toast.error(getErrorMessage(err, 'Pendaftaran gagal')); return }
+    useAuthStore.getState().signIn(res.account.id)
     toast.success(`Selamat datang, ${res.account.pic.split(' ')[0]}`)
     router.replace('/profile')
   }

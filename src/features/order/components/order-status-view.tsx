@@ -8,10 +8,10 @@ import { fmtDate, rupiah } from '@/lib/format'
 import { Reveal } from '@/components/common/reveal'
 import { displayPhone, normalizePhone } from '@/lib/phone'
 import { STATUS_LABEL } from '@/types/member'
-import { useCurrentAccount } from '@/stores/auth.store'
+import { useCurrentAccount } from '@/hooks/use-member-data'
 import { Input } from '@/components/ui/input'
 import { Field } from '@/components/ui/label'
-import { useOrders } from '@/lib/api/mock/orders'
+import { useOrderById } from '@/hooks/use-member-data'
 import { Narrow } from '@/components/layout/narrow'
 import { Button } from '@/components/ui/button'
 import { Badge, statusVariant } from '@/components/ui/badge'
@@ -24,7 +24,7 @@ import { Timeline } from './order-timeline'
 
 export function OrderStatusView() {
   const { id } = useParams<{ id: string }>()
-  const order = useOrders(s => s.orders.find(o => o.id === id))
+  const order = useOrderById(id) ?? undefined
   const acc = useCurrentAccount()
   const params = useSearchParams()
   const pathname = usePathname()

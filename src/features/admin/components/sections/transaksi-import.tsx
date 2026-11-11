@@ -1,29 +1,31 @@
 import { useAdminAccess } from '@/features/admin/hooks/use-admin-access'
-import { useCrm } from '@/lib/api/mock/crm'
 import { toast } from 'sonner'
 import { STATUS_LABEL, type Order } from '@/types/member'
 import type { ImportPreview } from '@/lib/xlsx'
 import { fmtDate, rupiah } from '@/lib/format'
-import { useOrders } from '@/lib/api/mock/orders'
 import { Button } from '@/components/ui/button'
 import { Badge, statusVariant } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table'
+import { useAdminOrders, useAuditLog, useImportOrders } from '@/features/admin/hooks/use-admin'
 
 /** Import preview: parsed rows + skipped reasons → Konfirmasi import. */
 export function TransaksiImport({ preview, fileName, onClose }: { preview: ImportPreview | null; fileName: string; onClose: () => void }) {
-  const orders = useOrders(s => s.orders)
-  const importRows = useOrders(s => s.importRows)
+  const { mutate: auditLogMutate } = useAuditLog()
+  const auditLog = (event: string, meta: string) => auditLogMutate({ event, meta })
+  const orders = useAdminOrders()
+  const { mutateAsync: importOrders } = useImportOrders()
+  const importRows = async (rows: Order[]) => (await importOrders(rows)).added
   const existing = new Set(orders.map(o => o.id))
   const rows: Order[] = preview?.rows ?? []
   const fresh = rows.filter(r => !existing.has(r.id))
   const dupes = rows.length - fresh.length
 
   const { canEdit, actor } = useAdminAccess()
-  const confirm = () => {
+  const confirm = async () => {
     if (!canEdit) return
-    const n = importRows(rows)
-    useCrm.getState().log('Transaksi diimpor', `${n} baris · oleh ${actor || '-'}`)
+    const n = await importRows(rows)
+    auditLog('Transaksi diimpor', `${n} baris · oleh ${actor || '-'}`)
     toast.success(`${n} transaksi diimpor${dupes ? ` · ${dupes} dilewati (ID sudah ada)` : ''}`)
     onClose()
   }

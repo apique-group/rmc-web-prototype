@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Account, Kota, Redemption } from '@/types/member'
 import { persistOpts, syncAcrossTabs } from '@/lib/api/mock/persist'
-import { matchRegistration, type MatchResult } from '@/lib/api/mock/rules/match'
+import { matchRegistration, type MatchResult } from '@/lib/rules/match'
 import { normalizePhone } from '@/lib/phone'
 import { checkPassword, genTempPassword, hashPassword, verifyPassword } from '@/lib/password'
 

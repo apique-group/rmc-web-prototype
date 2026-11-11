@@ -8,8 +8,6 @@ import { fmtDate, rupiah } from '@/lib/format'
 import { displayPhone } from '@/lib/phone'
 import { downloadTemplate, exportOrders, parseOrdersFile, type ImportPreview } from '@/lib/xlsx'
 import { cn } from '@/lib/utils'
-import { useConfig } from '@/lib/api/mock/config'
-import { useOrders } from '@/lib/api/mock/orders'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge, statusVariant } from '@/components/ui/badge'
@@ -20,12 +18,13 @@ import { SettingsCard } from '@/features/admin/components/settings-card'
 import { StatTile } from '@/features/admin/components/stat-tile'
 import { TransaksiDetail } from '@/features/admin/components/sections/transaksi-detail'
 import { TransaksiImport } from '@/features/admin/components/sections/transaksi-import'
+import { useAdminConfig, useAdminOrders } from '@/features/admin/hooks/use-admin'
 
 type Filter = 'Semua' | OrderStatus
 
 export function TransaksiSection() {
-  const orders = useOrders(s => s.orders)
-  const items = useConfig(s => s.config.items)
+  const orders = useAdminOrders()
+  const items = useAdminConfig().items
   const [filter, setFilter] = React.useState<Filter>('Semua')
   const [q, setQ] = React.useState('')
   const [openId, setOpenId] = React.useState<string | null>(null)

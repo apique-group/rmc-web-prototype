@@ -2,18 +2,19 @@ import * as React from 'react'
 import { useAdminAccess } from '@/features/admin/hooks/use-admin-access'
 import { toast } from 'sonner'
 import { AlertTriangle, Database, Receipt, Settings2 } from 'lucide-react'
-import { useConfig } from '@/lib/api/mock/config'
-import { useOrders } from '@/lib/api/mock/orders'
-import { resetAllStores } from '@/lib/api/mock/persist'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { PageHead } from '@/features/admin/components/page-head'
 import { SettingsCard } from '@/features/admin/components/settings-card'
+import { useAdminOrders, useResetConfig, useResetDemo, useResetOrders } from '@/features/admin/hooks/use-admin'
 
 export function ResetSection() {
+  const { mutate: resetDemo } = useResetDemo()
+  const { mutate: resetOrders } = useResetOrders()
+  const { mutate: resetConfig } = useResetConfig()
   const { canEdit } = useAdminAccess()
   const [confirmAll, setConfirmAll] = React.useState(false)
-  const orders = useOrders(s => s.orders.length)
+  const orders = useAdminOrders().length
 
   return (
     <div data-admin-section="reset" className="stack-y-4">
@@ -21,9 +22,9 @@ export function ResetSection() {
 
       <div className="grid gap-4 lg:grid-cols-3">
         <ResetCard icon={Settings2} title="Reset konfigurasi ke bawaan" desc="Copy, aset, benefit, tier, item, hadiah, pembayaran kembali ke seed. Transaksi dan akun tetap." action="Reset konfigurasi" disabled={!canEdit}
-          onClick={() => { useConfig.getState().reset(); toast.success('Konfigurasi dikembalikan ke bawaan') }} />
+          onClick={() => { resetConfig(); toast.success('Konfigurasi dikembalikan ke bawaan') }} />
         <ResetCard icon={Receipt} title="Reset transaksi" desc={`Ganti ${orders} pesanan saat ini dengan seed transaksi awal. Konfigurasi dan akun tetap.`} action="Reset transaksi" disabled={!canEdit}
-          onClick={() => { useOrders.getState().reset(); toast.success('Transaksi dikembalikan ke seed') }} />
+          onClick={() => { resetOrders(); toast.success('Transaksi dikembalikan ke seed') }} />
         <ResetCard icon={Database} title="Reset semua data demo" desc="Hapus seluruh rmcweb_* di localStorage (konfigurasi, transaksi, akun, CRM mock, inbox) lalu muat ulang halaman." action="Reset semua…" danger disabled={!canEdit}
           onClick={() => setConfirmAll(true)} />
       </div>
@@ -36,7 +37,7 @@ export function ResetSection() {
           </DialogHeader>
           <DialogFooter>
             <Button type="button" variant="ghost" size="sm" onClick={() => setConfirmAll(false)}>Batal</Button>
-            <Button type="button" variant="destructive" size="sm" disabled={!canEdit} onClick={() => resetAllStores()}>Ya, hapus semua</Button>
+            <Button type="button" variant="destructive" size="sm" disabled={!canEdit} onClick={() => resetDemo()}>Ya, hapus semua</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

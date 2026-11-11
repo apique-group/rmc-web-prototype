@@ -7,17 +7,17 @@ import { cn } from '@/lib/utils'
 import { poin } from '@/lib/format'
 import { Reveal } from '@/components/common/reveal'
 import type { Account, Prize } from '@/types/member'
-import { useConfig } from '@/lib/api/mock/config'
-import { useAccounts } from '@/lib/api/mock/accounts'
+import { useRedeemPrize } from '../hooks/use-profile'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/common/empty-state'
+import { useAppConfig } from '@/hooks/use-member-data'
 
 /* --------------------------------- Prizes --------------------------------- */
 export function PrizeGrid({ account, points }: { account: Account; points: number }) {
-  const cfg = useConfig(s => s.config)
-  const setSection = useConfig(s => s.setSection)
+  const cfg = useAppConfig()
+  const redeem = useRedeemPrize()
   const [sel, setSel] = React.useState<Prize | null>(null)
   const prizes = cfg.prizes.filter(p => p.active)
 
@@ -30,16 +30,15 @@ export function PrizeGrid({ account, points }: { account: Account; points: numbe
     return null
   }
 
-  const confirm = () => {
+  const confirm = async () => {
     if (!sel) return
-    const fresh = useConfig.getState().config.prizes.find(p => p.id === sel.id)
+    const fresh = cfg.prizes.find(p => p.id === sel.id)
     if (!fresh || !fresh.active) { toast.error('Hadiah tidak ditemukan'); setSel(null); return }
     if (fresh.stock <= 0) { toast.error('Stok hadiah sudah habis'); setSel(null); return }
     if (fresh.pointCost < cfg.rules.minRedeem) { toast.error(`Minimum redeem ${poin(cfg.rules.minRedeem)} poin`); setSel(null); return }
     if (points < fresh.pointCost) { toast.error('Saldo poin tidak cukup'); setSel(null); return }
     const balance = points - fresh.pointCost
-    const r = useAccounts.getState().redeem(account.id, fresh.id, fresh.name, fresh.pointCost, balance)
-    setSection('prizes', useConfig.getState().config.prizes.map(p => p.id === fresh.id ? { ...p, stock: Math.max(0, p.stock - 1) } : p))
+    const r = await redeem.mutateAsync({ accountId: account.id, prizeId: fresh.id, balanceAfter: balance })
     toast.success(`${fresh.name} berhasil ditukar`, { description: `Kode penukaran ${r.code}. Sisa poin ${poin(balance)}. Sales Resique akan hubungi kamu soal pengiriman.`, duration: 8000 })
     setSel(null)
   }

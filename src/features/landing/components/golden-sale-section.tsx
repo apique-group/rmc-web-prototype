@@ -4,8 +4,6 @@ import { Sparkles, Zap } from 'lucide-react'
 import { Reveal } from '@/components/common/reveal'
 import { fmtDate } from '@/lib/format'
 import { toast } from 'sonner'
-import { useConfig } from '@/lib/api/mock/config'
-import { useOrders } from '@/lib/api/mock/orders'
 import { itemLeft, packageRemaining, useCart } from '@/stores/cart.store'
 import { EmptyState } from '@/components/common/empty-state'
 import { Countdown } from './countdown'
@@ -13,14 +11,15 @@ import { Marked } from './marked'
 import { PackageCard, ProductCard } from './sale-card'
 import { SaleConfetti } from './sale-confetti'
 import { Streaks } from './streaks'
+import { useAppConfig, useOrderList } from '@/hooks/use-member-data'
 
 /* 6, Golden Sale = the latest Figma (11 Sep, designer's note: "wow factor, like a Shopee flash sale"): dark navy band,
    an angled gold ribbon marquee "GOLDEN SALE • HARGA SPESIAL MEMBER RESIQUE", a FLASH SALE chip, "GOLDEN SALE!!" with
    SALE!! in gold, the live countdown, white product cards with a red -N% badge, price + strike, a gold "Hemat Rp…" chip
    and the green Tambah. Confetti drifts behind. Copy is config-driven ({pct} = the real biggest cut). */
 export function GoldenSaleSection() {
-  const cfg = useConfig(s => s.config)
-  const orders = useOrders(s => s.orders)
+  const cfg = useAppConfig()
+  const orders = useOrderList()
   const qty = useCart(s => s.qty)
   const pkgQty = useCart(s => s.pkgQty)
   const inc = useCart(s => s.inc)

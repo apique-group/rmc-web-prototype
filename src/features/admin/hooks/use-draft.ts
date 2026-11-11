@@ -1,9 +1,8 @@
 import * as React from 'react'
 import { toast } from 'sonner'
 import type { Config } from '@/types/member'
-import { useConfig } from '@/lib/api/mock/config'
 import { DEFAULT_CONFIG } from '@/lib/api/mock/seed/seed-config'
-import { useCrm } from '@/lib/api/mock/crm'
+import { useAdminConfig, useAuditLog, useSaveSection } from '@/features/admin/hooks/use-admin'
 import { useAdminAccess } from '@/features/admin/hooks/use-admin-access'
 
 const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v)) as T
@@ -25,8 +24,9 @@ export interface Draft<K extends keyof Config> {
 
 /** Clone one config section into local state; explicit Simpan writes it back (UM settings idiom). */
 export function useDraft<K extends keyof Config>(key: K, label = 'Pengaturan'): Draft<K> {
-  const value = useConfig(s => s.config[key])
-  const setSection = useConfig(s => s.setSection)
+  const value = useAdminConfig()[key]
+  const { mutate: saveSection } = useSaveSection()
+  const { mutate: auditLog } = useAuditLog()
   const [draft, setDraft] = React.useState<Config[K]>(() => clone(value))
   const synced = React.useRef(value)
 
@@ -41,10 +41,10 @@ export function useDraft<K extends keyof Config>(key: K, label = 'Pengaturan'): 
   const { actor, role } = useAdminAccess()
   const patch = React.useCallback((p: Partial<Config[K]>) => setDraft(d => ({ ...(d as object), ...p }) as Config[K]), [])
   const save = React.useCallback((what = label) => {
-    setSection(key, clone(draft))
-    useCrm.getState().log('Konfigurasi Golden Privilege disimpan', `${what} · oleh ${actor || '-'} (${role || '-'})`)
+    saveSection({ section: key, value: clone(draft) })
+    auditLog({ event: 'Konfigurasi Golden Privilege disimpan', meta: `${what} · oleh ${actor || '-'} (${role || '-'})` })
     toast.success(`${what} disimpan`)
-  }, [draft, key, label, setSection, actor, role])
+  }, [draft, key, label, saveSection, auditLog, actor, role])
   const reset = React.useCallback(() => setDraft(clone(value)), [value])
 
   return { draft, setDraft, patch, dirty, save, reset, defaults: DEFAULT_CONFIG[key] }

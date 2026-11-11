@@ -28,17 +28,8 @@ interface CrmState {
   reset: () => void
 }
 
-export const INVITE_DAYS = 90
-export type InviteStatus = 'active' | 'used' | 'revoked' | 'expired'
-export function inviteStatus(i: Invite, now = Date.now()): InviteStatus {
-  if (i.revokedAt) return 'revoked'
-  if (i.usedAt) return 'used'
-  if (Date.parse(i.expiresAt) <= now) return 'expired'
-  return 'active'
-}
-/** Staging masks the member card number on the invite screen: first 3 + ** + last 2 (short codes stay as they are). */
-export const maskPosCode = (code: string) => (code.length <= 5 ? code : code.slice(0, 3) + '**' + code.slice(-2))
-export const inviteUrl = (token: string) => `${location.origin}/register?invite=${token}`
+export { INVITE_DAYS, inviteStatus, maskPosCode, inviteUrl, type InviteStatus } from '@/lib/invite'
+import { INVITE_DAYS, inviteStatus } from '@/lib/invite'
 const randomToken = () => Array.from(crypto.getRandomValues(new Uint8Array(24)), b => b.toString(16).padStart(2, '0')).join('')
 
 export const useCrm = create<CrmState>()(

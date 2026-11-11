@@ -5,8 +5,7 @@ import type { Account } from '@/types/member'
 import { fmtDate } from '@/lib/format'
 import { displayPhone } from '@/lib/phone'
 import { downloadXLSX } from '@/lib/xlsx'
-import { useAccounts } from '@/lib/api/mock/accounts'
-import { useCrm, inviteStatus, inviteUrl, maskPosCode } from '@/lib/api/mock/crm'
+import { inviteStatus, inviteUrl, maskPosCode } from '@/lib/invite'
 import { useAdminAccess } from '@/features/admin/hooks/use-admin-access'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,6 +14,7 @@ import { EmptyState } from '@/components/common/empty-state'
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table'
 import { PageHead } from '@/features/admin/components/page-head'
 import { SettingsCard } from '@/features/admin/components/settings-card'
+import { useAdminAccounts, useAdminAudit, useAdminCustomers, useAdminInvites, useGenerateInvites, useRevokeInvite } from '@/features/admin/hooks/use-admin'
 
 const LINK: Record<Account['link'], { label: string; variant: BadgeProps['variant'] }> = {
   LINKED: { label: 'Terhubung', variant: 'ok' },
@@ -29,8 +29,8 @@ const INVITE_STATUS: Record<ReturnType<typeof inviteStatus>, { label: string; va
 }
 
 export function AkunSection() {
-  const accounts = useAccounts(s => s.accounts)
-  const audit = useCrm(s => s.audit)
+  const accounts = useAdminAccounts()
+  const audit = useAdminAudit()
   const latest = audit.slice(0, 100)
 
   return (
@@ -81,11 +81,12 @@ export function AkunSection() {
    generate one link per customer (valid 90 days, single use), copy it or export the batch as xlsx. */
 function InviteCard() {
   const { canEdit } = useAdminAccess()
-  const customers = useCrm(s => s.customers)
-  const invites = useCrm(s => s.invites)
-  const accounts = useAccounts(s => s.accounts)
-  const generate = useCrm(s => s.generateInvites)
-  const revoke = useCrm(s => s.revokeInvite)
+  const customers = useAdminCustomers()
+  const invites = useAdminInvites()
+  const accounts = useAdminAccounts()
+  const { mutateAsync: generateInvites } = useGenerateInvites()
+  const generate = (ids: string[]) => generateInvites({ customerIds: ids })
+  const { mutate: revoke } = useRevokeInvite()
   const [picked, setPicked] = React.useState<string[]>([])
   const [q, setQ] = React.useState('')
   const [last, setLast] = React.useState<string[]>([])
@@ -93,9 +94,9 @@ function InviteCard() {
   const hasActiveInvite = (cid: string) => invites.some(i => i.customerId === cid && inviteStatus(i) === 'active')
   const candidates = customers.filter(c => !hasAccount(c.id) && !picked.includes(c.id) && (!q || `${c.outlet} ${c.pic} ${c.rsl || ''} ${c.kota}`.toLowerCase().includes(q.toLowerCase()))).slice(0, 8)
   const cust = (id: string) => customers.find(c => c.id === id)
-  const onGenerate = () => {
+  const onGenerate = async () => {
     if (!picked.length) return toast.warning('Pilih minimal satu pelanggan.')
-    const rows = generate(picked)
+    const rows = await generate(picked)
     if (!rows.length) { toast.warning('Tidak ada undangan dibuat. Semua kandidat sudah punya akun atau undangan aktif.'); return }
     setLast(rows.map(r => r.id)); setPicked([])
     toast.success(`${rows.length} undangan berhasil dibuat.`)

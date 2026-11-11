@@ -6,9 +6,8 @@ import { Reveal } from '@/components/common/reveal'
 import { rupiah } from '@/lib/format'
 import { maskPhone } from '@/lib/phone'
 import { cn } from '@/lib/utils'
-import { useConfig } from '@/lib/api/mock/config'
-import { klasemen, klasemenIsYou, useOrders } from '@/lib/api/mock/orders'
-import { useCurrentAccount } from '@/stores/auth.store'
+import { klasemen, klasemenIsYou } from '@/lib/klasemen'
+import { useAppConfig, useCurrentAccount, useOrderList } from '@/hooks/use-member-data'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/common/empty-state'
 import { CountRupiah } from './count-rupiah'
@@ -20,8 +19,8 @@ import { Streaks } from './streaks'
    2 and 3 flank it in silver / bronze), then rows 4–10 with a spend bar that fills on reveal. One <ol> so the ranking
    stays a single ordered list; the podium is laid out with CSS `order` so DOM order = rank order. */
 export function KlasemenSection() {
-  const cfg = useConfig(s => s.config)
-  const orders = useOrders(s => s.orders)
+  const cfg = useAppConfig()
+  const orders = useOrderList()
   const acc = useCurrentAccount()
   const rows = React.useMemo(() => klasemen(orders, cfg.campaign.start, cfg.campaign.end, cfg.klasemen.showPic), [orders, cfg.campaign.start, cfg.campaign.end, cfg.klasemen.showPic])
   const top = rows.slice(0, cfg.klasemen.topN)

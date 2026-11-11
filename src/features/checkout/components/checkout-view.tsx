@@ -11,14 +11,13 @@ import { cn } from '@/lib/utils'
 import { rupiah } from '@/lib/format'
 import { Reveal } from '@/components/common/reveal'
 import { normalizePhone, displayPhone } from '@/lib/phone'
-import { matchCheckoutIdentity, type CheckoutCandidate } from '@/lib/api/mock/rules/match'
-import { useCrm } from '@/lib/api/mock/crm'
+import { matchCheckoutIdentity, type CheckoutCandidate } from '@/lib/rules/match'
 import { loadGuestBuyer, saveGuestBuyer } from '@/features/checkout/lib/guest-buyer'
 import type { Kota, Order } from '@/types/member'
-import { useConfig } from '@/lib/api/mock/config'
-import { useOrders } from '@/lib/api/mock/orders'
+import { getErrorMessage } from '@/lib/api/get-error-message'
+import { useCreateOrder } from '../hooks/use-checkout'
 import { useCart, cartLines, cartTotal, cartCount, cartSavings, cartPackageLines, itemLeft, packageRemaining, lineKey } from '@/stores/cart.store'
-import { useCurrentAccount } from '@/stores/auth.store'
+import { useAppConfig, useCurrentAccount, useCustomers, useOrderList } from '@/hooks/use-member-data'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input, Textarea } from '@/components/ui/input'
@@ -57,8 +56,8 @@ const schema = z
 type FormValues = z.infer<typeof schema>
 
 export function CheckoutView() {
-  const cfg = useConfig(s => s.config)
-  const orders = useOrders(s => s.orders)
+  const cfg = useAppConfig()
+  const orders = useOrderList()
   const qty = useCart(s => s.qty)
   const pkgQty = useCart(s => s.pkgQty)
   const inc = useCart(s => s.inc)
@@ -73,7 +72,7 @@ export function CheckoutView() {
   const [placed, setPlaced] = React.useState<Order | null>(null)
   const [sheetOpen, setSheetOpen] = React.useState(false)
   const [pendingMatch, setPendingMatch] = React.useState<{ candidate: CheckoutCandidate; values: FormValues } | null>(null)
-  const customers = useCrm(s => s.customers)
+  const customers = useCustomers()
   const guest = React.useMemo(() => (acc ? null : loadGuestBuyer()), [acc])
 
   const form = useForm<FormValues>({
@@ -116,9 +115,10 @@ export function CheckoutView() {
     consentRef.current?.querySelector<HTMLElement>('button,input')?.focus()
   }
 
-  const placeOrder = (v: FormValues, matchDecision?: { customerId: string; confirmed: boolean }) => {
+  const createOrder = useCreateOrder()
+  const placeOrder = async (v: FormValues, matchDecision?: { customerId: string; confirmed: boolean }) => {
     try {
-      const order = useOrders.getState().create({
+      const order = await createOrder.mutateAsync({
         name: v.name, laundry: v.laundry, phone: v.phone, email: v.email, consent: v.consent,
         mode: v.mode, outlet: v.mode === 'PICKUP' ? (v.outlet as Kota) : undefined, address: v.mode === 'DELIVERY' ? v.address : undefined,
         lines, method: v.method, note: v.note?.trim() || undefined, matchDecision,
@@ -130,7 +130,7 @@ export function CheckoutView() {
       setSheetOpen(true)
       toast.success(`Pesanan ${order.id} dibuat, selesaikan pembayaran QRIS`)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Pesanan gagal dibuat')
+      toast.error(getErrorMessage(e, 'Pesanan gagal dibuat'))
     }
   }
   const onSubmit = (v: FormValues) => {

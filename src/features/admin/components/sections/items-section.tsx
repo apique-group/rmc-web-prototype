@@ -8,8 +8,6 @@ import { downloadXLSX, stamp } from '@/lib/xlsx'
 import { rupiah } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { CATALOG, CATALOG_CATEGORIES, CATALOG_UNITS, catalogByCode } from '@/lib/api/mock/seed/catalog'
-import { useOrders } from '@/lib/api/mock/orders'
-import { useConfig } from '@/lib/api/mock/config'
 import { itemLeft } from '@/stores/cart.store'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -27,6 +25,7 @@ import { SaveBar } from '@/features/admin/components/save-bar'
 import { SettingsCard } from '@/features/admin/components/settings-card'
 import { cell } from '@/features/admin/lib/cell'
 import { moveItem } from '@/features/admin/lib/move-item'
+import { useAdminConfig, useAdminOrders } from '@/features/admin/hooks/use-admin'
 
 /* R.051 — aligned with the staging admin (CRM → RMC → Produk → Golden Sale Items):
    - fields: Code*, Nama*, Kategori* (select), Unit* (select), Harga Asli*, Harga Promo* (< asli), Quota (blank = unlimited),
@@ -70,8 +69,8 @@ export function ItemsSection() {
   const d = useDraft('items', 'Golden Sale items')
   const list = d.draft
   const set = d.setDraft
-  const orders = useOrders(s => s.orders)
-  const packages = useConfig(s => s.config.packages)
+  const orders = useAdminOrders()
+  const packages = useAdminConfig().packages
   const fileRef = React.useRef<HTMLInputElement>(null)
   const [picker, setPicker] = React.useState(false)
   const update = (id: string, p: Partial<GoldenSaleItem>) => set(list.map(x => (x.id === id ? { ...x, ...p } : x)))

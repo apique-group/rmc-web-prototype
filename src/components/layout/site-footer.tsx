@@ -3,18 +3,18 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCart } from '@/stores/cart.store'
 import { Clock, ExternalLink, Facebook, Instagram, Mail, MessageCircle, Store, Youtube } from 'lucide-react'
-import { useConfig } from '@/lib/api/mock/config'
 import { srcSet2x } from '@/lib/logo'
 import { Reveal } from '@/components/common/reveal'
 import { cn } from '@/lib/utils'
 import { CONTACTS, EXT, SOCIALS } from '@/lib/contacts'
+import { useAppConfig } from '@/hooks/use-member-data'
 
 const SOCIAL_ICON = { instagram: Instagram, youtube: Youtube, facebook: Facebook } as const
 
 /* Footer (R.017): navy-900 with the white lockup, three columns — brand + socials · Hubungi kami (real contacts) ·
    Golden Privilege links. Single scroll-in reveal for the block, per-link underline + press. */
 export function SiteFooter() {
-  const cfg = useConfig(s => s.config)
+  const cfg = useAppConfig()
   // on the landing page with items in the cart, the fixed basket bar covers the footer's last line → clearance below it
   const hasCart = useCart(s => Object.keys(s.qty).length > 0)
   const onLanding = usePathname() === '/'

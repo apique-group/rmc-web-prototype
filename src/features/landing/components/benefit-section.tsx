@@ -5,11 +5,11 @@ import { ArrowRight, ShoppingBag, ShoppingCart, Star, Ticket } from 'lucide-reac
 import { Reveal } from '@/components/common/reveal'
 import { useInView } from '@/hooks/use-in-view'
 import { cn } from '@/lib/utils'
-import { useConfig } from '@/lib/api/mock/config'
 import { BenefitRow } from './benefit-row'
 import { Marked } from './marked'
 import { MemberCardArt } from './member-card-art'
 import { Streaks } from './streaks'
+import { useAppConfig } from '@/hooks/use-member-data'
 
 /* 3, Benefit = the mock's navy band: title with "Tak Terbatas" in green (translucent green band under it, not a
    solid one), the member card, four benefits (icon disc · title · one line) whose discs breathe, then the four-step
@@ -23,7 +23,7 @@ const STEPS = [
 ]
 
 export function BenefitSection() {
-  const { copy, benefits } = useConfig(s => s.config)
+  const { copy, benefits } = useAppConfig()
   const { ref: stepsRef, inView: stepsIn } = useInView<HTMLOListElement>()
   const [step, setStep] = React.useState(-1)
   React.useEffect(() => {

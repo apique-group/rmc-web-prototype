@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Inbox, MailOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { fmtDate } from '@/lib/format'
-import { useInbox } from '@/lib/api/mock/inbox'
+import { useInbox, useMarkMailRead } from '../hooks/use-auth'
 import { Badge } from '@/components/ui/badge'
 import type { InboxMail } from '@/types/member'
 
@@ -30,7 +30,7 @@ function MailBody({ body }: { body: string }) {
 }
 
 function MailItem({ mail, defaultOpen }: { mail: InboxMail; defaultOpen: boolean }) {
-  const markRead = useInbox(s => s.markRead)
+  const { mutate: markRead } = useMarkMailRead()
   const [open, setOpen] = React.useState(defaultOpen)
   React.useEffect(() => { if (open && !mail.read) markRead(mail.id) }, [open, mail.id, mail.read, markRead])
   return (
@@ -58,7 +58,7 @@ function MailItem({ mail, defaultOpen }: { mail: InboxMail; defaultOpen: boolean
 }
 
 export function MockInboxCard({ email, limit = 3, className, title = 'Kotak masuk (demo)' }: { email?: string; limit?: number; className?: string; title?: string }) {
-  const mails = useInbox(s => s.mails)
+  const mails = useInbox()
   const target = email?.trim().toLowerCase()
   const list = (target ? mails.filter(m => m.to.toLowerCase() === target) : mails).slice(0, limit)
   return (

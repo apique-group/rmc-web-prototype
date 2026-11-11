@@ -4,8 +4,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Clock, Facebook, Instagram, MessageCircle, Phone, Youtube } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { srcSet2x } from '@/lib/logo'
-import { useConfig } from '@/lib/api/mock/config'
-import { useCurrentAccount, useSession } from '@/stores/auth.store'
+import { useAuthStore } from '@/stores/auth.store'
+import { useAppConfig, useCurrentAccount } from '@/hooks/use-member-data'
 import { CONTACTS, EXT, SOCIALS } from '@/lib/contacts'
 import { Button } from '@/components/ui/button'
 
@@ -24,9 +24,9 @@ const SOCIAL_ICON = { instagram: Instagram, youtube: Youtube, facebook: Facebook
    (real Resique lockup · nav · socials · Cek poin). The utility row slides away once the page scrolls (lg only, transform
    only). Mobile keeps the single 56px row + a drawer that stacks the same content. */
 export function SiteHeader() {
-  const cfg = useConfig(s => s.config)
+  const cfg = useAppConfig()
   const acc = useCurrentAccount()
-  const signOut = useSession(s => s.signOut)
+  const signOut = useAuthStore(s => s.signOut)
   const router = useRouter()
   const pathname = usePathname()
   const [open, setOpen] = React.useState(false)

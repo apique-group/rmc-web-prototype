@@ -3,15 +3,15 @@
 import * as React from 'react'
 import { Reveal } from '@/components/common/reveal'
 import { cn } from '@/lib/utils'
-import { useConfig } from '@/lib/api/mock/config'
 import { SectionTitle } from './section-title'
 import { TierCardV } from './tier-card'
+import { useAppConfig } from '@/hooks/use-member-data'
 
 /* 4, Tier = the mock's six columns: emblem, name, per-month, then "Benefit Diskon Tiap Transaksi" + %, "Gratis Ongkir /
    Min Belanja / Rp 500.000", "Gratis Sesi Konsultasi Bisnis / 1x /bulan", "Belanja 6 Bulan (Rp) / band" — the check and
    cross marks sit before the row label as in the mock. Mobile keeps the snap rail. */
 export function TierSection() {
-  const cfg = useConfig(s => s.config)
+  const cfg = useAppConfig()
   const rail = React.useRef<HTMLOListElement>(null)
   const [active, setActive] = React.useState(0)
   React.useEffect(() => {

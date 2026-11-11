@@ -4,13 +4,13 @@ import { CheckCircle2, Clock, Download, FileText, Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { mmss, rupiah } from '@/lib/format'
-import { useConfig } from '@/lib/api/mock/config'
-import { useOrders } from '@/lib/api/mock/orders'
+import { useExpireOrders, useOrderById, useUploadProof } from '@/hooks/use-member-data'
 import type { Order } from '@/types/member'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { loadImage, MAX_PROOF_BYTES, PROOF_ALLOWED, proofToDataUrl } from '@/lib/image'
+import { useAppConfig } from '@/hooks/use-member-data'
 
 /**
  * QRIS payment sheet, shared by Checkout (right after an order is created) and OrderStatus (re-open while
@@ -18,9 +18,11 @@ import { loadImage, MAX_PROOF_BYTES, PROOF_ALLOWED, proofToDataUrl } from '@/lib
  */
 export function QrisSheet({ order, open, onOpenChange }: { order: Order; open: boolean; onOpenChange: (open: boolean) => void }) {
   const router = useRouter()
-  const cfg = useConfig(s => s.config)
-  const live = useOrders(s => s.orders.find(o => o.id === order.id)) || order
-  const uploadProof = useOrders(s => s.uploadProof)
+  const cfg = useAppConfig()
+  const live = useOrderById(order.id) || order
+  const { mutateAsync: uploadProofAsync } = useUploadProof()
+  const uploadProof = (id: string, file: { name: string; type: string; dataUrl: string }) => uploadProofAsync({ id, file }).catch(() => undefined)
+  const { mutate: expireOrders } = useExpireOrders()
 
   const [now, setNow] = React.useState(() => Date.now())
   const [openedAt, setOpenedAt] = React.useState<number | null>(null)
@@ -53,9 +55,9 @@ export function QrisSheet({ order, open, onOpenChange }: { order: Order; open: b
   React.useEffect(() => {
     if (open && waiting && remainingSec <= 0 && !expiredFired.current) {
       expiredFired.current = true
-      useOrders.getState().expireStale()
+      expireOrders()
     }
-  }, [open, waiting, remainingSec])
+  }, [open, waiting, remainingSec, expireOrders])
 
   async function downloadQr() {
     try {
@@ -104,7 +106,7 @@ export function QrisSheet({ order, open, onOpenChange }: { order: Order; open: b
     setBusy(true)
     try {
       const dataUrl = await proofToDataUrl(file)
-      const row = uploadProof(live.id, { name: file.name, type: file.type, dataUrl })
+      const row = await uploadProof(live.id, { name: file.name, type: file.type, dataUrl })
       if (!row) throw new Error('Pesanan tidak ditemukan')
       setThanks({ fileName: file.name })
       onOpenChange(false)
