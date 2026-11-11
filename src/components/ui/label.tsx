@@ -15,7 +15,7 @@ Label.displayName = LabelPrimitive.Root.displayName
 /** Field wrapper: label + control + hint/error. */
 export function Field({ label, required, hint, error, htmlFor, children, className }: { label: string; required?: boolean; hint?: string; error?: string; htmlFor?: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn('space-y-1.5', className)}>
+    <div className={cn('stack-y-1.5', className)}>
       <Label htmlFor={htmlFor} required={required}>{label}</Label>
       {children}
       {error ? <p className="text-[12px] text-danger" role="alert">{error}</p> : hint ? <p className="text-[12px] text-ink-3">{hint}</p> : null}

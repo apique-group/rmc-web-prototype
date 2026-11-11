@@ -79,7 +79,7 @@ export function InviteRegisterForm({ token }: { token: string }) {
         <Link to="/" className="u-slide arrow-nudge inline-flex min-h-[44px] items-center gap-1.5 text-[13px] font-semibold text-ink-3 transition-colors hover:text-navy-700 [--u-bottom:8px]"><ArrowLeft className="h-4 w-4" strokeWidth={1.8} />Beranda</Link>
         <p className="t-eyebrow mt-4">Undangan RMC</p>
         <h1 className="t-h1 mt-2 text-ink">Aktifkan akun Golden Privilege</h1>
-        <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base">Sales Resique sudah menyiapkan akun untuk laundry-mu. Lengkapi data di bawah, akun langsung terhubung ke poin dan tier RMC.</p>
+        <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base sm:leading-6">Sales Resique sudah menyiapkan akun untuk laundry-mu. Lengkapi data di bawah, akun langsung terhubung ke poin dan tier RMC.</p>
       </Reveal>
       <Reveal delay={60}>
         <div data-invite-card className="mt-6 flex items-start gap-3 rounded-xl border border-navy-100 bg-navy-50/70 p-4">
@@ -92,7 +92,7 @@ export function InviteRegisterForm({ token }: { token: string }) {
         </div>
       </Reveal>
       <Reveal delay={100}>
-        <form onSubmit={handleSubmit(onValid)} noValidate className="mt-8 space-y-6">
+        <form onSubmit={handleSubmit(onValid)} noValidate className="mt-8 stack-y-6">
           <Field label="Nama PIC" required htmlFor="pic" error={errors.pic?.message} hint="Nama pemilik atau PIC yang tercatat di Resique">
             <Input id="pic" placeholder="Maya Anggraini" autoComplete="name" aria-invalid={!!errors.pic} {...register('pic')} />
           </Field>
@@ -109,9 +109,9 @@ export function InviteRegisterForm({ token }: { token: string }) {
           <Field label="Ulangi kata sandi" required htmlFor="pw2" error={mismatch ? 'Kata sandi tidak sama' : undefined}>
             <PasswordInput id="pw2" value={confirm} onChange={e => setConfirm(e.target.value)} autoComplete="new-password" aria-invalid={mismatch} placeholder="Ketik ulang" />
           </Field>
-          <div className="space-y-1.5">
+          <div className="stack-y-1.5">
             <Controller name="consent" control={control} render={({ field }) => (
-              <label htmlFor="consent" className={cn('flex min-h-[44px] cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 transition-colors has-[[data-state=checked]]:border-navy has-[[data-state=checked]]:bg-navy-50/60', errors.consent ? 'border-danger' : 'border-line')}>
+              <label htmlFor="consent" className={cn('flex min-h-[44px] cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 transition-colors has-data-[state=checked]:border-navy has-data-[state=checked]:bg-navy-50/60', errors.consent ? 'border-danger' : 'border-line')}>
                 <Checkbox id="consent" checked={field.value} onCheckedChange={v => field.onChange(v === true)} aria-invalid={!!errors.consent} className="mt-0.5" />
                 <span className="text-[14px] leading-relaxed text-ink-2">Saya setuju dihubungi via WhatsApp dan menyetujui syarat program Golden Privilege<span className="ml-0.5 text-danger" aria-hidden>*</span></span>
               </label>

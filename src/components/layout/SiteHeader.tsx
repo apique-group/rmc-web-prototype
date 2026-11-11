@@ -174,7 +174,7 @@ export function SiteHeader() {
                 <Button asChild><Link to="/login">Cek poin</Link></Button>
               )}
               <button type="button" aria-label={open ? 'Tutup menu' : 'Buka menu'} aria-expanded={open} aria-controls="site-drawer" onClick={() => setOpen(o => !o)} className="relative grid h-11 w-11 place-items-center rounded-md text-ink transition-colors duration-fast hover:bg-surface-2 md:hidden">
-                <span className={cn('absolute h-[2px] w-5 rounded-full bg-current transition-transform duration-base ease-out', open ? 'rotate-45' : '-translate-y-[4px]')} />
+                <span className={cn('absolute h-[2px] w-5 rounded-full bg-current transition-transform duration-base ease-out', open ? 'rotate-45' : 'translate-y-[-4px]')} />
                 <span className={cn('absolute h-[2px] w-5 rounded-full bg-current transition-transform duration-base ease-out', open ? '-rotate-45' : 'translate-y-[4px]')} />
               </button>
             </div>
@@ -183,7 +183,7 @@ export function SiteHeader() {
       </header>
 
       {/* mobile drawer: slides down a touch, links stagger in, then the contact block + socials */}
-      <div id="site-drawer" data-open={open} aria-hidden={!open} className={cn('fixed inset-x-0 bottom-0 top-14 z-[35] overflow-y-auto bg-white px-5 py-6 transition-[opacity,transform] duration-base ease-out md:hidden', open ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-2 opacity-0')}>
+      <div id="site-drawer" data-open={open} aria-hidden={!open} className={cn('fixed inset-x-0 bottom-0 top-14 z-35 overflow-y-auto bg-white px-5 py-6 transition-[opacity,transform] duration-base ease-out md:hidden', open ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-2 opacity-0')}>
         <nav className="flex flex-col divide-y divide-line-2 border-y border-line" aria-label="Navigasi seluler">
           {NAV.map((n, i) => (
             <a key={n.id} ref={i === 0 ? firstLink : undefined} href={n.to === '/' ? '#/' : n.to} onClick={go(n.to)} style={{ '--i': `${i * 40}ms` } as React.CSSProperties}
@@ -206,7 +206,7 @@ export function SiteHeader() {
           )}
         </div>
         <div className="drawer-link mt-6 rounded-lg bg-surface-2 p-4" style={{ '--i': '180ms' } as React.CSSProperties}>
-          <ul className="space-y-2.5 text-[14px]">
+          <ul className="stack-y-2.5 text-[14px]">
             {info.map(it => (
               <li key={it.label} className="flex items-center gap-2.5 text-ink-2">
                 <it.icon className="h-4 w-4 shrink-0 text-green-700" strokeWidth={1.7} aria-hidden />

@@ -15,7 +15,7 @@ export function ResetSection() {
   const orders = useOrders(s => s.orders.length)
 
   return (
-    <div data-admin-section="reset" className="space-y-4">
+    <div data-admin-section="reset" className="stack-y-4">
       <PageHead title="Reset demo" sub="Kembalikan data prototype di browser ini. Tidak memengaruhi tab/perangkat lain kecuali berbagi localStorage yang sama." />
 
       <div className="grid gap-4 lg:grid-cols-3">

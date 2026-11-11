@@ -8,7 +8,7 @@ const splitList = (s: string) => s.split(',').map(x => x.trim()).filter(Boolean)
 export function PembayaranSection() {
   const d = useDraft('payment', 'Pembayaran')
   return (
-    <div data-admin-section="pembayaran" className="space-y-4">
+    <div data-admin-section="pembayaran" className="stack-y-4">
       <PageHead title="Pembayaran" sub="Parameter QRIS demo dan kanal pembayaran alternatif." />
 
       <SettingsCard title="QRIS" desc="Prototype menampilkan QR statis; produksi memakai QRIS dinamis per pesanan.">
@@ -22,11 +22,11 @@ export function PembayaranSection() {
 
       <SettingsCard title="Kanal alternatif" desc="Virtual account dan e-wallet. Daftar dipisah koma.">
         <div className="grid gap-4 lg:grid-cols-2">
-          <div className="space-y-3">
+          <div className="stack-y-3">
             <CheckRow id="pay-va" checked={d.draft.vaEnabled} onChange={v => d.patch({ vaEnabled: v })} label="Aktifkan Virtual Account" />
             <Field label="Bank VA" htmlFor="pay-va-banks" hint="Contoh: BCA, BNI, Mandiri, BRI"><Input id="pay-va-banks" value={d.draft.vaBanks.join(', ')} disabled={!d.draft.vaEnabled} className="h-10 text-[14px]" onChange={e => d.patch({ vaBanks: splitList(e.target.value) })} /></Field>
           </div>
-          <div className="space-y-3">
+          <div className="stack-y-3">
             <CheckRow id="pay-ew" checked={d.draft.ewalletEnabled} onChange={v => d.patch({ ewalletEnabled: v })} label="Aktifkan e-wallet" />
             <Field label="E-wallet" htmlFor="pay-ewallets" hint="Contoh: GoPay, ShopeePay, OVO, DANA"><Input id="pay-ewallets" value={d.draft.ewallets.join(', ')} disabled={!d.draft.ewalletEnabled} className="h-10 text-[14px]" onChange={e => d.patch({ ewallets: splitList(e.target.value) })} /></Field>
           </div>

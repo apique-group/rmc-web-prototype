@@ -17,7 +17,7 @@ export function AsetSection() {
   const defaultImage = (h: HeroPrize) => d.defaults.heroPrizes.find(x => x.id === h.id)?.image
 
   return (
-    <div data-admin-section="aset" className="space-y-4">
+    <div data-admin-section="aset" className="stack-y-4">
       <PageHead title="Aset Gambar" sub="Logo, gambar QRIS demo, dan strip hadiah di hero. Unggahan diperkecil ke ≤ 800 px dan disimpan di browser (maks 300 KB)." />
 
       <SettingsCard title="Identitas & pembayaran" desc="Dipakai di header situs dan lembar pembayaran QRIS.">

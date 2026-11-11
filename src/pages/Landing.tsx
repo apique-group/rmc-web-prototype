@@ -136,7 +136,7 @@ function BannerGround() {
       {/* mid */}
       <div className="depth absolute inset-0" data-depth="mid" style={{ '--d': '14px' } as React.CSSProperties}>
         <span className="absolute -left-24 -bottom-40 h-[420px] w-[420px] rounded-full bg-navy-800" />
-        <span className="absolute -right-16 -top-24 h-[300px] w-[300px] rounded-full border-[22px] border-navy-500/60" />
+        <span className="absolute -right-16 -top-24 h-[300px] w-[300px] rounded-full border-22 border-navy-500/60" />
         <span className="band bg-navy-800" style={{ right: '-10%', bottom: '-40%', width: '55%', height: '90%' }} />
       </div>
       {/* near */}
@@ -188,7 +188,7 @@ function HookSection() {
     { id: 'hadiah', kicker: 'Resique Member Card', title: copy.tagline, sub: copy.taglineSub, h1: false },
     { id: 'sale', kicker: 'Golden Sale', title: 'Golden Sale!!', sub: `Harga turun paling besar sampai -${maxPct}%`, h1: false },
   ]
-  const tile = (j: number) => cn('hook-float absolute overflow-hidden rounded-xl bg-white shadow-3', j === 0 && 'left-0 top-8 z-20 w-[54%] rotate-[-5deg]', j === 1 && 'right-0 top-0 z-10 w-[48%] rotate-[6deg] [animation-delay:1.5s]', j === 2 && 'bottom-0 right-[4%] w-[48%] rotate-[-3deg] [animation-delay:3s]')
+  const tile = (j: number) => cn('hook-float absolute overflow-hidden rounded-xl bg-white shadow-3', j === 0 && 'left-0 top-8 z-20 w-[54%] rotate-[-5deg]', j === 1 && 'right-0 top-0 z-10 w-[48%] rotate-6 [animation-delay:1.5s]', j === 2 && 'bottom-0 right-[4%] w-[48%] -rotate-3 [animation-delay:3s]')
   return (
     <section id="hook" className="scroll-mt-20 bg-white pb-10 pt-5 lg:pb-14 lg:pt-8">
       {/* plain white like the prize section under it; the card carries all the depth (Lurd, 11 Sep) */}
@@ -199,7 +199,7 @@ function HookSection() {
             {slides.map((sl, i) => {
               const Title = sl.h1 ? 'h1' : 'h2'
               return (
-                <div key={sl.id} data-slide={sl.id} className={cn('relative grid w-full shrink-0 snap-start grid-cols-1 items-center gap-8 px-6 pb-14 pt-8 sm:px-10 lg:min-h-[460px] lg:grid-cols-12 lg:gap-6 lg:px-14 lg:py-12', sl.id === 'harga' && '[grid-template-rows:1fr_auto] lg:[grid-template-rows:none]')} aria-roledescription="slide" aria-label={`${i + 1} dari ${count}`}>
+                <div key={sl.id} data-slide={sl.id} className={cn('relative grid w-full shrink-0 snap-start grid-cols-1 items-center gap-8 px-6 pb-14 pt-8 sm:px-10 lg:min-h-[460px] lg:grid-cols-12 lg:gap-6 lg:px-14 lg:py-12', sl.id === 'harga' && 'grid-rows-[1fr_auto] lg:grid-rows-none')} aria-roledescription="slide" aria-label={`${i + 1} dari ${count}`}>
                   <div className="min-w-0 lg:col-span-7">
                     <Title className={cn('t-mega mt-4 max-w-3xl text-balance uppercase text-white', !sl.h1 && 'text-[clamp(30px,5vw,60px)]')}>{sl.h1 ? <StaggerWords text={sl.title} neon /> : <Marked text={sl.title} className="mark-neon text-green" />}</Title>
                     {sl.sub && <p className={cn('mt-3 max-w-xl text-balance font-extrabold uppercase text-white', sl.h1 ? 'text-[20px] sm:text-[26px]' : 'text-[15px] font-semibold normal-case text-white/85 sm:text-[17px]')}>{sl.sub}</p>}
@@ -225,7 +225,7 @@ function HookSection() {
                       <div className="relative mx-auto h-[220px] w-full max-w-[420px] sm:h-[260px]">
                         {assets.heroPrizes.slice(0, 3).map((p, j) => (
                           <div key={p.id} className={tile(j)}>
-                            <img src={p.image} alt={p.label} width={800} height={600} className="aspect-[4/3] w-full object-cover" loading="lazy" decoding="async" />
+                            <img src={p.image} alt={p.label} width={800} height={600} className="aspect-4/3 w-full object-cover" loading="lazy" decoding="async" />
                             <p className="truncate px-3 py-1.5 text-[12px] font-bold text-ink">{p.label}</p>
                           </div>
                         ))}
@@ -235,7 +235,7 @@ function HookSection() {
                       <div className="mx-auto grid w-full max-w-[420px] grid-cols-2 gap-3">
                         {drops.slice(0, 4).map((d, j) => (
                           <a key={d.id} href="#golden-sale" onClick={jump('golden-sale')} data-no-press className={cn('lift group relative overflow-hidden rounded-xl bg-white shadow-3', j % 2 ? 'prize-b' : 'prize-a')}>
-                            <img src={d.image} alt={d.name} width={800} height={600} className="zoom-img aspect-[4/3] w-full object-cover" loading="lazy" decoding="async" />
+                            <img src={d.image} alt={d.name} width={800} height={600} className="zoom-img aspect-4/3 w-full object-cover" loading="lazy" decoding="async" />
                             <span className="absolute left-2 top-2 rounded-md bg-gold px-2 py-0.5 text-[11px] font-extrabold text-gold-ink">-{d.pct}%</span>
                             <span className="flex items-baseline gap-2 px-3 py-1.5"><span className="t-fig text-[14px] text-navy-700">{rupiah(d.promoPrice)}</span><span className="t-num strike text-[11px] text-ink-3">{rupiah(d.realPrice)}</span></span>
                           </a>
@@ -274,7 +274,7 @@ function HeroSection() {
         <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="t-h2 text-balance text-ink"><Marked text={copy.tagline} /></h2>
           <p className="mt-3 text-[15px] leading-relaxed text-pretty text-ink-2 sm:text-[17px]">
-            {sub ? <>{sub[0]}<span className="sticker-in inline-block rotate-[-3deg] rounded-md bg-gold px-2 py-0.5 text-[13px] font-extrabold uppercase text-gold-ink shadow-1 sm:text-[14px]">{STICK}</span>{sub[1]}</> : copy.taglineSub}
+            {sub ? <>{sub[0]}<span className="sticker-in inline-block -rotate-3 rounded-md bg-gold px-2 py-0.5 text-[13px] font-extrabold uppercase text-gold-ink shadow-1 sm:text-[14px]">{STICK}</span>{sub[1]}</> : copy.taglineSub}
           </p>
         </Reveal>
         {top.length === 0 ? <EmptyState className="mt-8" title="Hadiah belum diatur" desc="Admin menambahkan hadiah lewat CRM." /> : (
@@ -292,8 +292,8 @@ function PrizeCard({ prize, idx }: { prize: Prize; idx: number }) {
   return (
     <Reveal as="li" delay={idx * 80} className="reveal-pop">
       <Link to="/login" data-prize-card className={cn('lift card-fx sweep group relative flex h-full flex-col rounded-lg border border-line bg-white p-3 sm:p-4', idx % 2 ? 'prize-b' : 'prize-a')} data-no-press style={{ '--tint': '#F1F9EA' } as React.CSSProperties}>
-        {idx === 0 && <span className="absolute left-4 top-4 z-10 rotate-[-6deg] rounded-md bg-navy-700 px-2 py-1 text-[11px] font-extrabold text-white shadow-2 sm:left-5 sm:top-5">Hadiah utama</span>}
-        <span className="block overflow-hidden rounded-md bg-surface-2"><img src={prize.image} alt={prize.name} width={800} height={600} className="zoom-img aspect-[4/3] w-full object-cover" loading="lazy" decoding="async" /></span>
+        {idx === 0 && <span className="absolute left-4 top-4 z-10 -rotate-6 rounded-md bg-navy-700 px-2 py-1 text-[11px] font-extrabold text-white shadow-2 sm:left-5 sm:top-5">Hadiah utama</span>}
+        <span className="block overflow-hidden rounded-md bg-surface-2"><img src={prize.image} alt={prize.name} width={800} height={600} className="zoom-img aspect-4/3 w-full object-cover" loading="lazy" decoding="async" /></span>
         <span className="mt-3 line-clamp-2 min-h-[2.6em] text-[13px] font-bold leading-snug text-ink sm:text-[14px]">{prize.name}</span>
         <span ref={ref} className="chip mt-2 inline-flex w-fit items-center gap-1.5 rounded-md bg-gold-100 px-2 py-1 text-[12px] font-extrabold text-gold-ink transition-transform duration-base group-hover:-rotate-3 group-hover:scale-105"><Coins className="h-3.5 w-3.5" strokeWidth={2} aria-hidden /><span className="t-fig text-[13px]">{poin(pts)}</span> Pt</span>
       </Link>
@@ -344,7 +344,7 @@ function BenefitSection() {
           <div className="relative overflow-hidden rounded-xl bg-white shadow-3 ring-1 ring-line">
             {/* banner head: green bar + kicker, the strip reads as one highlighted object */}
             <span aria-hidden className="absolute inset-x-0 top-0 h-1.5 bg-green" />
-            <span aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full border-[14px] border-green-50" />
+            <span aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full border-14 border-green-50" />
             <span aria-hidden className="pointer-events-none absolute -left-12 -bottom-16 h-40 w-40 rounded-full bg-green-50" />
             <div className="relative flex flex-col items-center gap-1 px-5 pb-2 pt-7 text-center">
               <h3 className="text-[20px] font-extrabold text-balance text-navy-700 sm:text-[24px]">4 langkah, langsung untung</h3>
@@ -443,7 +443,7 @@ function TierSection() {
   }, [cfg.tiers.length])
   const goTo = (i: number) => { const li = rail.current?.querySelectorAll<HTMLElement>(':scope > li')[i]; li?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }) }
   return (
-    <section id="tier" className="relative isolate scroll-mt-20 overflow-hidden border-t border-line bg-gradient-to-b from-white via-navy-50/60 to-white py-14 lg:py-24">
+    <section id="tier" className="relative isolate scroll-mt-20 overflow-hidden border-t border-line bg-linear-to-b from-white via-navy-50/60 to-white py-14 lg:py-24">
       {/* R.045 (Lurd): the streak mesh plus two skewed bands plus the wash was three competing
           layers. One layer now — two oversized, heavily blurred tints bleeding in from the
           corners. No edges to notice, so it reads as depth rather than as pattern. */}
@@ -641,7 +641,7 @@ function SaleConfetti() {
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
       {dots.map((d, i) => <span key={i} className={cn('float-6 absolute rounded-full', d)} style={{ animationDelay: `${(i * 0.9) % 5}s` }} />)}
       {stars.map((st, i) => <Sparkles key={i} className={cn('float-6 absolute h-6 w-6 text-gold', st)} strokeWidth={1.6} style={{ animationDelay: `${1 + i}s` }} />)}
-      <span className="absolute -right-24 -top-24 h-[320px] w-[320px] rounded-full border-[24px] border-white/[.05]" />
+      <span className="absolute -right-24 -top-24 h-[320px] w-[320px] rounded-full border-24 border-white/5" />
       <span className="absolute -left-20 -bottom-28 h-[300px] w-[300px] rounded-full bg-navy-800" />
     </div>
   )
@@ -771,7 +771,7 @@ function SaleCard({ image, name, meta, contents, realPrice, promoPrice, maxPerCu
   return (
     <article className={cn('lift card-fx sweep group flex h-full flex-col rounded-lg bg-white p-3 text-ink sm:p-4', qty > 0 ? 'ring-2 ring-green' : 'ring-1 ring-white/10', soldOut && 'opacity-70')} style={{ '--tint': '#FBF5E8' } as React.CSSProperties}>
       <div className="relative overflow-hidden rounded-md bg-surface-2">
-        <img src={image} alt={name} width={800} height={600} className="zoom-img aspect-[4/3] w-full object-cover" loading="lazy" />
+        <img src={image} alt={name} width={800} height={600} className="zoom-img aspect-4/3 w-full object-cover" loading="lazy" />
         {pct > 0 && <span className="absolute left-2 top-2 rounded-md bg-danger px-2 py-0.5 text-[11px] font-extrabold text-white shadow-1">-{pct}%</span>}
         {soldOut ? <Badge variant="muted" className="absolute right-2 top-2">Habis</Badge>
           : Number.isFinite(left) && left <= 10 ? <Badge variant="warn" className="absolute right-2 top-2">Sisa {left}</Badge> : null}
@@ -871,8 +871,8 @@ function KlasemenSection() {
         <div data-klasemen-frame className="relative isolate overflow-hidden rounded-2xl bg-navy-900 px-5 py-8 text-white ring-1 ring-white/10 sm:px-8 sm:py-10 lg:px-12 lg:py-14">
           <Streaks className="-z-10" />
           <span aria-hidden className="pointer-events-none absolute left-1/2 top-[42%] -z-10 h-[520px] w-[140%] -translate-x-1/2 rounded-[50%] bg-navy-800 lg:top-[34%] lg:h-[620px] lg:w-[110%]" />
-          <span aria-hidden className="pointer-events-none absolute left-[18%] top-[-10%] -z-10 h-[70%] w-[22%] origin-top skew-x-[18deg] bg-white/[.04]" />
-          <span aria-hidden className="pointer-events-none absolute right-[18%] top-[-10%] -z-10 h-[70%] w-[22%] origin-top skew-x-[-18deg] bg-white/[.04]" />
+          <span aria-hidden className="pointer-events-none absolute left-[18%] top-[-10%] -z-10 h-[70%] w-[22%] origin-top skew-x-18 bg-white/4" />
+          <span aria-hidden className="pointer-events-none absolute right-[18%] top-[-10%] -z-10 h-[70%] w-[22%] origin-top skew-x-[-18deg] bg-white/4" />
           <Rings className="right-[-120px] bottom-[-100px] -z-10 h-[380px] w-[380px] text-gold" />
           <Rings className="left-[-160px] top-[-140px] -z-10 h-[360px] w-[360px] text-navy-500" />
           <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
@@ -894,7 +894,7 @@ function KlasemenSection() {
                       i === 1 && 'border-[#C0C6CE] bg-[#F3F5F8] sm:min-h-[292px]',
                       i === 2 && 'border-[#E3C3A8] bg-[#FBF3EC] sm:order-3 sm:min-h-[256px]')}>
                     {/* big faint rank number, like the tier columns */}
-                    <span aria-hidden className={cn('t-fig pointer-events-none absolute -bottom-3 right-2 select-none text-[88px] leading-none', first ? 'text-white/10' : 'text-navy-900/[.06]')}>{r.rank}</span>
+                    <span aria-hidden className={cn('t-fig pointer-events-none absolute -bottom-3 right-2 select-none text-[88px] leading-none', first ? 'text-white/10' : 'text-navy-900/6')}>{r.rank}</span>
                     {/* medal: trophy for rank 1 (the only svg in that li, the gate counts it); a medal icon in silver / bronze for 2 and 3 */}
                     <span className={cn('medal grid shrink-0 place-items-center rounded-full', first ? 'h-14 w-14 bg-gold text-gold-ink sm:h-16 sm:w-16' : 'h-12 w-12 text-white sm:h-14 sm:w-14')} style={first ? undefined : { background: 'var(--pod)' }} aria-hidden>
                       {first ? <Trophy className="h-7 w-7" strokeWidth={1.6} /> : <Medal className="h-6 w-6" strokeWidth={1.7} />}
@@ -902,13 +902,13 @@ function KlasemenSection() {
                     <span className={cn('hidden h-11 w-11 place-items-center rounded-full text-[14px] font-extrabold sm:mt-3 sm:grid', first ? 'bg-white/15 text-white' : 'bg-white text-navy-700 shadow-1')} aria-hidden>{initials(r.laundry)}</span>
                     <div className="relative min-w-0 flex-1 sm:w-full sm:flex-none">
                       <p className={cn('t-num text-[11px] font-bold sm:mt-2', first ? 'text-gold' : i === 1 ? 'text-[#6B7480]' : 'text-[#9A5F33]')}>Peringkat {r.rank} · {medal}{first && <span> · kandidat hadiah utama</span>}</p>
-                      <p className={cn('mt-0.5 break-words text-[16px] font-extrabold leading-tight sm:mt-1 sm:line-clamp-2 sm:text-balance', first ? 'text-white' : 'text-ink')}>{r.laundry}{me && <Badge className="ml-1 align-middle">Kamu</Badge>}</p>
+                      <p className={cn('mt-0.5 wrap-break-word text-[16px] font-extrabold leading-tight sm:mt-1 sm:line-clamp-2 sm:text-balance', first ? 'text-white' : 'text-ink')}>{r.laundry}{me && <Badge className="ml-1 align-middle">Kamu</Badge>}</p>
                       <p className={cn('t-num mt-0.5 truncate text-[12px]', first ? 'text-white/75' : 'text-ink-2')} data-klasemen-sub>{cfg.klasemen.showPic ? `${r.pic} (${maskPhone(r.phone)})` : maskPhone(r.phone)}</p>
                     </div>
                     <CountRupiah value={r.spend} className={cn('relative shrink-0 text-[17px] leading-none sm:mt-2 sm:w-full sm:truncate sm:text-[22px]', first ? 'text-gold' : 'text-navy-700')} />
                     {first && grand && (
                       <span className="relative inline-flex min-w-full shrink-0 items-center gap-2 self-start rounded-md bg-white/10 py-1 pl-1 pr-2.5 text-[12px] font-semibold text-white sm:mt-3 sm:min-w-0">
-                        <img src={grand.image} alt="" width={800} height={600} className="h-6 w-6 shrink-0 rounded-[4px] object-cover" loading="lazy" />
+                        <img src={grand.image} alt="" width={800} height={600} className="h-6 w-6 shrink-0 rounded-sm object-cover" loading="lazy" />
                         <span className="truncate">Hadiah utama: {grand.label}</span>
                       </span>
                     )}

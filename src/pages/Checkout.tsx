@@ -238,10 +238,10 @@ export function CheckoutPage() {
       <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
         {/* Form, left column */}
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="lg:col-span-7">
-          <div className="max-w-xl space-y-10">
+          <div className="max-w-xl stack-y-10">
             <Reveal delay={60} as="section">
               <h2 className="t-h2 text-ink">Data pemesan</h2>
-              <div className="mt-5 space-y-5">
+              <div className="mt-5 stack-y-5">
                 <Field label="Nama" required htmlFor="co-name" error={errors.name?.message}>
                   <Input id="co-name" autoComplete="name" placeholder="Nama lengkap" readOnly={!!acc} aria-invalid={!!errors.name} {...register('name')} />
                 </Field>
@@ -339,7 +339,7 @@ export function CheckoutPage() {
           </div>
 
           {/* Submit: fixed bottom bar on mobile (safe-area aware), sticky at the bottom of the form column on desktop (Lurd, 7 Sep) */}
-          <div data-pay-bar className="bar-in fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/90 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur lg:sticky lg:inset-x-auto lg:bottom-4 lg:mt-10 lg:rounded-xl lg:border lg:bg-white/95 lg:p-4 lg:shadow-3">
+          <div data-pay-bar className="bar-in fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/90 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur-sm lg:sticky lg:inset-x-auto lg:bottom-4 lg:mt-10 lg:rounded-xl lg:border lg:bg-white/95 lg:p-4 lg:shadow-3">
             <div className="mx-auto flex max-w-xl items-center gap-3">
               <div className="min-w-0 flex-1 lg:hidden">
                 <p className="text-[11px] font-semibold text-ink-3"><span className="t-code">{count}</span> item · hemat <span className="t-code gold-text font-bold">{rupiah(savings)}</span></p>
@@ -392,7 +392,7 @@ export function CheckoutPage() {
                   })}
                 </ul>
                 <Separator className="my-4" />
-                <div className="space-y-2 text-[14px]">
+                <div className="stack-y-2 text-[14px]">
                   <div className="flex items-center justify-between text-ink-3"><span>Harga normal</span><span className="t-code strike">{rupiah(total + savings)}</span></div>
                   <div className="flex items-center justify-between font-bold"><span className="gold-text">Hemat</span><span className="t-code gold-text">{rupiah(savings)}</span></div>
                   <div className={cn('flex items-baseline justify-between pt-2 text-ink')}><span className="text-[15px] font-bold">Total</span><span className="t-code text-[24px] font-extrabold tracking-tight">{rupiah(total)}</span></div>

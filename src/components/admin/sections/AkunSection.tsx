@@ -32,7 +32,7 @@ export function AkunSection() {
   const latest = audit.slice(0, 100)
 
   return (
-    <div data-admin-section="akun" className="space-y-4">
+    <div data-admin-section="akun" className="stack-y-4">
       <PageHead title="Akun & Undangan" sub="Akun RMC Web yang terdaftar, undangan pendaftaran untuk pelanggan RMC yang belum punya akun, dan jejak audit sisi CRM (100 terbaru)." />
 
       <InviteCard />
@@ -108,7 +108,7 @@ function InviteCard() {
   }
   return (
     <SettingsCard title="Undangan pendaftaran" desc="Untuk pelanggan RMC yang belum punya akun: satu link per pelanggan, berlaku 90 hari, sekali pakai. Pelanggan membuka link, mengisi PIC / HP / e-mail / kata sandi, dan akunnya langsung terhubung." actions={<Button type="button" variant="outline" size="sm" onClick={exportXlsx} disabled={invites.length === 0}><Download strokeWidth={1.6} />Export xlsx</Button>}>
-      <div data-invite-generate className="space-y-3">
+      <div data-invite-generate className="stack-y-3">
         <div className="flex flex-col gap-2 sm:flex-row">
           <Input value={q} onChange={e => setQ(e.target.value)} placeholder="Cari pelanggan: outlet, PIC, nomor kartu, kota" aria-label="Cari pelanggan" className="flex-1" disabled={!canEdit} />
           <Button type="button" size="sm" onClick={onGenerate} disabled={!canEdit || picked.length === 0}><Plus strokeWidth={1.6} />Generate undangan ({picked.length})</Button>

@@ -22,7 +22,7 @@ export function HadiahSection() {
   const liveTypes = useConfig(s => s.config.prizeTypes)
 
   return (
-    <div data-admin-section="hadiah" className="space-y-4">
+    <div data-admin-section="hadiah" className="stack-y-4">
       <PageHead title="Hadiah / Prizes" sub="Katalog penukaran poin di profil RMC. Hadiah nonaktif atau stok 0 tidak bisa ditukar." />
       <SettingsCard
         title="Katalog hadiah" desc={`${activeCount} aktif dari ${list.length} hadiah.`}
@@ -38,7 +38,7 @@ export function HadiahSection() {
                 <TR key={p.id} className={!p.active ? 'opacity-60' : undefined}>
                   <TD><Checkbox checked={p.active} aria-label={`Aktifkan ${p.name}`} onCheckedChange={v => update(p.id, { active: v === true })} /></TD>
                   <TD>
-                    <div className="space-y-2">
+                    <div className="stack-y-2">
                       <Input value={p.name} aria-label="Nama hadiah" className={cell} onChange={e => update(p.id, { name: e.target.value })} />
                       <ImageField compact value={p.image} onChange={v => update(p.id, { image: v })} defaultValue={d.defaults.find(x => x.id === p.id)?.image} />
                     </div>

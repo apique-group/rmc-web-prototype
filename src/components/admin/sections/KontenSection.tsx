@@ -38,7 +38,7 @@ const GROUPS: Group[] = [
 export function KontenSection() {
   const d = useDraft('copy', 'Konten & copy')
   return (
-    <div data-admin-section="konten" className="space-y-4">
+    <div data-admin-section="konten" className="stack-y-4">
       <PageHead title="Konten & Copy" sub="Semua teks landing page dibaca dari sini, tidak ada headline yang dikodekan langsung." />
       {GROUPS.map(g => (
         <SettingsCard key={g.title} title={g.title} desc={g.desc}>

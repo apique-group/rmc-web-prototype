@@ -147,11 +147,11 @@ function RegisterFormStep({ onValid, submitError }: { onValid: (v: FormValues) =
         </div>
         <p className="t-eyebrow mt-4">Resique Member Card</p>
         <h1 className="t-h1 mt-2 text-ink">Daftar RMC</h1>
-        <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base">Isi data laundry-mu. Kalau nomor HP sudah ada di data Resique, poin RMC langsung tersambung.</p>
+        <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base sm:leading-6">Isi data laundry-mu. Kalau nomor HP sudah ada di data Resique, poin RMC langsung tersambung.</p>
       </Reveal>
 
       <Reveal delay={80}>
-        <form onSubmit={handleSubmit(onValid)} noValidate className="mt-8 space-y-6">
+        <form onSubmit={handleSubmit(onValid)} noValidate className="mt-8 stack-y-6">
           <Field label="Sudah punya Resique Member Card" required error={errors.hasCard?.message}>
             <Controller name="hasCard" control={control} render={({ field }) => (
               <RadioGroup value={field.value} onValueChange={field.onChange} className="grid-cols-2" aria-invalid={!!errors.hasCard}>
@@ -198,9 +198,9 @@ function RegisterFormStep({ onValid, submitError }: { onValid: (v: FormValues) =
             <Input id="referral" placeholder="Nama sales Resique kamu" {...register('referral')} />
           </Field>
 
-          <div className="space-y-1.5">
+          <div className="stack-y-1.5">
             <Controller name="consent" control={control} render={({ field }) => (
-              <label htmlFor="consent" className={cn('flex min-h-[44px] cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 transition-colors has-[[data-state=checked]]:border-navy has-[[data-state=checked]]:bg-navy-50/60 hover:border-ink-4', errors.consent ? 'border-danger' : 'border-line')}>
+              <label htmlFor="consent" className={cn('flex min-h-[44px] cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 transition-colors has-data-[state=checked]:border-navy has-data-[state=checked]:bg-navy-50/60 hover:border-ink-4', errors.consent ? 'border-danger' : 'border-line')}>
                 <Checkbox id="consent" checked={field.value} onCheckedChange={v => field.onChange(v === true)} aria-invalid={!!errors.consent} className="mt-0.5" />
                 <span className="text-[14px] leading-relaxed text-ink-2">Saya setuju dihubungi via WhatsApp dan menyetujui syarat program Golden Privilege<span className="ml-0.5 text-danger" aria-hidden>*</span></span>
               </label>
@@ -248,14 +248,14 @@ function PasswordStep({ match, minLength, onBack, onSubmit, error }: { match: Ma
         <button type="button" onClick={onBack} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full pr-3 text-[13px] font-semibold text-ink-3 transition-colors hover:text-navy-700"><ArrowLeft className="h-4 w-4" strokeWidth={1.6} /> Ubah data pendaftaran</button>
         <p className="t-eyebrow mt-4">Langkah 2 dari 2</p>
         <h1 className="t-h1 mt-2 text-ink">Buat kata sandi</h1>
-        <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base">
+        <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base sm:leading-6">
           {match.link === 'PENDING'
             ? 'Kami menemukan data yang mirip di Resique. Sales cek dulu, biasanya 1×24 jam. Akun sudah bisa dipakai belanja Golden Sale.'
             : 'Data laundry-mu belum ada di Resique, jadi dicatat sebagai pelanggan baru. Akun sudah bisa dipakai belanja Golden Sale.'}
         </p>
       </Reveal>
       <Reveal delay={80}>
-        <form onSubmit={submit} noValidate className="mt-8 space-y-6">
+        <form onSubmit={submit} noValidate className="mt-8 stack-y-6">
           <Field label="Kata sandi" required htmlFor="pw" error={touched && !check.ok ? 'Lengkapi syarat kata sandi di bawah' : undefined}>
             <PasswordInput id="pw" value={pw} onChange={e => setPw(e.target.value)} autoComplete="new-password" aria-invalid={touched && !check.ok} placeholder={`Minimal ${minLength} karakter`} />
           </Field>
@@ -290,7 +290,7 @@ function ResultScreen({ outcome }: { outcome: RegisterOutcome }) {
             <span className="grid h-14 w-14 place-items-center rounded-xl bg-navy-50 text-navy-700"><CheckCircle2 className="h-7 w-7" strokeWidth={1.6} /></span>
             <p className="t-eyebrow mt-5">Pendaftaran berhasil</p>
             <h1 className="t-h1 mt-2 text-ink">Akun terhubung ke data Resique</h1>
-            <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base">
+            <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base sm:leading-6">
               Kata sandi sementara sudah dikirim ke <strong className="text-ink">{account.email}</strong>. Masuk dengan nomor HP <span className="t-num font-semibold text-ink">{displayPhone(account.phone)}</span>, lalu kamu akan diminta membuat kata sandi baru.
             </p>
           </Reveal>
@@ -308,13 +308,13 @@ function ResultScreen({ outcome }: { outcome: RegisterOutcome }) {
             <span className="grid h-14 w-14 place-items-center rounded-xl bg-gold-50 text-gold-700"><Clock className="h-7 w-7" strokeWidth={1.6} /></span>
             <p className="t-eyebrow mt-5">Menunggu verifikasi</p>
             <h1 className="t-h1 mt-2 text-ink">Akun aktif. Data RMC dicek sales dulu</h1>
-            <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base">
+            <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base sm:leading-6">
               Kami menemukan data yang mirip di Resique. Sales akan memverifikasi (biasanya 1×24 jam). Belanja Golden Sale sudah bisa.
             </p>
           </Reveal>
           <Reveal delay={80}>
             <Card className="mt-8">
-              <CardContent className="space-y-3 pt-5 sm:pt-6">
+              <CardContent className="stack-y-3 pt-5 sm:pt-6">
                 <Row ok label="Belanja Golden Sale" desc="Sudah bisa checkout dan cek status pesanan." />
                 <Row label="Poin & tier RMC" desc="Tampil setelah sales konfirmasi akun ini milikmu." badge={<Badge variant="warn">Terkunci</Badge>} />
                 <p className="text-[12px] text-ink-4">Masuk dengan nomor HP {displayPhone(account.phone)} dan kata sandi yang barusan kamu buat.</p>
@@ -329,13 +329,13 @@ function ResultScreen({ outcome }: { outcome: RegisterOutcome }) {
             <span className="grid h-14 w-14 place-items-center rounded-xl bg-navy-50 text-navy-700"><MessageCircle className="h-7 w-7" strokeWidth={1.6} /></span>
             <p className="t-eyebrow mt-5">Pendaftaran diterima</p>
             <h1 className="t-h1 mt-2 text-ink">Akun sudah aktif, {account.pic.split(' ')[0]}</h1>
-            <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base">
+            <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base sm:leading-6">
               {account.link === 'NEW_CUSTOMER' ? 'Laundry-mu sudah tercatat sebagai pelanggan Resique.' : 'Data laundry-mu belum ada di Resique. Sales akan menghubungi via WhatsApp.'} Belanja Golden Sale sudah bisa.
             </p>
           </Reveal>
           <Reveal delay={80}>
             <Card className="mt-8">
-              <CardContent className="space-y-3 pt-5 sm:pt-6">
+              <CardContent className="stack-y-3 pt-5 sm:pt-6">
                 <Row ok label="Belanja Golden Sale" desc="Sudah bisa checkout dan cek status pesanan." />
                 <Row label="Poin & tier RMC" desc={account.link === 'NEW_CUSTOMER' ? 'Mulai dihitung setelah transaksi pertamamu di outlet Resique.' : 'Mulai dihitung setelah sales mendaftarkan laundry-mu di Resique.'} badge={<Badge variant="muted">Belum aktif</Badge>} />
                 <p className="text-[12px] text-ink-4">Masuk dengan nomor HP {displayPhone(account.phone)} dan kata sandi yang barusan kamu buat.</p>

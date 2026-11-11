@@ -54,7 +54,7 @@ export function TransaksiSection() {
   }
 
   return (
-    <div data-admin-section="transaksi" className="space-y-4">
+    <div data-admin-section="transaksi" className="stack-y-4">
       <PageHead
         title="Transaksi" sub="Pesanan Golden Sale. Verifikasi bukti pembayaran di sini, status Lunas masuk ke klasemen."
         actions={

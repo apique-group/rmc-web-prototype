@@ -19,7 +19,7 @@ export function KampanyeSection() {
   const badRange = new Date(camp.draft.start).getTime() > new Date(camp.draft.end).getTime()
 
   return (
-    <div data-admin-section="kampanye" className="space-y-4">
+    <div data-admin-section="kampanye" className="stack-y-4">
       <PageHead title="Kampanye & Klasemen" sub="Periode Golden Privilege, tampilan peringkat, dan parameter pencocokan akun." />
 
       <div className="grid gap-4 lg:grid-cols-2">

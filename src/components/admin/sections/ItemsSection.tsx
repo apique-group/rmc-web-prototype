@@ -114,7 +114,7 @@ export function ItemsSection() {
   }
 
   return (
-    <div data-admin-section="items" className="space-y-4">
+    <div data-admin-section="items" className="stack-y-4">
       <PageHead
         title="Golden Sale Items" sub="Produk satuan yang dipromosikan. Kode, nama, kategori, satuan, dan harga asli ikut katalog produk Resique bila ditambah dari katalog. Kuota kosong = tanpa batas; Maks per pelanggan 0 = tanpa batas. Paket diatur di menu Paket Golden Sale."
         actions={
@@ -149,7 +149,7 @@ export function ItemsSection() {
                       {locked && <p className="mt-1 inline-flex items-center gap-1 text-[11px] text-ink-4"><Lock className="h-3 w-3" strokeWidth={1.8} />dari katalog</p>}
                     </TD>
                     <TD>
-                      <div className="space-y-2">
+                      <div className="stack-y-2">
                         <Input value={it.name} aria-label="Nama" readOnly={locked} className={cell} onChange={e => update(it.id, { name: e.target.value })} />
                         <ImageField compact value={it.image} onChange={v => update(it.id, { image: v })} defaultValue={d.defaults.find(x => x.id === it.id)?.image} />
                       </div>

@@ -91,7 +91,7 @@ function PillStrip({ active, onChange, badges }: Omit<ShellProps, 'children' | '
   const ref = React.useRef<HTMLDivElement>(null)
   React.useEffect(() => { ref.current?.querySelector<HTMLElement>(`[data-admin-nav="${active}"]`)?.scrollIntoView({ block: 'nearest', inline: 'center' }) }, [active])
   return (
-    <nav aria-label="Navigasi konfigurasi" className="-mx-3 sticky top-0 z-10 bg-bg/95 px-3 py-1 backdrop-blur sm:-mx-4 sm:px-4">
+    <nav aria-label="Navigasi konfigurasi" className="-mx-3 sticky top-0 z-10 bg-bg/95 px-3 py-1 backdrop-blur-sm sm:-mx-4 sm:px-4">
       <div ref={ref} role="tablist" className="no-scrollbar flex gap-1.5 overflow-x-auto">
         {ADMIN_GROUPS.map((g, gi) => (
           <React.Fragment key={g.label}>

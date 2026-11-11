@@ -175,7 +175,7 @@ export function QrisSheet({ order, open, onOpenChange }: { order: Order; open: b
           <div className="mx-auto mt-5 w-full max-w-[320px]">
             <div className={cn('rounded-xl bg-black/5 p-1.5 ring-1 ring-black/5 transition-opacity duration-slow', expired && 'opacity-40 grayscale')}>
               <div className="rounded-xl bg-white p-4 shadow-1">
-                <img src={cfg.assets.qrisImage} alt={`QRIS ${cfg.payment.qrisMerchant}`} width={1135} height={1600} className="mx-auto aspect-[1135/1600] max-h-[62vh] w-auto rounded-lg object-contain" draggable={false} />
+                <img src={cfg.assets.qrisImage} alt={`QRIS ${cfg.payment.qrisMerchant}`} width={1135} height={1600} className="mx-auto aspect-1135/1600 max-h-[62vh] w-auto rounded-lg object-contain" draggable={false} />
                 <div className="mt-3 text-center">
                   <p className="text-[13px] font-bold text-ink">{cfg.payment.qrisMerchant}</p>
                   <p className="mt-0.5 t-code text-[11px] tracking-wide text-ink-3">NMID {cfg.payment.qrisNmid}</p>
@@ -204,24 +204,24 @@ export function QrisSheet({ order, open, onOpenChange }: { order: Order; open: b
           </div>
 
           {expired && !lateWindow ? (
-            <div className="mt-6 space-y-3">
+            <div className="mt-6 stack-y-3">
               <p className="text-center text-[13px] leading-relaxed text-ink-3">Batas waktu pembayaran habis dan pesanan ini ditutup. Buat pesanan baru untuk mendapatkan QR yang baru.</p>
               <Button size="xl" variant="gold" className="w-full" onClick={() => go('/#golden-sale')}>Buat pesanan baru</Button>
             </div>
           ) : lateWindow ? (
-            <div className="mt-6 space-y-3">
+            <div className="mt-6 stack-y-3">
               <p data-late-proof className="text-center text-[13px] leading-relaxed text-ink-3">Batas waktu pembayaran sudah lewat. Kalau kamu sudah terlanjur membayar, unggah buktinya di sini — admin Resique memverifikasinya secara manual. Kalau belum, buat pesanan baru.</p>
               <Button data-upload-btn size="xl" variant="outline" className="w-full" disabled={!canUpload} onClick={() => fileRef.current?.click()}><Upload className="h-4 w-4" strokeWidth={1.6} />{busy ? 'Memproses…' : 'Unggah bukti (terlambat)'}</Button>
               <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,application/pdf" className="sr-only" tabIndex={-1} onChange={onFile} aria-hidden />
               <Button size="xl" variant="gold" className="w-full" onClick={() => go('/#golden-sale')}>Buat pesanan baru</Button>
             </div>
           ) : uploaded ? (
-            <div className="mt-6 space-y-3">
+            <div className="mt-6 stack-y-3">
               <p className="text-center text-[13px] leading-relaxed text-ink-3">Admin Resique akan memverifikasi bukti pembayaranmu. Status pesanan bisa dicek kapan saja.</p>
               <Button size="xl" className="w-full" onClick={() => go('/order/' + live.id)}>Lihat status pesanan</Button>
             </div>
           ) : (
-            <div className="mt-6 space-y-3">
+            <div className="mt-6 stack-y-3">
               <Button size="xl" variant="outline" className="w-full" onClick={downloadQr}>
                 <Download className="h-4 w-4" strokeWidth={1.6} /> Unduh QR
               </Button>

@@ -42,7 +42,7 @@ export const PasswordInput = React.forwardRef<HTMLInputElement, Omit<InputProps,
         onClick={() => setShow(s => !s)}
         aria-label={show ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
         aria-pressed={show}
-        className="absolute right-0 top-0 grid h-11 w-11 place-items-center rounded-lg text-ink-3 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/25"
+        className="absolute right-0 top-0 grid h-11 w-11 place-items-center rounded-lg text-ink-3 transition-colors hover:text-ink focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-navy/25"
       >
         {show ? <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.6} /> : <Eye className="h-[18px] w-[18px]" strokeWidth={1.6} />}
       </button>

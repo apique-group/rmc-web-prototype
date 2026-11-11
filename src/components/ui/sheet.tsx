@@ -35,7 +35,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       {side === 'bottom' && <div aria-hidden className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-line" />}
       {children}
       {!hideClose && (
-        <SheetPrimitive.Close className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full text-ink-3 transition-[transform,background-color,color] duration-base ease-out hover:rotate-90 hover:bg-surface-2 hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <SheetPrimitive.Close className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full text-ink-3 transition-[transform,background-color,color] duration-base ease-out hover:rotate-90 hover:bg-surface-2 hover:text-ink focus:outline-hidden focus-visible:ring-2 focus-visible:ring-ring">
           <X className="h-4 w-4" />
           <span className="sr-only">Tutup</span>
         </SheetPrimitive.Close>
@@ -45,7 +45,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
 ))
 SheetContent.displayName = SheetPrimitive.Content.displayName
 
-const SheetHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => <div className={cn('flex flex-col space-y-1 text-left', className)} {...props} />
+const SheetHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => <div className={cn('flex flex-col stack-y-1 text-left', className)} {...props} />
 const SheetFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => <div className={cn('flex flex-col gap-2 sm:flex-row sm:justify-end', className)} {...props} />
 
 const SheetTitle = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Title>, React.ComponentPropsWithoutRef<typeof SheetPrimitive.Title>>(({ className, ...props }, ref) => (

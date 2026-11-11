@@ -52,7 +52,7 @@ export function PaketSection() {
   }
 
   return (
-    <div data-admin-section="paket" className="space-y-4">
+    <div data-admin-section="paket" className="stack-y-4">
       <PageHead
         title="Paket Golden Sale" sub="Bundel beberapa item Golden Sale dengan satu harga. Sisa paket dihitung dari sisa kuota isinya; batas per pelanggan milik paket sendiri. Di situs, grup Diskon Paket tampil di atas Diskon Item."
         actions={<Button type="button" size="sm" onClick={openNew}><Plus strokeWidth={1.6} />Tambah paket</Button>}
@@ -150,7 +150,7 @@ function PaketForm({ draft, existingCodes, onCancel, onSubmit }: { draft: Draft;
             <p className="text-[13px] font-bold text-ink">Isi paket <span className="text-danger">*</span></p>
             <Button type="button" variant="ghost" size="sm" onClick={() => patch({ items: [...f.items, { itemId: '', qty: 1 }] })}><Plus strokeWidth={1.6} />Tambah isi</Button>
           </div>
-          <ul className="mt-2 max-h-[40vh] space-y-2 overflow-y-auto pr-1">
+          <ul className="mt-2 max-h-[40vh] stack-y-2 overflow-y-auto pr-1">
             {f.items.map((r, idx) => (
               <li key={idx} className="grid grid-cols-[1fr_84px_36px] items-center gap-2">
                 <Select value={r.itemId} onValueChange={v => setRow(idx, { itemId: v })}>

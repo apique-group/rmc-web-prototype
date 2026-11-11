@@ -62,7 +62,7 @@ export function OrderStatusPage() {
           <p className="mt-3 text-[15px] leading-relaxed text-ink-3">Masukkan nomor HP yang dipakai saat memesan untuk membuka status pesanan ini.</p>
         </Reveal>
         <Reveal delay={80}>
-          <form data-order-phone-gate className="mt-8 space-y-4" onSubmit={e => { e.preventDefault(); const p = normalizePhone(phoneInput); if (!p) return; setParams(prev => { const n = new URLSearchParams(prev); n.set('phone', p); return n }, { replace: true }) }}>
+          <form data-order-phone-gate className="mt-8 stack-y-4" onSubmit={e => { e.preventDefault(); const p = normalizePhone(phoneInput); if (!p) return; setParams(prev => { const n = new URLSearchParams(prev); n.set('phone', p); return n }, { replace: true }) }}>
             <Field label="No. HP pemesan" required htmlFor="order-phone" error={phoneParam && phoneParam !== order.buyer.phone ? 'Nomor HP tidak cocok dengan pesanan ini' : undefined}>
               <Input id="order-phone" type="tel" inputMode="tel" placeholder="0812 3456 7890" value={phoneInput} onChange={e => setPhoneInput(e.target.value)} />
             </Field>
@@ -208,7 +208,7 @@ export function OrderStatusPage() {
               ))}
             </ul>
             <Separator className="my-4" />
-            <div className="space-y-2 text-[14px]">
+            <div className="stack-y-2 text-[14px]">
               <div className="flex items-center justify-between font-bold"><span className="gold-text">Hemat</span><span className="t-code gold-text">{rupiah(order.savings)}</span></div>
               <div className="flex items-baseline justify-between text-ink"><span className="text-[15px] font-bold">Total</span><span className="t-code text-[24px] font-extrabold tracking-tight">{rupiah(order.total)}</span></div>
             </div>
@@ -254,14 +254,14 @@ function Timeline({ order }: { order: Order }) {
   const stamp = (key: string) => key === 'AWAITING_PAYMENT' ? order.createdAt : key === 'PROOF_UPLOADED' ? order.payment.uploadedAt : key === 'PAID' ? order.verifiedAt : key === 'EXPIRED' ? order.expiresAt : undefined
 
   return (
-    <ol className="relative space-y-6" aria-label="Perjalanan pesanan">
+    <ol className="relative stack-y-6" aria-label="Perjalanan pesanan">
       {nodes.map((n, i) => {
         const last = i === nodes.length - 1
         const at = n.state !== 'todo' ? stamp(n.key) : undefined
         return (
           <li key={n.key} className="relative flex gap-4" aria-current={n.state === 'current' ? 'step' : undefined}>
             {!last && <span aria-hidden className={cn('absolute left-[15px] top-8 h-[calc(100%+8px)] w-0.5 rounded-full', n.state === 'done' ? 'bg-navy-200' : 'bg-line')} />}
-            <span className={cn('relative z-[1] grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 transition-colors',
+            <span className={cn('relative z-1 grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 transition-colors',
               n.state === 'done' && 'border-navy-500 bg-navy-500 text-white',
               n.state === 'current' && 'border-navy-500 bg-white text-navy-700 ring-4 ring-navy-50',
               n.state === 'todo' && 'border-line bg-white text-ink-4',

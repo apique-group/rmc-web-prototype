@@ -71,11 +71,11 @@ export function ImageField({ value, onChange, defaultValue, label, hint, compact
   )
 
   return (
-    <div className={cn('space-y-1.5', className)}>
+    <div className={cn('stack-y-1.5', className)}>
       {label && <Label htmlFor={inputId}>{label}</Label>}
       <div className={cn('flex gap-3', compact ? 'items-center' : 'items-start')}>
         {preview}
-        <div className="min-w-0 flex-1 space-y-2">
+        <div className="min-w-0 flex-1 stack-y-2">
           <Input
             id={inputId} value={isData ? '(gambar unggahan)' : value} readOnly={isData} placeholder="/img/nama-gambar.jpg atau https://…"
             className={cn(compact ? 'h-9 text-[13px]' : 'h-10 text-[14px]', isData && 'text-ink-3')}

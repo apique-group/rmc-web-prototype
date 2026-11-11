@@ -52,10 +52,10 @@ export function LoginPage() {
         <>
           <Reveal delay={40}>
             <h1 className="t-h1 mt-2 text-ink">Masuk</h1>
-            <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base">Masuk pakai nomor HP yang terdaftar di Resique. Lihat poin, tier, dan pesanan Golden Sale.</p>
+            <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base sm:leading-6">Masuk pakai nomor HP yang terdaftar di Resique. Lihat poin, tier, dan pesanan Golden Sale.</p>
           </Reveal>
           <Reveal delay={80}>
-            <form onSubmit={submit} noValidate className="mt-8 space-y-6">
+            <form onSubmit={submit} noValidate className="mt-8 stack-y-6">
               <Field label="No. HP" required htmlFor="phone" error={error && /^Nomor HP tidak valid/i.test(error) ? error : undefined} hint={phoneNorm ? `Masuk sebagai ${phoneNorm}` : undefined}>
                 <Input id="phone" type="tel" spellCheck={false} inputMode="tel" autoComplete="username" placeholder="0812 3456 7890" value={phone} onChange={e => { setPhone(e.target.value); setError(null) }} aria-invalid={!!error && /HP|terdaftar/i.test(error)} autoFocus={!prefill} />
               </Field>
@@ -113,10 +113,10 @@ function ResetForm({ initialPhone, onBack, onSent }: { initialPhone: string; onB
       <Reveal delay={40}>
         <button type="button" onClick={onBack} className="mt-5 inline-flex min-h-[44px] items-center gap-1.5 rounded-full pr-3 text-[13px] font-semibold text-ink-3 transition-colors hover:text-navy-700"><ArrowLeft className="h-4 w-4" strokeWidth={1.6} /> Kembali ke masuk</button>
         <h1 className="t-h1 mt-2 text-ink">Lupa kata sandi</h1>
-        <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base">Masukkan nomor HP terdaftar. Kata sandi sementara dikirim ke email akunmu. Berlaku sekali masuk, lalu buat yang baru.</p>
+        <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base sm:leading-6">Masukkan nomor HP terdaftar. Kata sandi sementara dikirim ke email akunmu. Berlaku sekali masuk, lalu buat yang baru.</p>
       </Reveal>
       <Reveal delay={80}>
-        <form onSubmit={submit} noValidate className="mt-8 space-y-6">
+        <form onSubmit={submit} noValidate className="mt-8 stack-y-6">
           <Field label="No. HP" required htmlFor="reset-phone" error={error || undefined} hint={phoneNorm ? phoneNorm : undefined}>
             <Input id="reset-phone" type="tel" spellCheck={false} inputMode="tel" autoComplete="username" placeholder="0812 3456 7890" value={phone} onChange={e => { setPhone(e.target.value); setError(null) }} aria-invalid={!!error} autoFocus />
           </Field>
@@ -124,7 +124,7 @@ function ResetForm({ initialPhone, onBack, onSent }: { initialPhone: string; onB
         </form>
       </Reveal>
       {sentTo !== null && (
-        <Reveal delay={40} className="mt-8 space-y-4">
+        <Reveal delay={40} className="mt-8 stack-y-4">
           <p data-forgot-sent className="rounded-xl border border-navy-100 bg-navy-50/70 px-4 py-3 text-[13px] text-navy-700">Kalau nomor ini terdaftar, kata sandi sementara sudah dikirim ke e-mail akunnya. Cek kotak masuk (dan folder spam), lalu masuk dengan kata sandi itu.</p>
           {sentTo && <MockInboxCard email={sentTo} limit={2} />}
           <Button size="xl" className="w-full" onClick={onBack}>

@@ -68,7 +68,7 @@ function ProfileBody({ account }: { account: Account }) {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-12 lg:items-start lg:gap-8">
         {/* Left column: hero + lists */}
-        <div className="min-w-0 space-y-6 lg:col-span-5">
+        <div className="min-w-0 stack-y-6 lg:col-span-5">
           <Reveal>
             {linked ? (
               <PointsHero account={account} customer={customer} rmc={rmc} isMitra={isMitra} />
@@ -88,7 +88,7 @@ function ProfileBody({ account }: { account: Account }) {
         </div>
 
         {/* Right column: chart + prizes + orders */}
-        <div className="min-w-0 space-y-6 lg:col-span-7">
+        <div className="min-w-0 stack-y-6 lg:col-span-7">
           {linked ? (
             <>
               <Reveal delay={40}><PointsChart rmc={rmc} earnPerRp={cfg.rules.earnPerRp} /></Reveal>
@@ -329,7 +329,7 @@ function PrizeGrid({ account, points }: { account: Account; points: number }) {
               <Reveal as="li" key={p.id} delay={i * 50}>
                 <article className={cn('group flex h-full flex-col rounded-xl border border-line bg-white p-3 sm:p-4', why ? 'opacity-80' : 'lift active:scale-[.98]')}>
                   <div className="relative overflow-hidden rounded-lg bg-surface-2">
-                    <img src={p.image} alt={p.name} width={800} height={600} className="zoom-img aspect-[4/3] w-full object-cover" loading="lazy" />
+                    <img src={p.image} alt={p.name} width={800} height={600} className="zoom-img aspect-4/3 w-full object-cover" loading="lazy" />
                     {p.stock <= 0 ? <Badge variant="muted" className="absolute left-2 top-2">Habis</Badge> : p.stock <= 5 ? <Badge variant="warn" className="absolute left-2 top-2">Sisa {p.stock}</Badge> : null}
                   </div>
                   <p className="mt-3 text-[11px] font-semibold text-ink-4">{p.type}</p>
@@ -385,7 +385,7 @@ function LedgerCard({ rows }: { rows: LedgerEntry[] }) {
   const show = rows.slice((cur - 1) * LEDGER_PAGE, cur * LEDGER_PAGE)
   return (
     <Card data-ledger data-ledger-page={cur}>
-      <CardHeader className="flex-row items-center gap-3 space-y-0">
+      <CardHeader className="flex-row items-center gap-3 stack-y-0">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gold-50 text-gold-700"><History className="h-[18px] w-[18px]" strokeWidth={1.6} /></span>
         <div><CardTitle>Riwayat poin</CardTitle><CardDescription className="mt-1">{rows.length} catatan · poin masuk, ditukar, hangus, bonus, penyesuaian</CardDescription></div>
       </CardHeader>
@@ -423,7 +423,7 @@ function OrderList({ rows }: { rows: Order[] }) {
   const show = rows.slice(0, 5)
   return (
     <Card>
-      <CardHeader className="flex-row items-center gap-3 space-y-0">
+      <CardHeader className="flex-row items-center gap-3 stack-y-0">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-navy-50 text-navy-700"><ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.6} /></span>
         <div><CardTitle>Riwayat pesanan</CardTitle><CardDescription className="mt-1">{rows.length === 0 ? 'Belum ada pesanan Golden Sale' : `${rows.length} pesanan Golden Sale · hanya Lunas yang menambah poin`}</CardDescription></div>
       </CardHeader>

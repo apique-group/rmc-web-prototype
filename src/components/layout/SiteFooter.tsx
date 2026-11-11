@@ -49,7 +49,7 @@ export function SiteFooter() {
         </div>
         <div>
           <p className="text-[13px] font-bold text-green-200">Hubungi kami</p>
-          <ul className="mt-3 space-y-1.5">
+          <ul className="mt-3 stack-y-1.5">
             {contact.map(c => (
               <li key={c.label}>
                 {c.href ? (
@@ -63,7 +63,7 @@ export function SiteFooter() {
         </div>
         <div>
           <p className="text-[13px] font-bold text-green-200">Golden Privilege</p>
-          <ul className="mt-3 space-y-1.5" aria-label="Tautan kaki">
+          <ul className="mt-3 stack-y-1.5" aria-label="Tautan kaki">
             {site.map(s => <li key={s.to}><a href={s.to} onClick={jump(s.to)} className={link}>{s.label}</a></li>)}
             <li><Link to="/login" className={cn(link, "font-bold text-green-200 hover:text-green-100")}>Masuk / cek poin</Link></li>
             <li><Link to="/register" className={cn(link, "font-bold text-green-200 hover:text-green-100")}>Daftar RMC</Link></li>

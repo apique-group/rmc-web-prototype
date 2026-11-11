@@ -26,7 +26,7 @@ const DialogContent = React.forwardRef<React.ElementRef<typeof DialogPrimitive.C
     >
       {children}
       {!hideClose && (
-        <DialogPrimitive.Close className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full text-ink-3 transition-[transform,background-color,color] duration-base ease-out hover:rotate-90 hover:bg-surface-2 hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <DialogPrimitive.Close className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full text-ink-3 transition-[transform,background-color,color] duration-base ease-out hover:rotate-90 hover:bg-surface-2 hover:text-ink focus:outline-hidden focus-visible:ring-2 focus-visible:ring-ring">
           <X className="h-4 w-4" />
           <span className="sr-only">Tutup</span>
         </DialogPrimitive.Close>
@@ -36,7 +36,7 @@ const DialogContent = React.forwardRef<React.ElementRef<typeof DialogPrimitive.C
 ))
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
-const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => <div className={cn('flex flex-col space-y-1.5 text-left', className)} {...props} />
+const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => <div className={cn('flex flex-col stack-y-1.5 text-left', className)} {...props} />
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => <div className={cn('flex flex-col-reverse gap-2 sm:flex-row sm:justify-end', className)} {...props} />
 
 const DialogTitle = React.forwardRef<React.ElementRef<typeof DialogPrimitive.Title>, React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>>(({ className, ...props }, ref) => (

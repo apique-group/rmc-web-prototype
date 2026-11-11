@@ -42,10 +42,10 @@ export function ChangePasswordPage() {
       <Reveal>
         <span className="grid h-14 w-14 place-items-center rounded-xl bg-navy-50 text-navy-700"><ShieldCheck className="h-7 w-7" strokeWidth={1.6} /></span>
         <h1 className="t-h1 mt-5 text-ink">Buat kata sandi baru</h1>
-        <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base">Kata sandi sementara cuma berlaku sekali. Buat kata sandi baru untuk akun <span className="t-num font-semibold text-ink">{displayPhone(account.phone)}</span>.</p>
+        <p className="mt-3 text-[15px] leading-relaxed text-ink-3 sm:text-base sm:leading-6">Kata sandi sementara cuma berlaku sekali. Buat kata sandi baru untuk akun <span className="t-num font-semibold text-ink">{displayPhone(account.phone)}</span>.</p>
       </Reveal>
       <Reveal delay={80}>
-        <form onSubmit={submit} noValidate className="mt-8 space-y-6">
+        <form onSubmit={submit} noValidate className="mt-8 stack-y-6">
           <Field label="Kata sandi baru" required htmlFor="pw" error={touched && !check.ok ? 'Lengkapi syarat kata sandi di bawah' : undefined}>
             <PasswordInput id="pw" value={pw} onChange={e => setPw(e.target.value)} autoComplete="new-password" aria-invalid={touched && !check.ok} placeholder={`Minimal ${minLength} karakter`} autoFocus />
           </Field>

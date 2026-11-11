@@ -21,12 +21,12 @@ export function KlaimSection() {
   const [showResolved, setShowResolved] = React.useState(false)
 
   return (
-    <div data-admin-section="klaim" className="space-y-4">
+    <div data-admin-section="klaim" className="stack-y-4">
       <PageHead title="Klaim Akun & Leads" sub="Antrean verifikasi sales (jalur 3: nama mirip, HP belum tercatat) dan lead baru dari pendaftaran mandiri." />
 
       <SettingsCard title="Antrean Klaim Akun" desc={open.length ? `${open.length} menunggu keputusan sales.` : 'Tidak ada klaim terbuka.'}>
         {open.length === 0 ? <EmptyState title="Antrean kosong" desc="Klaim muncul saat pendaftar cocok dengan pelanggan CRM di atas ambang fuzzy tetapi tidak bisa diverifikasi otomatis." /> : (
-          <ul className="space-y-3">{open.map(c => <ClaimCard key={c.id} claim={c} />)}</ul>
+          <ul className="stack-y-3">{open.map(c => <ClaimCard key={c.id} claim={c} />)}</ul>
         )}
         {resolved.length > 0 && (
           <div className="mt-4 border-t border-line-2 pt-3">

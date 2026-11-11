@@ -14,7 +14,7 @@ import { NumInput, PageHead, RowTools, SaveBar, SettingsCard, cell, moveItem } f
 
 export function BenefitSection() {
   return (
-    <div data-admin-section="benefit" className="space-y-4">
+    <div data-admin-section="benefit" className="stack-y-4">
       <PageHead title="Benefit & Tier" sub="Kartu privilege member, tabel tier RMC, diskon dasar mitra, dan aturan poin." />
       <BenefitsCard />
       <TiersCard />
