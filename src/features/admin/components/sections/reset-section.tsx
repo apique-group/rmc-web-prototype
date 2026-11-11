@@ -7,7 +7,8 @@ import { useOrders } from '@/lib/api/mock/orders'
 import { resetAllStores } from '@/lib/api/mock/persist'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { PageHead, SettingsCard } from '@/features/admin/components/parts'
+import { PageHead } from '@/features/admin/components/page-head'
+import { SettingsCard } from '@/features/admin/components/settings-card'
 
 export function ResetSection() {
   const { canEdit } = useAdminAccess()

@@ -7,9 +7,15 @@ import { Button } from '@/components/ui/button'
 import { Input, Textarea } from '@/components/ui/input'
 import { Field } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/misc'
+import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table'
 import { useDraft } from '@/features/admin/hooks/use-draft'
-import { NumInput, PageHead, RowTools, SaveBar, SettingsCard, cell, moveItem } from '@/features/admin/components/parts'
+import { NumInput } from '@/features/admin/components/num-input'
+import { PageHead } from '@/features/admin/components/page-head'
+import { RowTools } from '@/features/admin/components/row-tools'
+import { SaveBar } from '@/features/admin/components/save-bar'
+import { SettingsCard } from '@/features/admin/components/settings-card'
+import { cell } from '@/features/admin/lib/cell'
+import { moveItem } from '@/features/admin/lib/move-item'
 
 
 export function BenefitSection() {

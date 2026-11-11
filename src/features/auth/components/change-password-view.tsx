@@ -4,7 +4,7 @@ import * as React from 'react'
 import { redirect, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { ArrowRight, ShieldCheck } from 'lucide-react'
-import { Reveal } from '@/lib/reveal'
+import { Reveal } from '@/components/common/reveal'
 import { Narrow } from '@/components/layout/narrow'
 import { checkPassword } from '@/lib/password'
 import { displayPhone } from '@/lib/phone'
@@ -13,7 +13,7 @@ import { useCurrentAccount } from '@/stores/auth.store'
 import { useConfig } from '@/lib/api/mock/config'
 import { Button } from '@/components/ui/button'
 import { Field } from '@/components/ui/label'
-import { PasswordChecklist, PasswordInput } from '@/features/auth/components/password-checklist'
+import { PasswordChecklist, PasswordInput } from './password-checklist'
 
 /* First sign-in after a temp password (PRD Fitur 3, BR-3.x): the temp password is single-use. */
 export function ChangePasswordView() {

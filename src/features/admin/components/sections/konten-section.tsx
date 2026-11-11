@@ -2,7 +2,10 @@ import type { Config } from '@/types/member'
 import { Input, Textarea } from '@/components/ui/input'
 import { Field } from '@/components/ui/label'
 import { useDraft } from '@/features/admin/hooks/use-draft'
-import { CheckRow, PageHead, SaveBar, SettingsCard } from '@/features/admin/components/parts'
+import { CheckRow } from '@/features/admin/components/check-row'
+import { PageHead } from '@/features/admin/components/page-head'
+import { SaveBar } from '@/features/admin/components/save-bar'
+import { SettingsCard } from '@/features/admin/components/settings-card'
 
 type CopyKey = Exclude<keyof Config['copy'], 'snapDesktop'>
 interface Row { key: CopyKey; label: string; long?: boolean; hint?: string }

@@ -5,7 +5,7 @@ import { useCart } from '@/stores/cart.store'
 import { Clock, ExternalLink, Facebook, Instagram, Mail, MessageCircle, Store, Youtube } from 'lucide-react'
 import { useConfig } from '@/lib/api/mock/config'
 import { srcSet2x } from '@/lib/logo'
-import { Reveal } from '@/lib/reveal'
+import { Reveal } from '@/components/common/reveal'
 import { cn } from '@/lib/utils'
 import { CONTACTS, EXT, SOCIALS } from '@/lib/contacts'
 

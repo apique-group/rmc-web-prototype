@@ -1,7 +1,11 @@
 import { Input } from '@/components/ui/input'
 import { Field } from '@/components/ui/label'
 import { useDraft } from '@/features/admin/hooks/use-draft'
-import { CheckRow, NumInput, PageHead, SaveBar, SettingsCard } from '@/features/admin/components/parts'
+import { CheckRow } from '@/features/admin/components/check-row'
+import { NumInput } from '@/features/admin/components/num-input'
+import { PageHead } from '@/features/admin/components/page-head'
+import { SaveBar } from '@/features/admin/components/save-bar'
+import { SettingsCard } from '@/features/admin/components/settings-card'
 
 const splitList = (s: string) => s.split(',').map(x => x.trim()).filter(Boolean)
 

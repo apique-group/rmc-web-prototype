@@ -8,7 +8,7 @@ import { useOrders } from '@/lib/api/mock/orders'
 import { Button } from '@/components/ui/button'
 import { Badge, statusVariant } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/misc'
+import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table'
 
 /** Import preview: parsed rows + skipped reasons → Konfirmasi import. */
 export function TransaksiImport({ preview, fileName, onClose }: { preview: ImportPreview | null; fileName: string; onClose: () => void }) {

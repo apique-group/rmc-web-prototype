@@ -9,8 +9,10 @@ import { useCrm } from '@/lib/api/mock/crm'
 import { useAccounts } from '@/lib/api/mock/accounts'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { EmptyState, Table, TBody, TD, TH, THead, TR } from '@/components/ui/misc'
-import { PageHead, SettingsCard } from '@/features/admin/components/parts'
+import { EmptyState } from '@/components/common/empty-state'
+import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table'
+import { PageHead } from '@/features/admin/components/page-head'
+import { SettingsCard } from '@/features/admin/components/settings-card'
 
 export function KlaimSection() {
   const claims = useCrm(s => s.claims)

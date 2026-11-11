@@ -4,10 +4,14 @@ import { uid } from '@/lib/id'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Field } from '@/components/ui/label'
-import { EmptyState } from '@/components/ui/misc'
+import { EmptyState } from '@/components/common/empty-state'
 import { useDraft } from '@/features/admin/hooks/use-draft'
 import { ImageField } from '@/features/admin/components/image-field'
-import { PageHead, RowTools, SaveBar, SettingsCard, moveItem } from '@/features/admin/components/parts'
+import { PageHead } from '@/features/admin/components/page-head'
+import { RowTools } from '@/features/admin/components/row-tools'
+import { SaveBar } from '@/features/admin/components/save-bar'
+import { SettingsCard } from '@/features/admin/components/settings-card'
+import { moveItem } from '@/features/admin/lib/move-item'
 
 export function AsetSection() {
   const d = useDraft('assets', 'Aset gambar')

@@ -11,8 +11,10 @@ import { useAdminAccess } from '@/features/admin/hooks/use-admin-access'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge, type BadgeProps } from '@/components/ui/badge'
-import { EmptyState, Table, TBody, TD, TH, THead, TR } from '@/components/ui/misc'
-import { PageHead, SettingsCard } from '@/features/admin/components/parts'
+import { EmptyState } from '@/components/common/empty-state'
+import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table'
+import { PageHead } from '@/features/admin/components/page-head'
+import { SettingsCard } from '@/features/admin/components/settings-card'
 
 const LINK: Record<Account['link'], { label: string; variant: BadgeProps['variant'] }> = {
   LINKED: { label: 'Terhubung', variant: 'ok' },

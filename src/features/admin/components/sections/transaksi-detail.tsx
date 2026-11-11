@@ -12,7 +12,8 @@ import { Textarea } from '@/components/ui/input'
 import { Field } from '@/components/ui/label'
 import { Badge, statusVariant } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Separator, Table, TBody, TD, TH, THead, TR } from '@/components/ui/misc'
+import { Separator } from '@/components/ui/separator'
+import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table'
 
 /** Order drawer: lines, fulfilment, proof preview, verify / reject / undo. */
 export function TransaksiDetail({ order, onClose }: { order: Order | null; onClose: () => void }) {

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { BadgePercent, Boxes, CreditCard, Database, FileText, Gift, Image, ListChecks, Receipt, ShieldCheck, Trophy, UserCheck, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useIsMobile } from '@/lib/reveal'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 export type AdminSectionId = 'konten' | 'aset' | 'benefit' | 'kampanye' | 'hadiah' | 'items' | 'paket' | 'pembayaran' | 'transaksi' | 'klaim' | 'akun' | 'reset'
 

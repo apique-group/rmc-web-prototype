@@ -4,9 +4,14 @@ import { useOrders, klasemen } from '@/lib/api/mock/orders'
 import { Input } from '@/components/ui/input'
 import { Field } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { EmptyState, Table, TBody, TD, TH, THead, TR } from '@/components/ui/misc'
+import { EmptyState } from '@/components/common/empty-state'
+import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table'
 import { useDraft } from '@/features/admin/hooks/use-draft'
-import { CheckRow, NumInput, PageHead, SaveBar, SettingsCard } from '@/features/admin/components/parts'
+import { CheckRow } from '@/features/admin/components/check-row'
+import { NumInput } from '@/features/admin/components/num-input'
+import { PageHead } from '@/features/admin/components/page-head'
+import { SaveBar } from '@/features/admin/components/save-bar'
+import { SettingsCard } from '@/features/admin/components/settings-card'
 
 export function KampanyeSection() {
   const camp = useDraft('campaign', 'Kampanye')
