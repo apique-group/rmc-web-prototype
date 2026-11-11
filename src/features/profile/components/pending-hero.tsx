@@ -33,11 +33,9 @@ export function PendingHero({ account, rmc }: { account: Account; rmc: RmcSummar
             <p className="mt-1.5 text-[13px] leading-relaxed text-ink-3">
               Datamu mirip dengan pelanggan <strong className="text-ink">{claimTarget?.outlet || 'Resique'}</strong>. Sales Resique memastikan akun ini milikmu (biasanya 1×24 jam) sebelum poin & tier tampil.
             </p>
-            <Button asChild variant="secondary" className="mt-4 w-full">
-              <a href={`${SALES_WA}?text=${encodeURIComponent(`Halo Sales Resique, mohon verifikasi akun RMC saya: ${account.laundry} (${account.pic}).`)}`} target="_blank" rel="noreferrer">
+            <Button variant="secondary" className="mt-4 w-full" nativeButton={false} render={<a href={`${SALES_WA}?text=${encodeURIComponent(`Halo Sales Resique, mohon verifikasi akun RMC saya: ${account.laundry} (${account.pic}).`)}`} target="_blank" rel="noreferrer" />}>
                 <MessageCircle className="h-4 w-4" strokeWidth={1.6} /> Hubungi sales
-              </a>
-            </Button>
+              </Button>
           </CardContent>
         </Card>
       </div>

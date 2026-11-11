@@ -40,17 +40,11 @@ export function CtaSection() {
           </Reveal>
           <Reveal delay={160} className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
             {acc ? (
-              <Button asChild size="lg" className="arrow-nudge bg-green text-navy-900 shadow-2 hover:-translate-y-0.5 hover:bg-green-200">
-                <Link href="/profile">Buka profil RMC <ArrowRight className="h-4 w-4" strokeWidth={2} /></Link>
-              </Button>
+              <Button size="lg" className="arrow-nudge bg-green text-navy-900 shadow-2 hover:-translate-y-0.5 hover:bg-green-200" nativeButton={false} render={<Link href="/profile" />}>Buka profil RMC <ArrowRight className="h-4 w-4" strokeWidth={2} /></Button>
             ) : (
               <>
-                <Button asChild size="lg" className="arrow-nudge bg-green text-navy-900 shadow-2 hover:-translate-y-0.5 hover:bg-green-200">
-                  <Link href="/register">Daftar Sekarang <ArrowRight className="h-4 w-4" strokeWidth={2} /></Link>
-                </Button>
-                <Button asChild size="lg" variant="inverse" className="arrow-nudge hover:-translate-y-0.5">
-                  <Link href="/login">Masuk & cek poin <ArrowRight className="h-4 w-4" strokeWidth={2} /></Link>
-                </Button>
+                <Button size="lg" className="arrow-nudge bg-green text-navy-900 shadow-2 hover:-translate-y-0.5 hover:bg-green-200" nativeButton={false} render={<Link href="/register" />}>Daftar Sekarang <ArrowRight className="h-4 w-4" strokeWidth={2} /></Button>
+                <Button size="lg" variant="inverse" className="arrow-nudge hover:-translate-y-0.5" nativeButton={false} render={<Link href="/login" />}>Masuk & cek poin <ArrowRight className="h-4 w-4" strokeWidth={2} /></Button>
               </>
             )}
           </Reveal>

@@ -19,7 +19,7 @@ export function OrderList({ rows }: { rows: Order[] }) {
       </CardHeader>
       <CardContent>
         {show.length === 0 ? (
-          <EmptyState title="Belum ada pesanan Golden Sale" desc="Harga spesial selama periode Golden Privilege, stok terbatas." action={<Button asChild variant="gold" className=""><Link href="/#golden-sale">Lihat Golden Sale</Link></Button>} />
+          <EmptyState title="Belum ada pesanan Golden Sale" desc="Harga spesial selama periode Golden Privilege, stok terbatas." action={<Button variant="gold" className="" nativeButton={false} render={<Link href="/#golden-sale" />}>Lihat Golden Sale</Button>} />
         ) : (
           <ul className="divide-y divide-line-2">
             {show.map(o => (

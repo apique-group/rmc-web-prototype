@@ -45,7 +45,7 @@ export function OrderStatusView() {
         </Reveal>
         <Reveal delay={80}>
           <EmptyState className="mt-8" title={`Tidak ada pesanan ${id || ''}`.trim()} desc="Cek lagi tautannya, atau buat pesanan baru di Golden Sale."
-            action={<Button asChild size="lg" variant="gold" className=""><Link href="/#golden-sale">Lihat Golden Sale</Link></Button>} />
+            action={<Button size="lg" variant="gold" className="" nativeButton={false} render={<Link href="/#golden-sale" />}>Lihat Golden Sale</Button>} />
         </Reveal>
         <Link href="/" className="mt-6 inline-flex h-11 items-center gap-1.5 text-[13px] font-semibold text-ink-3 transition-colors hover:text-ink"><ArrowLeft className="h-4 w-4" strokeWidth={1.6} /> Kembali ke beranda</Link>
       </Narrow>
@@ -132,7 +132,7 @@ export function OrderStatusView() {
                   <p className="text-[13px] text-ink-3">Terverifikasi {fmtDate(order.verifiedAt, true)}</p>
                 </div>
               </div>
-              <Button asChild size="lg" variant="outline" className=""><Link href="/#klasemen">Lihat klasemen</Link></Button>
+              <Button size="lg" variant="outline" className="" nativeButton={false} render={<Link href="/#klasemen" />}>Lihat klasemen</Button>
             </CardContent>
           </Card>
         </Reveal>

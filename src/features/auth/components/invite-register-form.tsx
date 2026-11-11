@@ -59,7 +59,7 @@ export function InviteRegisterForm({ token }: { token: string }) {
           <h1 className="t-h1 mt-2 text-ink">Undangan tidak ditemukan</h1>
         </Reveal>
         <Reveal delay={80}>
-          <EmptyState className="mt-8" title="Link undangan tidak valid atau sudah digunakan" desc="Minta link baru ke sales Resique, atau daftar lewat formulir biasa." action={<Button asChild size="sm"><Link href="/register">Daftar lewat formulir</Link></Button>} />
+          <EmptyState className="mt-8" title="Link undangan tidak valid atau sudah digunakan" desc="Minta link baru ke sales Resique, atau daftar lewat formulir biasa." action={<Button size="sm" nativeButton={false} render={<Link href="/register" />}>Daftar lewat formulir</Button>} />
         </Reveal>
       </div>
     )
@@ -113,7 +113,7 @@ export function InviteRegisterForm({ token }: { token: string }) {
           </Field>
           <div className="stack-y-1.5">
             <Controller name="consent" control={control} render={({ field }) => (
-              <label htmlFor="consent" className={cn('flex min-h-[44px] cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 transition-colors has-data-[state=checked]:border-navy has-data-[state=checked]:bg-navy-50/60', errors.consent ? 'border-danger' : 'border-line')}>
+              <label htmlFor="consent" className={cn('flex min-h-[44px] cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 transition-colors has-data-checked:border-navy has-data-checked:bg-navy-50/60', errors.consent ? 'border-danger' : 'border-line')}>
                 <Checkbox id="consent" checked={field.value} onCheckedChange={v => field.onChange(v === true)} aria-invalid={!!errors.consent} className="mt-0.5" />
                 <span className="text-[14px] leading-relaxed text-ink-2">Saya setuju dihubungi via WhatsApp dan menyetujui syarat program Golden Privilege<span className="ml-0.5 text-danger" aria-hidden>*</span></span>
               </label>

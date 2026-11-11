@@ -25,13 +25,9 @@ export function LinkStateCard({ state }: { state: keyof typeof LINK_STATE }) {
         <p className="mt-4 text-[17px] font-bold text-ink">{s.title}</p>
         <p className="mt-1.5 text-[13px] leading-relaxed text-ink-3">{s.desc}</p>
         {state === 'UNLINKED' ? (
-          <Button asChild size="lg" variant="secondary" className="mt-5 w-full">
-            <a href={`${SALES_WA}?text=${encodeURIComponent('Halo Sales Resique, mohon tautkan kembali akun RMC saya.')}`} target="_blank" rel="noreferrer"><MessageCircle className="h-4 w-4" strokeWidth={1.6} /> Hubungi tim Resique</a>
-          </Button>
+          <Button size="lg" variant="secondary" className="mt-5 w-full" nativeButton={false} render={<a href={`${SALES_WA}?text=${encodeURIComponent('Halo Sales Resique, mohon tautkan kembali akun RMC saya.')}`} target="_blank" rel="noreferrer" />}><MessageCircle className="h-4 w-4" strokeWidth={1.6} /> Hubungi tim Resique</Button>
         ) : (
-          <Button asChild size="lg" variant="gold" className="mt-5 w-full">
-            <Link href="/#golden-sale">Belanja Golden Sale<ArrowUpRight className="h-4 w-4" strokeWidth={2} /></Link>
-          </Button>
+          <Button size="lg" variant="gold" className="mt-5 w-full" nativeButton={false} render={<Link href="/#golden-sale" />}>Belanja Golden Sale<ArrowUpRight className="h-4 w-4" strokeWidth={2} /></Button>
         )}
       </CardContent>
     </Card>

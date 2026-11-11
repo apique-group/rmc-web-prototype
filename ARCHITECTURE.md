@@ -1,34 +1,38 @@
 # Architecture
 
 rmc-web is the clickable prototype of the Resique Golden Privilege web. Since R.058 it uses the same stack and
-folder layout as the staging app `apique-group/apique-web-rmc` (Next.js 15.5, React 19, Tailwind 4, shadcn,
-zustand), so screens can move to staging with little rework. The look did not change in the move: 26 screens at
+folder layout as the staging app `apique-group/apique-web-rmc` (Next.js 15.5, React 19, Tailwind 4, shadcn on
+base-ui, TanStack Query + axios, zustand), so screens can move to staging with little rework. The look did not change in the move: 26 screens at
 390 and 1280 px were compared pixel by pixel and by on-screen text with the R.056 build.
 
 ```
 src/
   app/                    routes only, like apique-web-rmc
     layout.tsx            fonts (next/font), metadata, Providers
-    providers.tsx         toaster; renders after mount (data lives in this browser); forwards old /#/… links
+    providers.tsx         QueryClient + toaster; renders after mount (data lives in this browser); forwards old /#/… links
     (main)/               /, /checkout, /order/[id], /profile    (site header + footer)
     (auth)/               /login, /register, /change-password     (site header + footer)
     admin/                /admin, the config surface the CRM embeds
   features/<name>/        landing · auth · checkout · order · profile · admin
+    api/*.api.ts          the feature's endpoints, called with the shared axios client (auth, checkout, profile, admin)
     components/           the feature's screens, one component per file
-    hooks/ lib/           feature-only hooks and rules (admin: access, draft, move-item)
+    hooks/                TanStack Query hooks over api/ (use-auth, use-checkout, use-profile, use-admin, use-draft)
+    lib/ types.ts         feature-only rules and types
     index.ts              public face: app/ pages import "@/features/<name>" only
   components/
-    ui/                   shadcn primitives (button, dialog, sheet, select, table, …)
+    ui/                   shadcn primitives on base-ui (button, dialog, sheet, select, checkbox, radio, tabs, …)
     common/               shared pieces built on ui/: empty-state, section-head, reveal, qty-stepper, qris-sheet
     layout/               site shell, header, footer, narrow page
     brand/                Resique look (doodle)
-  hooks/                  use-in-view, use-count-up, use-fine-pointer, use-mobile
+  hooks/                  use-member-data (shared reads: config, orders, me, customers), use-in-view, use-count-up, …
   stores/                 browser-only stores, like staging: auth.store (session), cart.store
   types/member.ts         domain types
   lib/
-    api/mock/             stand-in for crm-rsq-service: accounts, crm, orders, config, inbox (zustand + localStorage),
-                          rules/ (RMC tier/points, matching, similarity), seed/, test-bridge (window.__rmcweb for gates)
-    format, phone, password, image, contacts, logo, xlsx, utils
+    api/client.ts         axios rmcClient (as in staging); member.api.ts (shared member reads)
+    api/mock/             stand-in for crm-rsq-service: server.ts answers /member/… and /admin/… in the browser,
+                          backed by accounts, crm, orders, config, inbox (zustand + localStorage), seed/, test-bridge
+    rules/                RMC tier/points, registration matching, similarity
+    klasemen, invite, format, phone, password, image, contacts, logo, xlsx, utils
 ```
 
 ## Rules
@@ -37,8 +41,11 @@ src/
   (checkout-view is still one 400-line component).
 - A feature does not import another feature's components; shared UI goes in `components/common/`.
 - `components/ui/` holds shadcn primitives; restyle through the tokens in `app/globals.css`.
-- Data: there is no backend. Screens read the mock service stores in `lib/api/mock` directly. When the real
-  crm-rsq-service is wired, those reads become `features/<x>/api` + TanStack Query hooks as in apique-web-rmc.
+- Data: screens never touch the stores in `lib/api/mock`; they call `features/<x>/api` (or `lib/api/member.api`)
+  through TanStack Query hooks. With no `NEXT_PUBLIC_RMC_API_URL` the axios client answers from
+  `lib/api/mock/server.ts`; setting it sends the same calls to crm-rsq-service. Any change to the mock data
+  refreshes the queries, and GET /member/me is updated instantly so sign-in / sign-out never shows a stale page.
+- Link-buttons follow staging: `<Button nativeButton={false} render={<Link href="/x" />}>`.
 
 ## Kept on purpose so the look did not move (Tailwind 3 → 4)
 

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Slot } from '@radix-ui/react-slot'
+import { Button as ButtonPrimitive } from '@base-ui/react/button'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
@@ -30,14 +30,12 @@ const buttonVariants = cva(
   },
 )
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
-  asChild?: boolean
-}
+export type ButtonProps = Omit<ButtonPrimitive.Props, 'className'> & VariantProps<typeof buttonVariants> & { className?: string }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ className, variant, size, asChild = false, type, ...props }, ref) => {
-  const Comp = asChild ? Slot : 'button'
-  return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} type={asChild ? undefined : type || 'button'} {...props} />
-})
-Button.displayName = 'Button'
+/* shadcn (base-ui) button, as in apique-web-rmc. A link that looks like a button is written
+   `<Button nativeButton={false} render={<Link href="/x" />}>Label</Button>`. */
+function Button({ className, variant, size, type, nativeButton, render, ...props }: ButtonProps) {
+  return <ButtonPrimitive data-slot="button" className={cn(buttonVariants({ variant, size, className }))} nativeButton={nativeButton} render={render} type={render ? undefined : type || 'button'} {...props} />
+}
 
 export { Button, buttonVariants }

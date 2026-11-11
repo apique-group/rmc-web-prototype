@@ -114,7 +114,7 @@ export function RegisterFormStep({ onValid, submitError }: { onValid: (v: FormVa
 
           <div className="stack-y-1.5">
             <Controller name="consent" control={control} render={({ field }) => (
-              <label htmlFor="consent" className={cn('flex min-h-[44px] cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 transition-colors has-data-[state=checked]:border-navy has-data-[state=checked]:bg-navy-50/60 hover:border-ink-4', errors.consent ? 'border-danger' : 'border-line')}>
+              <label htmlFor="consent" className={cn('flex min-h-[44px] cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 transition-colors has-data-checked:border-navy has-data-checked:bg-navy-50/60 hover:border-ink-4', errors.consent ? 'border-danger' : 'border-line')}>
                 <Checkbox id="consent" checked={field.value} onCheckedChange={v => field.onChange(v === true)} aria-invalid={!!errors.consent} className="mt-0.5" />
                 <span className="text-[14px] leading-relaxed text-ink-2">Saya setuju dihubungi via WhatsApp dan menyetujui syarat program Golden Privilege<span className="ml-0.5 text-danger" aria-hidden>*</span></span>
               </label>

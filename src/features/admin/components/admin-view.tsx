@@ -101,8 +101,8 @@ function Denied({ logo, reason }: { logo: string; reason: 'outside' | 'anonymous
           <CardDescription className="text-pretty">{text}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-2 sm:flex-row sm:justify-center">
-          <Button asChild><a href={CRM_URL}>Buka CRM Resique</a></Button>
-          <Button asChild variant="outline"><Link href="/">Kembali ke situs</Link></Button>
+          <Button nativeButton={false} render={<a href={CRM_URL} />}>Buka CRM Resique</Button>
+          <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Kembali ke situs</Button>
         </CardContent>
       </Card>
     </div>

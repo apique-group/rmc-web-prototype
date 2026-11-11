@@ -1,8 +1,8 @@
 import * as React from 'react'
-import * as SeparatorPrimitive from '@radix-ui/react-separator'
+import { Separator as SeparatorPrimitive } from '@base-ui/react/separator'
 import { cn } from '@/lib/utils'
 
-export const Separator = React.forwardRef<React.ElementRef<typeof SeparatorPrimitive.Root>, React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>>(({ className, orientation = 'horizontal', decorative = true, ...props }, ref) => (
-  <SeparatorPrimitive.Root ref={ref} decorative={decorative} orientation={orientation} className={cn('shrink-0 bg-line', orientation === 'horizontal' ? 'h-px w-full' : 'h-full w-px', className)} {...props} />
-))
-Separator.displayName = 'Separator'
+/* shadcn separator on base-ui (apique-web-rmc), Resique look kept. */
+export function Separator({ className, orientation = 'horizontal', ...props }: Omit<SeparatorPrimitive.Props, 'className'> & { className?: string }) {
+  return <SeparatorPrimitive data-slot="separator" orientation={orientation} className={cn('shrink-0 bg-line', orientation === 'horizontal' ? 'h-px w-full' : 'h-full w-px', className)} {...props} />
+}

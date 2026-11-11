@@ -104,8 +104,8 @@ function Row({ ok, label, desc, badge }: { ok?: boolean; label: string; desc: st
 function ResultButtons({ loginTo }: { loginTo: string }) {
   return (
     <Reveal delay={140} className="mt-8 flex flex-col gap-3 sm:flex-row">
-      <Button asChild size="xl" className="flex-1"><Link href={loginTo}>Masuk</Link></Button>
-      <Button asChild size="xl" variant="gold" className="flex-1"><Link href="/#golden-sale">Lihat Golden Sale</Link></Button>
+      <Button size="xl" className="flex-1" nativeButton={false} render={<Link href={loginTo} />}>Masuk</Button>
+      <Button size="xl" variant="gold" className="flex-1" nativeButton={false} render={<Link href="/#golden-sale" />}>Lihat Golden Sale</Button>
     </Reveal>
   )
 }

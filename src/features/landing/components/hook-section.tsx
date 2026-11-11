@@ -67,9 +67,9 @@ export function HookSection() {
                     {sl.sub && <p className={cn('mt-3 max-w-xl text-balance font-extrabold uppercase text-white', sl.h1 ? 'text-[20px] sm:text-[26px]' : 'text-[15px] font-semibold normal-case text-white/85 sm:text-[17px]')}>{sl.sub}</p>}
                     <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
                       {sl.id === 'hadiah' ? (
-                        <Button asChild size="lg" className="arrow-nudge bg-green text-navy-900 shadow-2 hover:-translate-y-0.5 hover:bg-green-200"><Link href="/register">Daftar Sekarang <ArrowRight className="h-4 w-4" strokeWidth={2} /></Link></Button>
+                        <Button size="lg" className="arrow-nudge bg-green text-navy-900 shadow-2 hover:-translate-y-0.5 hover:bg-green-200" nativeButton={false} render={<Link href="/register" />}>Daftar Sekarang <ArrowRight className="h-4 w-4" strokeWidth={2} /></Button>
                       ) : (
-                        <Button asChild size="lg" className="arrow-nudge bg-green text-navy-900 shadow-2 hover:-translate-y-0.5 hover:bg-green-200"><a href="#golden-sale" onClick={jump('golden-sale')}>Lihat Golden Sale <ArrowRight className="h-4 w-4" strokeWidth={2} /></a></Button>
+                        <Button size="lg" className="arrow-nudge bg-green text-navy-900 shadow-2 hover:-translate-y-0.5 hover:bg-green-200" nativeButton={false} render={<a href="#golden-sale" onClick={jump('golden-sale')} />}>Lihat Golden Sale <ArrowRight className="h-4 w-4" strokeWidth={2} /></Button>
                       )}
                       {sl.h1 && <Link href="/login" className="u-slide arrow-nudge inline-flex min-h-[44px] items-center gap-1 text-[15px] font-semibold text-white [--u-bottom:8px]">Cek poin-mu! <ChevronsRight className="h-4 w-4" strokeWidth={2} /></Link>}
                     </div>

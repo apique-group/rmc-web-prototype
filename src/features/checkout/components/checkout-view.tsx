@@ -168,8 +168,8 @@ export function CheckoutView() {
           </Card>
         </Reveal>
         <Reveal delay={140} className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <Button asChild variant="outline" size="lg" className=""><Link href={'/order/' + placed.id + (acc ? '' : '?phone=' + encodeURIComponent(placed.buyer.phone))}>Lihat status pesanan</Link></Button>
-          <Button asChild variant="ghost" size="lg" className=""><Link href="/">Kembali ke beranda</Link></Button>
+          <Button variant="outline" size="lg" className="" nativeButton={false} render={<Link href={'/order/' + placed.id + (acc ? '' : '?phone=' + encodeURIComponent(placed.buyer.phone))} />}>Lihat status pesanan</Button>
+          <Button variant="ghost" size="lg" className="" nativeButton={false} render={<Link href="/" />}>Kembali ke beranda</Button>
         </Reveal>
         <QrisSheet order={placed} open={sheetOpen} onOpenChange={setSheetOpen} />
       </div>
@@ -206,7 +206,7 @@ export function CheckoutView() {
         </Reveal>
         <Reveal delay={80}>
           <EmptyState className="mt-8" title="Belum ada item di keranjang" desc="Pilih item Golden Sale dulu, lalu bayar di sini."
-            action={<Button asChild size="lg" variant="gold" className=""><Link href="/#golden-sale">Lihat Golden Sale</Link></Button>} />
+            action={<Button size="lg" variant="gold" className="" nativeButton={false} render={<Link href="/#golden-sale" />}>Lihat Golden Sale</Button>} />
         </Reveal>
       </div>
     )
@@ -222,7 +222,7 @@ export function CheckoutView() {
         </Reveal>
         <Reveal delay={80}>
           <EmptyState data-qris-missing className="mt-8" title="Pembayaran belum bisa dibuka" desc="Admin Resique belum mengunggah QRIS pembayaran. Coba lagi nanti atau hubungi sales Resique."
-            action={<Button asChild size="lg" variant="outline" className=""><Link href="/#golden-sale">Kembali ke Golden Sale</Link></Button>} />
+            action={<Button size="lg" variant="outline" className="" nativeButton={false} render={<Link href="/#golden-sale" />}>Kembali ke Golden Sale</Button>} />
         </Reveal>
       </div>
     )

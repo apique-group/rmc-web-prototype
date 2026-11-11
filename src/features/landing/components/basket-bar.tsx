@@ -31,7 +31,7 @@ export function BasketBar() {
             <span className="t-code text-[13px] text-white/80">{count} item · hemat {rupiah(savings)}</span>
             <span className="t-fig truncate text-[17px] leading-tight">{rupiah(total)}</span>
           </button>
-          <Button asChild variant="gold" size="lg" className="bar-pop rounded-lg"><Link href="/checkout">Checkout <ArrowRight className="h-4 w-4" strokeWidth={2} /></Link></Button>
+          <Button variant="gold" size="lg" className="bar-pop rounded-lg" nativeButton={false} render={<Link href="/checkout" />}>Checkout <ArrowRight className="h-4 w-4" strokeWidth={2} /></Button>
         </div>
       </div>
       <Sheet open={open} onOpenChange={setOpen}>
@@ -48,7 +48,7 @@ export function BasketBar() {
               </li>
             ))}
           </ul>
-          <Button asChild size="xl" variant="gold" className="mt-4 w-full rounded-lg"><Link href="/checkout">Bayar {rupiah(total)}</Link></Button>
+          <Button size="xl" variant="gold" className="mt-4 w-full rounded-lg" nativeButton={false} render={<Link href="/checkout" />}>Bayar {rupiah(total)}</Button>
         </SheetContent>
       </Sheet>
     </>

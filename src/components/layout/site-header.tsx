@@ -125,9 +125,7 @@ export function SiteHeader() {
                 </li>
               ))}
             </ul>
-            <Button asChild size="sm" className="arrow-nudge">
-              <a href={CONTACTS.wa} {...EXT}><MessageCircle strokeWidth={1.8} />Hubungi Kami</a>
-            </Button>
+            <Button size="sm" className="arrow-nudge" nativeButton={false} render={<a href={CONTACTS.wa} {...EXT} />}><MessageCircle strokeWidth={1.8} />Hubungi Kami</Button>
           </div>
         </div>
 
@@ -168,11 +166,11 @@ export function SiteHeader() {
               </ul>
               {acc ? (
                 <>
-                  <Button asChild><Link href="/profile">Profil RMC</Link></Button>
+                  <Button nativeButton={false} render={<Link href="/profile" />}>Profil RMC</Button>
                   <Button variant="ghost" className="hidden sm:inline-flex" onClick={() => { signOut(); router.push('/') }}>Keluar</Button>
                 </>
               ) : (
-                <Button asChild><Link href="/login">Cek poin</Link></Button>
+                <Button nativeButton={false} render={<Link href="/login" />}>Cek poin</Button>
               )}
               <button type="button" aria-label={open ? 'Tutup menu' : 'Buka menu'} aria-expanded={open} aria-controls="site-drawer" onClick={() => setOpen(o => !o)} className="relative grid h-11 w-11 place-items-center rounded-md text-ink transition-colors duration-fast hover:bg-surface-2 md:hidden">
                 <span className={cn('absolute h-[2px] w-5 rounded-full bg-current transition-transform duration-base ease-out', open ? 'rotate-45' : 'translate-y-[-4px]')} />
@@ -196,13 +194,13 @@ export function SiteHeader() {
         <div className="mt-5 flex gap-3">
           {acc ? (
             <>
-              <Button asChild size="lg" className="flex-1"><Link href="/profile">Profil RMC</Link></Button>
+              <Button size="lg" className="flex-1" nativeButton={false} render={<Link href="/profile" />}>Profil RMC</Button>
               <Button variant="outline" size="lg" onClick={() => { signOut(); router.push('/') }}>Keluar</Button>
             </>
           ) : (
             <>
-              <Button asChild size="lg" className="flex-1"><Link href="/login">Masuk</Link></Button>
-              <Button asChild variant="outline" size="lg" className="flex-1"><Link href="/register">Daftar</Link></Button>
+              <Button size="lg" className="flex-1" nativeButton={false} render={<Link href="/login" />}>Masuk</Button>
+              <Button variant="outline" size="lg" className="flex-1" nativeButton={false} render={<Link href="/register" />}>Daftar</Button>
             </>
           )}
         </div>
@@ -216,9 +214,7 @@ export function SiteHeader() {
               </li>
             ))}
           </ul>
-          <Button asChild variant="secondary" size="lg" className="mt-4 w-full">
-            <a href={CONTACTS.wa} {...EXT}><MessageCircle strokeWidth={1.8} />Hubungi Kami</a>
-          </Button>
+          <Button variant="secondary" size="lg" className="mt-4 w-full" nativeButton={false} render={<a href={CONTACTS.wa} {...EXT} />}><MessageCircle strokeWidth={1.8} />Hubungi Kami</Button>
         </div>
         <ul className="drawer-link mt-5 flex items-center gap-1" aria-label="Media sosial Resique" style={{ '--i': '220ms' } as React.CSSProperties}>
           {SOCIALS.map(s => { const Icon = SOCIAL_ICON[s.id]; return (

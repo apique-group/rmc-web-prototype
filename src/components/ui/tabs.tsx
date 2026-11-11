@@ -1,22 +1,22 @@
+'use client'
+
 import * as React from 'react'
-import * as TabsPrimitive from '@radix-ui/react-tabs'
+import { Tabs as TabsPrimitive } from '@base-ui/react/tabs'
 import { cn } from '@/lib/utils'
 
+/* shadcn tabs on base-ui (apique-web-rmc), Resique look kept. */
 const Tabs = TabsPrimitive.Root
 
-const TabsList = React.forwardRef<React.ElementRef<typeof TabsPrimitive.List>, React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>>(({ className, ...props }, ref) => (
-  <TabsPrimitive.List ref={ref} className={cn('no-scrollbar inline-flex h-10 items-center gap-1 overflow-x-auto rounded-lg bg-surface-2 p-1 text-ink-3', className)} {...props} />
-))
-TabsList.displayName = TabsPrimitive.List.displayName
+function TabsList({ className, ...props }: Omit<TabsPrimitive.List.Props, 'className'> & { className?: string }) {
+  return <TabsPrimitive.List data-slot="tabs-list" className={cn('no-scrollbar inline-flex h-10 items-center gap-1 overflow-x-auto rounded-lg bg-surface-2 p-1 text-ink-3', className)} {...props} />
+}
 
-const TabsTrigger = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Trigger>, React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>>(({ className, ...props }, ref) => (
-  <TabsPrimitive.Trigger ref={ref} className={cn('inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-3 text-[13px] font-semibold transition-all hover:bg-white/70 hover:text-ink focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-ink data-[state=active]:shadow-1', className)} {...props} />
-))
-TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
+function TabsTrigger({ className, ...props }: Omit<TabsPrimitive.Tab.Props, 'className'> & { className?: string }) {
+  return <TabsPrimitive.Tab data-slot="tabs-trigger" className={cn('inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-3 text-[13px] font-semibold transition-all hover:bg-white/70 hover:text-ink focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 data-active:bg-white data-active:text-ink data-active:shadow-1', className)} {...props} />
+}
 
-const TabsContent = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Content>, React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>>(({ className, ...props }, ref) => (
-  <TabsPrimitive.Content ref={ref} className={cn('mt-4 focus-visible:outline-hidden', className)} {...props} />
-))
-TabsContent.displayName = TabsPrimitive.Content.displayName
+function TabsContent({ className, ...props }: Omit<TabsPrimitive.Panel.Props, 'className'> & { className?: string }) {
+  return <TabsPrimitive.Panel data-slot="tabs-content" className={cn('mt-4 focus-visible:outline-hidden', className)} {...props} />
+}
 
 export { Tabs, TabsList, TabsTrigger, TabsContent }
