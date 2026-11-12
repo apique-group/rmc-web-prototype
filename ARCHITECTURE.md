@@ -42,7 +42,8 @@ src/
   (checkout-view is still one 400-line component).
 - Pieces live in their feature (qty-stepper in landing, qris-sheet in order); a piece used across the app goes in
   `components/layout/`, as in staging (there is no components/common).
-- `components/ui/` holds shadcn primitives; restyle through the tokens in `app/globals.css`.
+- `components/ui/` holds shadcn primitives; restyle through the tokens in `app/globals.css`. Add new ones with
+  `npx shadcn add <name>`; `components.json` is the staging copy (style base-vega).
 - Data: screens never touch the stores in `lib/api/mock`; they call `features/<x>/api`
   through TanStack Query hooks. With no `NEXT_PUBLIC_RMC_API_URL` the axios client answers from
   `lib/api/mock/server.ts`; setting it sends the same calls to crm-rsq-service. Any change to the mock data
